@@ -31,11 +31,11 @@ public final class CompositeFeedbackNode implements FeedbackNode {
         if (this == obj) {
             return true;
         }
-        if (this.getClass() != obj.getClass()) {
-            return false;
+        if (obj instanceof CompositeFeedbackNode) {
+            CompositeFeedbackNode other = (CompositeFeedbackNode) obj;
+            return Objects.equals(this.children, other.children);
         }
-        CompositeFeedbackNode other = (CompositeFeedbackNode) obj;
-        return Objects.equals(this.children, other.children);
+        return false;
     }
 
     @Override

@@ -1,23 +1,33 @@
 package nl.alexeyu.structmatcher.matcher;
 
+import java.util.List;
+
+import nl.alexeyu.structmatcher.Context;
 import nl.alexeyu.structmatcher.Property;
+import nl.alexeyu.structmatcher.ThreadLocalContext;
 
 public class Matchers {
+    
+    private static final Context context = new ThreadLocalContext();
+    
+    public static void registerCustomMatcher(List<String> propertyPath, Matcher matcher) {
+        context.register(propertyPath, matcher);
+    }
     
     public static PartialMatcher nullAwareMatcher() {
         return new NullAwareMatcher();
     }
 
     public static Matcher propertyMatcher() {
-        return new SimplePropertyMatcher();
+        return new ContextAwareMatcher(context, new SimplePropertyMatcher());
     }
 
     public static Matcher listMatcher() {
-        return new ListMatcher();
+        return new ContextAwareMatcher(context, new ListMatcher());
     }
 
     public static Matcher structureMatcher() {
-        return new StructureMatcher();
+        return new ContextAwareMatcher(context, new StructureMatcher());
     }
     
     public static Matcher getMatcher(Property property) {
