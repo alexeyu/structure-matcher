@@ -1,0 +1,5 @@
+dependencies {
+	compile project(':core')
+	testCompile 'org.apache.commons:commons-lang3:3.5'
+    testCompile 'junit:junit:4.12'
+}

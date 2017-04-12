@@ -1,14 +1,19 @@
-apply plugin: 'java'
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
 
-repositories {
-    mavenCentral()
-}
+    repositories {
+        mavenCentral()
+    }
 
-dependencies {
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.7'
-    testCompile 'com.fasterxml.jackson.core:jackson-core:2.8.7'
-    testCompile 'com.fasterxml.jackson.core:jackson-databind:2.8.7'
-    testCompile 'org.mockito:mockito-all:1.10.19'
-    testCompile 'com.jayway.jsonpath:json-path:2.2.0'
-    testCompile 'junit:junit:4.12'
+    dependencies {
+    }
+
+
+    version = '1.0'
+
+    jar {
+        manifest.attributes provider: 'gradle'
+    }
+
 }
