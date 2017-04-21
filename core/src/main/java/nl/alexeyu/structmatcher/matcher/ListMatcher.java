@@ -12,8 +12,8 @@ public class ListMatcher implements Matcher {
 
     @Override
     public FeedbackNode match(String property, Object expected, Object actual) {
-        List<?> expectedList = (List<?>) expected;
-        List<?> actualList = (List<?>) actual;
+        List<?> expectedList = List.class.cast(expected);
+        List<?> actualList = List.class.cast(actual);
         if (expectedList.size() != actualList.size()) {
             return Feedback.differentCollectionSizes(property, expectedList.size(), actualList.size());
         }

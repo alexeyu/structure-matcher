@@ -13,7 +13,7 @@ public final class StructureMatcher implements Matcher {
     
     public FeedbackNode match(String property, Object expected, Object actual) {
         return Matchers
-                .nullAwareMatcher()
+                .nullAware()
                 .maybeMatch(property, expected, actual)
                 .orElseGet(() -> matchObjects(property, expected, actual));
     }

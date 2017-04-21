@@ -15,7 +15,7 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class ListMatcherTest {
     
-    private Matcher matcher = Matchers.listMatcher(); 
+    private Matcher matcher = Matchers.listsEqual(); 
 
     @Test       
     public void emptyListsMatch() {

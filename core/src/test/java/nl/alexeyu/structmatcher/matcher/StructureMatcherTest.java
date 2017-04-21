@@ -11,7 +11,7 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class StructureMatcherTest {
     
-    private Matcher matcher = Matchers.structureMatcher();
+    private Matcher matcher = Matchers.structuresEqual();
 
     @Test
     public void nullsMatch() throws Exception {

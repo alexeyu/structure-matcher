@@ -14,38 +14,42 @@ public class Matchers {
         context.register(propertyPath, matcher);
     }
     
-    public static PartialMatcher nullAwareMatcher() {
+    public static PartialMatcher nullAware() {
         return new NullAwareMatcher();
     }
 
-    public static Matcher propertyMatcher() {
+    public static Matcher propertyEquals() {
         return new ContextAwareMatcher(context, new SimplePropertyMatcher());
     }
 
-    public static Matcher listMatcher() {
+    public static Matcher ignore() {
+        return new ContextAwareMatcher(context, new IgnoreMatcher());
+    }
+
+    public static Matcher listsEqual() {
         return new ContextAwareMatcher(context, new ListMatcher());
     }
 
-    public static Matcher structureMatcher() {
+    public static Matcher structuresEqual() {
         return new ContextAwareMatcher(context, new StructureMatcher());
     }
     
     public static Matcher getMatcher(Property property) {
         if (property.isList()) {
-            return listMatcher();
+            return listsEqual();
         }
         if (property.isSimple()) {
-            return propertyMatcher();
+            return propertyEquals();
         }
-        return structureMatcher();
+        return structuresEqual();
 
     }
 
     public static Matcher getMatcher(Class<?> cl) {
         if (Property.isSimple(cl)) {
-            return propertyMatcher();
+            return propertyEquals();
         }
-        return structureMatcher();
+        return structuresEqual();
     }
 
 }

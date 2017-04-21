@@ -2,7 +2,7 @@ package nl.alexeyu.structmatcher.feedback;
 
 import java.util.Objects;
 
-final class NonEqualPropertyFeedbackNode implements FeedbackNode {
+public final class NonEqualPropertyFeedbackNode implements FeedbackNode {
 
     private final String property;
 
@@ -10,7 +10,7 @@ final class NonEqualPropertyFeedbackNode implements FeedbackNode {
 
     private final Object actual;
 
-    NonEqualPropertyFeedbackNode(String property, Object expected, Object actual) {
+    public NonEqualPropertyFeedbackNode(String property, Object expected, Object actual) {
         this.property = property;
         this.expected = expected;
         this.actual = actual;

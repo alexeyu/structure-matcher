@@ -26,4 +26,8 @@ public final class Feedback {
         return new NonEqualPropertyFeedbackNode(property, size, size2);
     }
 
+    public static FeedbackNode wrongType(String property, Class<?> expected, Class<?> actual) {
+        return new NonEqualPropertyFeedbackNode(property, expected, actual);
+    }
+
 }

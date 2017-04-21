@@ -8,15 +8,10 @@ public class BookSearchResult {
     
     private final List<Book> books;
     
-    private final String nextPageLink;
 
-    private final String prevPageLink;
-
-    public BookSearchResult(SearchMetadata metadata, List<Book> books, String nextPageLink, String prevPageLink) {
+    public BookSearchResult(SearchMetadata metadata, List<Book> books) {
         this.metadata = metadata;
         this.books = books;
-        this.nextPageLink = nextPageLink;
-        this.prevPageLink = prevPageLink;
     }
 
     public SearchMetadata getMetadata() {
@@ -27,12 +22,4 @@ public class BookSearchResult {
         return books;
     }
 
-    public String getNextPageLink() {
-        return nextPageLink;
-    }
-
-    public String getPrevPageLink() {
-        return prevPageLink;
-    }
-    
 }
