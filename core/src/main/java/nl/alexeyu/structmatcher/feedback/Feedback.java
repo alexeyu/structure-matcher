@@ -18,8 +18,8 @@ public final class Feedback {
         return new NonEqualPropertyFeedbackNode(property, null, actual);
     }
 
-    public static CompositeFeedbackNode composite() {
-        return new CompositeFeedbackNode();
+    public static CompositeFeedbackNode composite(String propertyName) {
+        return new CompositeFeedbackNode(propertyName);
     }
 
     public static FeedbackNode differentCollectionSizes(String property, int size, int size2) {

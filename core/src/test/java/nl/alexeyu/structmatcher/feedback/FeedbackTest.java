@@ -63,24 +63,24 @@ public class FeedbackTest {
 
     @Test
     public void compositeFeedbackRemainsEmptyWhileAllItsChildrenAreEmpty() {
-        CompositeFeedbackNode feedback = Feedback.composite();
+        CompositeFeedbackNode feedback = Feedback.composite("primary");
         feedback.add(Feedback.empty("color"));
-        feedback.add(Feedback.composite());
+        feedback.add(Feedback.composite(""));
         assertTrue(feedback.isEmpty());
     }
 
     @Test
     public void compositeFeedbackIsNoLongerEmptyWhenOneChildIsNotEmpty() {
-        CompositeFeedbackNode feedback = Feedback.composite();
+        CompositeFeedbackNode feedback = Feedback.composite("primary");
         feedback.add(Feedback.empty("color"));
-        feedback.add(Feedback.composite()
+        feedback.add(Feedback.composite("secondary")
                 .add(Feedback.nonEqual("letter", "a", "b")));
         assertFalse(feedback.isEmpty());
     }
 
     @Test
     public void compositeFeedbackAccumulatesOthers() throws Exception {
-        CompositeFeedbackNode feedback = Feedback.composite();
+        CompositeFeedbackNode feedback = Feedback.composite("primary");
         feedback.add(Feedback.nonEqual("color", "white", "black"));
         feedback.add(Feedback.nonEqual("qty", 15, 17));
         String json = mapper.writeValueAsString(feedback);
@@ -91,9 +91,9 @@ public class FeedbackTest {
 
     @Test
     public void feedbackCanBeNested() throws Exception {
-        FeedbackNode feedback = Feedback.composite()
+        FeedbackNode feedback = Feedback.composite("primary")
                 .add(Feedback.nonEqual("color", "white", "black"))
-                .add(Feedback.composite()
+                .add(Feedback.composite("secondary")
                         .add(Feedback.nonEqual("shade", "ivory", "noir")));
         String json = mapper.writeValueAsString(feedback);
         assertEquals(2, getChildrenLength(json));

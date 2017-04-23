@@ -7,22 +7,25 @@ import org.junit.Test;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.matcher.Color;
-import nl.alexeyu.structmatcher.matcher.IgnoreMatcher;
+import nl.alexeyu.structmatcher.matcher.ExpectAnyValueMatcher;
+import nl.alexeyu.structmatcher.matcher.Matcher;
 import nl.alexeyu.structmatcher.matcher.Structure;
 import nl.alexeyu.structmatcher.matcher.Substructure;
 
 public class ObjectMatcherTest {
 
-    private Structure expected = new Structure(Color.BLACK, asList("a"), new Substructure(true));
+    private final Structure expected = new Structure(Color.BLACK, asList("a"), new Substructure(true));
 
-    private Structure actual = new Structure(Color.BLACK, asList("b"), new Substructure(false));
+    private final Structure actual = new Structure(Color.BLACK, asList("b"), new Substructure(false));
+    
+    private final Matcher ignore = new ExpectAnyValueMatcher();
     
     @Test
     public void ignoreAllPropertiesOnTheHighestLevel() {
         FeedbackNode feedback = ObjectMatcher.forObject("test")
-                .withMatcher(new IgnoreMatcher(), "Color")
-                .withMatcher(new IgnoreMatcher(), "Strings")
-                .withMatcher(new IgnoreMatcher(), "Sub")
+                .withMatcher(ignore, "Color")
+                .withMatcher(ignore, "Strings")
+                .withMatcher(ignore, "Sub")
                 .match(expected, actual);
         assertTrue(feedback.isEmpty());
     }
@@ -30,9 +33,9 @@ public class ObjectMatcherTest {
     @Test
     public void ignoreAllPropertiesOnTheLowestLevel() {
         FeedbackNode feedback = ObjectMatcher.forObject("test")
-                .withMatcher(new IgnoreMatcher(), "Color")
-                .withMatcher(new IgnoreMatcher(), "Strings")
-                .withMatcher(new IgnoreMatcher(), "Sub", "Bool")
+                .withMatcher(ignore, "Color")
+                .withMatcher(ignore, "Strings")
+                .withMatcher(ignore, "Sub", "Bool")
                 .match(expected, actual);
         assertTrue(feedback.isEmpty());
     }

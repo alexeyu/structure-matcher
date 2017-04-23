@@ -2,6 +2,7 @@ package nl.alexeyu.structmatcher.matcher;
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class PredicateMatchers {
     
@@ -21,6 +22,12 @@ public class PredicateMatchers {
         return new PredicateMatcher(
                 v -> new ToInteger().andThen(new Within(minExclusive, maxExclusive)).apply(v),
                 String.format("Must be bigger than %s but smaller than %s", minExclusive, maxExclusive));
+    }
+    
+    public static Matcher regex(String expr) {
+        return new PredicateMatcher(
+                v -> Pattern.compile(expr).matcher(String.valueOf(v)).matches(),
+                "Must match the regular expression: " + expr);
     }
 
     private static class Within implements Function<Optional<Integer>, Boolean> {

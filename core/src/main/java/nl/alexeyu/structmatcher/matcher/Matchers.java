@@ -22,10 +22,6 @@ public class Matchers {
         return new ContextAwareMatcher(context, new SimplePropertyMatcher());
     }
 
-    public static Matcher ignore() {
-        return new ContextAwareMatcher(context, new IgnoreMatcher());
-    }
-
     public static Matcher listsEqual() {
         return new ContextAwareMatcher(context, new ListMatcher());
     }

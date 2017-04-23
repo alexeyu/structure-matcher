@@ -19,7 +19,7 @@ public final class StructureMatcher implements Matcher {
     }
 
     private FeedbackNode matchObjects(String property, Object expected, Object actual) {
-        CompositeFeedbackNode feedback = Feedback.composite();
+        CompositeFeedbackNode feedback = Feedback.composite(property);
         getProperties(expected.getClass())
                 .map(p -> matchProperty(p, expected, actual))
                 .filter(f -> !f.isEmpty())

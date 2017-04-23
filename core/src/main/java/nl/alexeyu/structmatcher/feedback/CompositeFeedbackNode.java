@@ -1,14 +1,22 @@
 package nl.alexeyu.structmatcher.feedback;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 
 public final class CompositeFeedbackNode implements FeedbackNode {
-    
+
     private final Collection<FeedbackNode> children = new LinkedHashSet<>();
     
-    CompositeFeedbackNode() {
+    private final String name;
+    
+    CompositeFeedbackNode(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public CompositeFeedbackNode add(FeedbackNode node) {
@@ -19,6 +27,10 @@ public final class CompositeFeedbackNode implements FeedbackNode {
     @Override
     public boolean isEmpty() {
         return children.stream().allMatch(child -> child.isEmpty());
+    }
+    
+    public Collection<FeedbackNode> getChildren() {
+        return Collections.unmodifiableCollection(children);
     }
 
     @Override
