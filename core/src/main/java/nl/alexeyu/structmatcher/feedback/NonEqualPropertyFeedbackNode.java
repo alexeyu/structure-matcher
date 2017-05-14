@@ -20,6 +20,10 @@ public final class NonEqualPropertyFeedbackNode implements FeedbackNode {
     public boolean isEmpty() {
         return false;
     }
+    
+    public String getProperty() {
+        return property;
+    }
 
     @Override
     public int hashCode() {

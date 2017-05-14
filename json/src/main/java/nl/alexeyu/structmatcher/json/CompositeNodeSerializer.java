@@ -19,11 +19,9 @@ final class CompositeNodeSerializer extends StdSerializer<CompositeFeedbackNode>
     public void serialize(CompositeFeedbackNode node, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
         gen.writeStartObject();
-        gen.writeArrayFieldStart(node.getName());
         for (FeedbackNode child : node.getChildren()) {
-            gen.writeObject(child);
+            gen.writeObjectField(child.getProperty(), child);
         }
-        gen.writeEndArray();
         gen.writeEndObject();
     }
     

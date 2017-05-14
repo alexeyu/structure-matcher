@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<BookSearchResult>
+  <metadata>
+    <keywords>
+      <keywords>smoke</keywords>
+    </keywords>
+    <booksFound>2</booksFound>
+    <processingTimeMs>14</processingTimeMs>
+    <server>
+      <ip>192.168.10.14</ip>
+      <port>8081</port>
+    </server>
+    <platform>DESKTOP</platform>
+  </metadata>
+  <books>
+    <books>
+      <title>Blood and Smoke</title>
+      <authors>
+        <authors>
+          <firstName>Stephen</firstName>
+          <lastName>King</lastName>
+        </authors>
+      </authors>
+      <yearPublished>1999</yearPublished>
+    </books>
+    <books>
+      <title>Summer and smoke</title>
+      <authors>
+        <authors>
+          <firstName>Tennessee</firstName>
+          <lastName>Williams</lastName>
+        </authors>
+      </authors>
+      <yearPublished>1950</yearPublished>
+    </books>
+  </books>
+</BookSearchResult>

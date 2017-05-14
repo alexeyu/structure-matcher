@@ -16,12 +16,17 @@ class ContextAwareMatcher implements Matcher {
 
     @Override
     public FeedbackNode match(String property, Object expected, Object actual) {
+        boolean pushToStack = !property.contains("[");
         try {
-            context.push(property);
+            if (pushToStack) {
+                context.push(property);
+            }
             Matcher matcher = context.getCustomMatcher().orElse(innerMatcher);
             return matcher.match(property, expected, actual);
         } finally {
-            context.pop();
+            if (pushToStack) {
+                context.pop();
+            }
         }
     }
 

@@ -10,7 +10,7 @@ import nl.alexeyu.structmatcher.feedback.NonEqualPropertyFeedbackNode;
 
 public class IntegerMatcherTest {
     
-    private Matcher matcher = PredicateMatchers.integer();
+    private Matcher matcher = IntegerMatchers.any();
     
     @Test(expected = IllegalArgumentException.class)
     public void throwsExceptionIfExpectedIsNotAnInt() {

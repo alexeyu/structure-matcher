@@ -1,21 +1,29 @@
 package nl.alexeyu.structmatcher.examples.bookstore;
 
-import static java.util.Arrays.asList;
-import static nl.alexeyu.structmatcher.matcher.PredicateMatchers.integerInRange;
+import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.inRange;
+import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.oneOf;
+import static nl.alexeyu.structmatcher.matcher.Matchers.and;
+import static nl.alexeyu.structmatcher.matcher.PredicateMatchers.nonEmptyString;
+import static nl.alexeyu.structmatcher.matcher.PredicateMatchers.nonNull;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.jayway.jsonpath.JsonPath;
 
 import nl.alexeyu.structmatcher.ObjectMatcher;
-import nl.alexeyu.structmatcher.examples.bookstore.model.Author;
-import nl.alexeyu.structmatcher.examples.bookstore.model.Book;
 import nl.alexeyu.structmatcher.examples.bookstore.model.BookSearchResult;
-import nl.alexeyu.structmatcher.examples.bookstore.model.SearchMetadata;
-import nl.alexeyu.structmatcher.examples.bookstore.model.Server;
+import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.json.Json;
 import nl.alexeyu.structmatcher.matcher.Matcher;
@@ -23,13 +31,6 @@ import nl.alexeyu.structmatcher.matcher.PredicateMatchers;
 
 public class ResponseMatchingTest {
 
-    private static List<Book> books = asList(
-                new Book("Blood and Smoke", asList(new Author("Stephen", "King")), 1999),
-                new Book("Summer and smoke", asList(new Author("Tennessee", "Williams")), 1950));
-    
-    private static Server alpha = new Server("192.168.10.1", 8080);
-    private static Server omega = new Server("192.168.10.14", 8081);
-    
     private static final String IPADDRESS_PATTERN =
             "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
@@ -38,28 +39,72 @@ public class ResponseMatchingTest {
 
     private Matcher ipMatcher = PredicateMatchers.regex(IPADDRESS_PATTERN);
     
-    private static BookSearchResult resultFromTest = new BookSearchResult(
-                    new SearchMetadata(asList("smoke"), books.size(), alpha, 12),
-                    books);
-    private static BookSearchResult resultFromProd = new BookSearchResult(
-                new SearchMetadata(asList("smoke"), books.size(), omega, 14),
-                books);
+    private Path rootPath;
+    
+    private BookSearchResult desktopTest, desktopProd, mobileTest;
+    
+    @Before
+    public void setUp() throws Exception {
+        rootPath = Paths.get(ResponseMatchingTest.class.getResource("/").toURI()).resolve("../../resources/test");
+        ObjectMapper jsonMapper = new ObjectMapper();
+        desktopTest = fromFile(jsonMapper, "response-on-smoke-for-desktop-test.json");
+        mobileTest = fromFile(jsonMapper, "response-on-smoke-for-mobile-test.json");
+        desktopProd = fromFile(new XmlMapper(), "response-on-smoke-for-desktop-prod.xml");
+    }
+    
+    private BookSearchResult fromFile(ObjectMapper mapper, String fileName) throws Exception {
+        return mapper.readValue(rootPath.resolve(fileName).toFile(), BookSearchResult.class);
+    }
 
     @Test
-    public void resultsConsideredMatchingProvidedSanityChecksAreOk() {
+    public void feedbackShowsAllTheDifferences() throws Exception {
+        FeedbackNode feedback = ObjectMatcher.forObject("response")
+                .match(desktopTest, desktopProd);
+        assertFalse(feedback.isEmpty());
+        String json = Json.mapper().writeValueAsString(feedback);
+        assertThat(12, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.expected"))));
+        assertThat(14, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.actual"))));
+        assertThat("192.168.10.10", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.expected"))));
+        assertThat("192.168.10.14", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.actual"))));
+        assertThat(8080, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.expected"))));
+        assertThat(8081, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.actual"))));
+    }
+
+    @Test
+    public void prodAndTestConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
         FeedbackNode feedback = ObjectMatcher.forObject("response")
                 .withMatcher(ipMatcher, "Metadata", "Server", "Ip")
-                .withMatcher(integerInRange(0, 65536), "Metadata", "Server", "Port")
-                .withMatcher(integerInRange(2, 5000), "Metadata", "ProcessingTimeMs")
-                .match(resultFromTest, resultFromProd);
+                .withMatcher(oneOf(8080, 8081, 8090, 8091), "Metadata", "Server", "Port")
+                .withMatcher(inRange(2, 5000), "Metadata", "ProcessingTimeMs")
+                .match(desktopTest, desktopProd);
+        assertTrue(feedback.isEmpty());
+    }
+    
+    @Test
+    public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
+        FeedbackNode feedback = ObjectMatcher.forObject("response")
+                .withMatcher(nonNull(), "Metadata", "Platform")
+                .withMatcher(ipMatcher, "Metadata", "Server", "Ip")
+                .withMatcher(oneOf(8080, 8081, 8090, 8091), "Metadata", "Server", "Port")
+                .withMatcher(inRange(2, 5000), "Metadata", "ProcessingTimeMs")
+                .withMatcher(and(nonNull(), nonEmptyString(), new InitialMatcher()), 
+                        "Books", "Authors", "FirstName")
+                .withMatcher((prop, exp, act) -> Integer.valueOf(0).equals(act) ? Feedback.empty(prop) : Feedback.gotNonNull(prop, act), 
+                        "Books", "YearPublished")
+                .match(desktopTest, mobileTest);
         assertTrue(feedback.isEmpty());
     }
 
-    public static void main(String[] args) throws Exception {
-        FeedbackNode feedback = ObjectMatcher.forObject("response")
-                .match(resultFromTest, resultFromProd);
-        ObjectMapper mapper  = Json.mapper();
-        mapper.writeValue(System.out, feedback);
+    private static class InitialMatcher implements Matcher {
+
+        @Override
+        public FeedbackNode match(String property, Object expected, Object actual) {
+            String expectedString = expected.toString().substring(0,  1) + "."; 
+            if (actual.equals(expectedString)) {
+                return Feedback.empty(property);
+            }
+            return Feedback.notAsExpected(property, expectedString, actual);
+        }
     }
     
 }

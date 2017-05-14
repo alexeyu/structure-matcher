@@ -16,7 +16,7 @@ public final class Json {
     public static ObjectMapper mapper() {
         ObjectMapper mapper  = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY); 
-        mapper.addMixIn(FeedbackNode.class, DontSerializeIsEmptyMixin.class);
+        mapper.addMixIn(FeedbackNode.class, IgnoreFeedbackNodePropertiesMixin.class);
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         SimpleModule module = new SimpleModule();
         module.addSerializer(new CompositeNodeSerializer());

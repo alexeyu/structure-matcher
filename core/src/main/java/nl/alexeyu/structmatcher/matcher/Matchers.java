@@ -29,7 +29,11 @@ public class Matchers {
     public static Matcher structuresEqual() {
         return new ContextAwareMatcher(context, new StructureMatcher());
     }
-    
+
+    public static Matcher and(Matcher... matchers) {
+        return new ContextAwareMatcher(context, new AndMatcher(matchers));
+    }
+
     public static Matcher getMatcher(Property property) {
         if (property.isList()) {
             return listsEqual();

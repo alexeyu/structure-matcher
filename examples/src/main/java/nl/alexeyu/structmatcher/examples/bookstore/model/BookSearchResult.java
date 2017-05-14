@@ -4,10 +4,12 @@ import java.util.List;
 
 public class BookSearchResult {
     
-    private final SearchMetadata metadata;
+    private SearchMetadata metadata;
     
-    private final List<Book> books;
+    private List<Book> books;
     
+    public BookSearchResult() {
+    }
 
     public BookSearchResult(SearchMetadata metadata, List<Book> books) {
         this.metadata = metadata;

@@ -18,6 +18,11 @@ public final class Feedback {
         return new NonEqualPropertyFeedbackNode(property, null, actual);
     }
 
+    public static FeedbackNode notAsExpected(String property, String expectation, Object actual) {
+        return new NonEqualPropertyFeedbackNode(
+                "Broken expecteation for " + property, expectation, actual);
+    }
+
     public static CompositeFeedbackNode composite(String propertyName) {
         return new CompositeFeedbackNode(propertyName);
     }

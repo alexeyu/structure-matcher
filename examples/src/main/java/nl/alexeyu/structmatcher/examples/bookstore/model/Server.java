@@ -2,9 +2,12 @@ package nl.alexeyu.structmatcher.examples.bookstore.model;
 
 public final class Server {
 
-    private final String ip;
+    private String ip;
 
-    private final int port;
+    private int port;
+
+    public Server() {
+    }
 
     public Server(String ip, int port) {
         this.ip = ip;

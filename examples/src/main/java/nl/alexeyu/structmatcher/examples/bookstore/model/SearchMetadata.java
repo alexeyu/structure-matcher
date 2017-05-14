@@ -4,20 +4,17 @@ import java.util.List;
 
 public class SearchMetadata {
     
-    private final List<String> keywords;
+    private List<String> keywords;
     
-    private final int booksFound;
+    private int booksFound;
 
-    private final int processingTimeMs;
+    private int processingTimeMs;
     
-    private final Server server;
+    private Server server;
+    
+    private Platform platform;
 
-    public SearchMetadata(List<String> keywords, int booksFound, 
-            Server server, int processingTimeMs) {
-        this.keywords = keywords;
-        this.booksFound = booksFound;
-        this.server = server;
-        this.processingTimeMs = processingTimeMs;
+    public SearchMetadata() {
     }
 
     public List<String> getKeywords() {
@@ -35,5 +32,9 @@ public class SearchMetadata {
     public Server getServer() {
         return server;
     }
-    
+
+    public Platform getPlatform() {
+        return platform;
+    }
+
 }

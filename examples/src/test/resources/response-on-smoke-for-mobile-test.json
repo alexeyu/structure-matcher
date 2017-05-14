@@ -1,0 +1,25 @@
+{
+  "metadata" : {
+    "keywords" : [ "smoke" ],
+    "platform" : "MOBILE",
+    "booksFound" : 2,
+    "processingTimeMs" : 9,
+    "server" : {
+      "ip" : "192.168.10.45",
+      "port" : 8080
+    }
+  },
+  "books" : [ {
+    "title" : "Blood and Smoke",
+    "authors" : [ {
+      "firstName" : "S.",
+      "lastName" : "King"
+    } ]
+  }, {
+    "title" : "Summer and smoke",
+    "authors" : [ {
+      "firstName" : "T.",
+      "lastName" : "Williams"
+    } ]
+  } ]
+}

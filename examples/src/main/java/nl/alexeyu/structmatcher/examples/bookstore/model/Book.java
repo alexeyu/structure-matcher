@@ -4,11 +4,14 @@ import java.util.List;
 
 public class Book {
     
-    private final String title;
+    private String title;
     
-    private final List<Author> authors;
+    private List<Author> authors;
     
-    private final int yearPublished;
+    private int yearPublished;
+
+    public Book() {
+    }
 
     public Book(String title, List<Author> authors, int yearPublished) {
         this.title = title;

@@ -1,0 +1,27 @@
+{
+  "metadata" : {
+    "keywords" : [ "smoke" ],
+    "platform" : "DESKTOP",
+    "booksFound" : 2,
+    "processingTimeMs" : 12,
+    "server" : {
+      "ip" : "192.168.10.10",
+      "port" : 8080
+    }
+  },
+  "books" : [ {
+    "title" : "Blood and Smoke",
+    "authors" : [ {
+      "firstName" : "Stephen",
+      "lastName" : "King"
+    } ],
+    "yearPublished" : 1999
+  }, {
+    "title" : "Summer and smoke",
+    "authors" : [ {
+      "firstName" : "Tennessee",
+      "lastName" : "Williams"
+    } ],
+    "yearPublished" : 1950
+  } ]
+}

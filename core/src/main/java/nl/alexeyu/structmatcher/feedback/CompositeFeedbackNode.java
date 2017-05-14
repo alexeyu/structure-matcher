@@ -9,14 +9,14 @@ public final class CompositeFeedbackNode implements FeedbackNode {
 
     private final Collection<FeedbackNode> children = new LinkedHashSet<>();
     
-    private final String name;
+    private final String property;
     
-    CompositeFeedbackNode(String name) {
-        this.name = name;
+    CompositeFeedbackNode(String property) {
+        this.property = property;
     }
 
-    public String getName() {
-        return name;
+    public String getProperty() {
+        return property;
     }
 
     public CompositeFeedbackNode add(FeedbackNode node) {
@@ -26,7 +26,7 @@ public final class CompositeFeedbackNode implements FeedbackNode {
 
     @Override
     public boolean isEmpty() {
-        return children.stream().allMatch(child -> child.isEmpty());
+        return children.stream().allMatch(FeedbackNode::isEmpty);
     }
     
     public Collection<FeedbackNode> getChildren() {

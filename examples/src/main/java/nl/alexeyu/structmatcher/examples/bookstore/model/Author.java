@@ -2,9 +2,12 @@ package nl.alexeyu.structmatcher.examples.bookstore.model;
 
 public class Author {
 
-    private final String firstName;
+    private String firstName;
 
-    private final String lastName;
+    private String lastName;
+
+    public Author() {
+    }
 
     public Author(String firstName, String lastName) {
         this.firstName = firstName;

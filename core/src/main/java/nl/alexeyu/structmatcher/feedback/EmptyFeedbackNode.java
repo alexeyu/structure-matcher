@@ -6,13 +6,18 @@ final class EmptyFeedbackNode implements FeedbackNode {
     
     private final String property;
     
-    EmptyFeedbackNode(String description) {
-        this.property = description;
+    EmptyFeedbackNode(String property) {
+        this.property = property;
     }
 
     @Override
     public boolean isEmpty() {
         return true;
+    }
+
+    @Override
+    public String getProperty() {
+        return property;
     }
 
     @Override
