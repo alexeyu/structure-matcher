@@ -8,8 +8,6 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class ListMatcher implements Matcher {
     
-    private final PartialMatcher nullAwareMatcher = new NullAwareMatcher();
-
     @Override
     public FeedbackNode match(String property, Object expected, Object actual) {
         List<?> expectedList = List.class.cast(expected);
@@ -22,10 +20,8 @@ public class ListMatcher implements Matcher {
             Object actualElement = actualList.get(i);
             Object expectedElement = expectedList.get(i);
             String elementProperty = property + "[" + i + "]";
-            FeedbackNode childFeedback = nullAwareMatcher
-                    .maybeMatch(property, expectedElement, actualElement)
-                    .orElseGet(() -> Matchers.getMatcher(actualElement.getClass())
-                            .match(elementProperty, expectedElement, actualElement));
+            FeedbackNode childFeedback = Matchers.getNullAwareMatcher(actualElement)
+                    .match(elementProperty, expectedElement, actualElement);
             if (!childFeedback.isEmpty()) {
                 feedback.add(childFeedback);
             }

@@ -15,6 +15,7 @@ public final class CompositeFeedbackNode implements FeedbackNode {
         this.property = property;
     }
 
+    @Override
     public String getProperty() {
         return property;
     }
@@ -52,8 +53,7 @@ public final class CompositeFeedbackNode implements FeedbackNode {
 
     @Override
     public String toString() {
-        return "Feedback " + children.toString();
+        return children.toString();
     }
     
-
 }

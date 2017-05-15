@@ -39,8 +39,8 @@ public class FeedbackTest {
         FeedbackNode feedback = Feedback.gotNull("color", "white");
         String json = mapper.writeValueAsString(feedback);
         assertEquals("color", JsonPath.read(json, "$.property"));
-        assertNull(JsonPath.read(json, "$.actual"));
-        assertEquals("white", JsonPath.read(json, "$.expected"));
+        assertNull("null", JsonPath.read(json, "$.actual"));
+        assertEquals("white", JsonPath.read(json, "$.expectation"));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class FeedbackTest {
         FeedbackNode feedback = Feedback.gotNonNull("color", "black");
         String json = mapper.writeValueAsString(feedback);
         assertEquals("color", JsonPath.read(json, "$.property"));
-        assertNull(JsonPath.read(json, "$.expected"));
+        assertEquals("null", JsonPath.read(json, "$.expectation"));
         assertEquals("black", JsonPath.read(json, "$.actual"));
     }
     
@@ -57,7 +57,7 @@ public class FeedbackTest {
         FeedbackNode feedback = Feedback.nonEqual("color", "white", "black");
         String json = mapper.writeValueAsString(feedback);
         assertEquals("color", JsonPath.read(json, "$.property"));
-        assertEquals("white", JsonPath.read(json, "$.expected"));
+        assertEquals("white", JsonPath.read(json, "$.expectation"));
         assertEquals("black", JsonPath.read(json, "$.actual"));
     }
 

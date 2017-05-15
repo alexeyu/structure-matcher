@@ -6,13 +6,13 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
-import nl.alexeyu.structmatcher.feedback.NonEqualPropertyFeedbackNode;
+import nl.alexeyu.structmatcher.feedback.BrokenExpectation;
 
 public class IntegerMatcherTest {
     
     private Matcher matcher = IntegerMatchers.any();
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = BrokenSpecificationException.class)
     public void throwsExceptionIfExpectedIsNotAnInt() {
         matcher.match("test", "whatever", "whatever");
     }
@@ -25,7 +25,7 @@ public class IntegerMatcherTest {
     @Test
     public void wrongTypeFeedbackIfActualIsNotAnInteger() {
         FeedbackNode feedback = matcher.match("test", -1, 1.2f);
-        assertEquals(new NonEqualPropertyFeedbackNode("test", "Must be an integer", 1.2f), feedback);
+        assertEquals(new BrokenExpectation("test", "Must be an integer", 1.2f), feedback);
     }
 
 }

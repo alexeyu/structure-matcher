@@ -7,32 +7,31 @@ public final class Feedback {
     }
 
     public static FeedbackNode nonEqual(String property, Object expected, Object actual) {
-        return new NonEqualPropertyFeedbackNode(property, expected, actual);
+        return new BrokenExpectation(property, expected, actual);
+    }
+
+    public static FeedbackNode doesNotConform(String property, Object value, String specification) {
+        return new BrokenExpectation(property, specification, value);
     }
 
     public static FeedbackNode gotNull(String property, Object expected) {
-        return new NonEqualPropertyFeedbackNode(property, expected, null);
+        return new BrokenExpectation(property, expected, null);
     }
 
     public static FeedbackNode gotNonNull(String property, Object actual) {
-        return new NonEqualPropertyFeedbackNode(property, null, actual);
+        return new BrokenExpectation(property, "null", actual);
     }
 
-    public static FeedbackNode notAsExpected(String property, String expectation, Object actual) {
-        return new NonEqualPropertyFeedbackNode(
-                "Broken expecteation for " + property, expectation, actual);
+    public static CompositeFeedbackNode composite(String property) {
+        return new CompositeFeedbackNode(property);
     }
 
-    public static CompositeFeedbackNode composite(String propertyName) {
-        return new CompositeFeedbackNode(propertyName);
-    }
-
-    public static FeedbackNode differentCollectionSizes(String property, int size, int size2) {
-        return new NonEqualPropertyFeedbackNode(property, size, size2);
+    public static FeedbackNode differentCollectionSizes(String property, int expectedSize, int actualSize) {
+        return new BrokenExpectation(property, "Size " + expectedSize, actualSize);
     }
 
     public static FeedbackNode wrongType(String property, Class<?> expected, Class<?> actual) {
-        return new NonEqualPropertyFeedbackNode(property, expected, actual);
+        return new BrokenExpectation(property, expected, actual);
     }
 
 }

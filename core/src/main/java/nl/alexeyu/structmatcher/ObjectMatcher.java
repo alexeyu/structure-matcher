@@ -10,7 +10,7 @@ import nl.alexeyu.structmatcher.matcher.Matchers;
 
 public class ObjectMatcher {
     
-    private String objectName;
+    private final String objectName;
     
     private ObjectMatcher(String objectName) {
         this.objectName = objectName;

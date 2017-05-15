@@ -2,17 +2,17 @@ package nl.alexeyu.structmatcher.feedback;
 
 import java.util.Objects;
 
-public final class NonEqualPropertyFeedbackNode implements FeedbackNode {
+public final class BrokenExpectation implements FeedbackNode {
 
     private final String property;
 
-    private final Object expected;
+    private final Object expectation;
 
     private final Object actual;
 
-    public NonEqualPropertyFeedbackNode(String property, Object expected, Object actual) {
+    public BrokenExpectation(String property, Object expectation, Object actual) {
         this.property = property;
-        this.expected = expected;
+        this.expectation = expectation;
         this.actual = actual;
     }
 
@@ -21,13 +21,14 @@ public final class NonEqualPropertyFeedbackNode implements FeedbackNode {
         return false;
     }
     
+    @Override
     public String getProperty() {
         return property;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(property, expected, actual);
+        return Objects.hash(property, expectation, actual);
     }
 
     @Override
@@ -35,10 +36,10 @@ public final class NonEqualPropertyFeedbackNode implements FeedbackNode {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof NonEqualPropertyFeedbackNode) {
-            NonEqualPropertyFeedbackNode other = (NonEqualPropertyFeedbackNode) obj;
+        if (obj instanceof BrokenExpectation) {
+            BrokenExpectation other = (BrokenExpectation) obj;
             return Objects.equals(this.property, other.property)
-                    && Objects.equals(this.expected, other.expected)
+                    && Objects.equals(this.expectation, other.expectation)
                     && Objects.equals(this.actual, other.actual);
         }
         return false;
@@ -46,7 +47,7 @@ public final class NonEqualPropertyFeedbackNode implements FeedbackNode {
 
     @Override
     public String toString() {
-        return property + ": " + actual + " != " + expected;
+        return String.format("%s: %s !~ %s", property, actual, expectation);
     }
 
 }

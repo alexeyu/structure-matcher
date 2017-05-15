@@ -8,22 +8,7 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 
 public class SimplePropertyMatcherTest {
 
-    private SimplePropertyMatcher simpleMatcher = new SimplePropertyMatcher();
-
-    @Test
-    public void treatsNullsAsEqual() {
-        assertEquals(Feedback.empty("test"), simpleMatcher.match("test", null, null));
-    }
-
-    @Test
-    public void specifiesThatExpectedNullButGotNonNull() {
-        assertEquals(Feedback.gotNonNull("test", ""), simpleMatcher.match("test", null, ""));
-    }
-
-    @Test
-    public void specifiesExpectedNonNullButGotNull() {
-        assertEquals(Feedback.gotNull("test", ""), simpleMatcher.match("test", "", null));
-    }
+    private Matcher simpleMatcher = new SimplePropertyMatcher();
 
     @Test
     public void emptyFeedbackWhenPropertiesAreEqual() {

@@ -9,16 +9,10 @@ import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
-public final class StructureMatcher implements Matcher {
+final class StructureMatcher implements Matcher {
     
+    @Override
     public FeedbackNode match(String property, Object expected, Object actual) {
-        return Matchers
-                .nullAware()
-                .maybeMatch(property, expected, actual)
-                .orElseGet(() -> matchObjects(property, expected, actual));
-    }
-
-    private FeedbackNode matchObjects(String property, Object expected, Object actual) {
         CompositeFeedbackNode feedback = Feedback.composite(property);
         getProperties(expected.getClass())
                 .map(p -> matchProperty(p, expected, actual))
@@ -26,7 +20,7 @@ public final class StructureMatcher implements Matcher {
                 .forEach(feedback::add);
         return feedback;
     }
-    
+
     private FeedbackNode matchProperty(Property property, Object expected, Object actual) {
         return Matchers.getMatcher(property)
                     .match(property.getName(), 
@@ -40,5 +34,5 @@ public final class StructureMatcher implements Matcher {
             .filter(Optional::isPresent)
             .map(Optional::get);
     }
-
+    
 }

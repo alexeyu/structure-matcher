@@ -8,14 +8,14 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
-import nl.alexeyu.structmatcher.matcher.ExpectAnyValueMatcher;
 import nl.alexeyu.structmatcher.matcher.Matcher;
+import nl.alexeyu.structmatcher.matcher.Matchers;
 
 public class ContextTest {
 
     private Context context;
     
-    private Matcher customMatcher = new ExpectAnyValueMatcher();
+    private Matcher customMatcher = Matchers.expectAnyValue();
     
     @Before
     public void setUp() {

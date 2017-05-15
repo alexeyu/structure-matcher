@@ -5,29 +5,30 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 class ContextAwareMatcher implements Matcher {
     
-    private final Matcher innerMatcher;
+    private final CustomizableMatcher matcher;
     
     private final Context context;
     
-    public ContextAwareMatcher(Context context, Matcher innerMatcher) {
-        this.innerMatcher = innerMatcher;
+    public ContextAwareMatcher(Context context, Matcher defaultMatcher) {
+        this.matcher = new CustomizableMatcher(context, defaultMatcher);
         this.context = context;
     }
 
     @Override
     public FeedbackNode match(String property, Object expected, Object actual) {
-        boolean pushToStack = !property.contains("[");
+        if (isListElement(property)) {
+            return matcher.match(property, expected, actual);
+        }
         try {
-            if (pushToStack) {
-                context.push(property);
-            }
-            Matcher matcher = context.getCustomMatcher().orElse(innerMatcher);
+            context.push(property);
             return matcher.match(property, expected, actual);
         } finally {
-            if (pushToStack) {
-                context.pop();
-            }
+            context.pop();
         }
+    }
+
+    private boolean isListElement(String property) {
+        return property.contains("[");
     }
 
 }

@@ -7,8 +7,8 @@ import org.junit.Test;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.matcher.Color;
-import nl.alexeyu.structmatcher.matcher.ExpectAnyValueMatcher;
 import nl.alexeyu.structmatcher.matcher.Matcher;
+import nl.alexeyu.structmatcher.matcher.Matchers;
 import nl.alexeyu.structmatcher.matcher.Structure;
 import nl.alexeyu.structmatcher.matcher.Substructure;
 
@@ -18,7 +18,7 @@ public class ObjectMatcherTest {
 
     private final Structure actual = new Structure(Color.BLACK, asList("b"), new Substructure(false));
     
-    private final Matcher ignore = new ExpectAnyValueMatcher();
+    private final Matcher ignore = Matchers.expectAnyValue();
     
     @Test
     public void ignoreAllPropertiesOnTheHighestLevel() {

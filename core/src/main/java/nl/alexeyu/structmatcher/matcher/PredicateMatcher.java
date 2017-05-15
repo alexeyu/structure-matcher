@@ -19,8 +19,7 @@ public final class PredicateMatcher implements Matcher {
     @Override
     public FeedbackNode match(String property, Object expected, Object actual) {
         if (!predicate.test(expected)) {
-            throw new IllegalArgumentException("Value " + expected + " is against specification: "
-                    + specification);
+            throw new BrokenSpecificationException(property, expected, specification);
         }
         if (predicate.test(actual)) {
             return Feedback.empty(property);

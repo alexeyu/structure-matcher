@@ -62,11 +62,11 @@ public class ResponseMatchingTest {
                 .match(desktopTest, desktopProd);
         assertFalse(feedback.isEmpty());
         String json = Json.mapper().writeValueAsString(feedback);
-        assertThat(12, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.expected"))));
+        assertThat(12, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.expectation"))));
         assertThat(14, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.actual"))));
-        assertThat("192.168.10.10", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.expected"))));
+        assertThat("192.168.10.10", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.expectation"))));
         assertThat("192.168.10.14", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.actual"))));
-        assertThat(8080, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.expected"))));
+        assertThat(8080, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.expectation"))));
         assertThat(8081, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.actual"))));
     }
 
@@ -103,7 +103,7 @@ public class ResponseMatchingTest {
             if (actual.equals(expectedString)) {
                 return Feedback.empty(property);
             }
-            return Feedback.notAsExpected(property, expectedString, actual);
+            return Feedback.doesNotConform(property, actual, expectedString);
         }
     }
     

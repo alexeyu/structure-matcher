@@ -7,11 +7,9 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class SimplePropertyMatcher implements Matcher {
-    
+
     private static final BiPredicate<Object, Object> EQ = (e, a) -> e.equals(a); 
-    
-    private final PartialMatcher nullAwareMatcher = new NullAwareMatcher();
-    
+
     private final BiPredicate<Object, Object> predicate;
     
     private final Function<Object, Object> mapper;
@@ -35,15 +33,9 @@ public class SimplePropertyMatcher implements Matcher {
 
     @Override
     public FeedbackNode match(String property, Object expected, Object actual) {
-        return nullAwareMatcher
-                .maybeMatch(property, expected, actual)
-                .orElseGet(() -> doMatch(property, expected, actual)); 
-    }
-    
-    private FeedbackNode doMatch(String property, Object expected, Object actual) {
-        return predicate.test(mapper.apply(expected), mapper.apply(actual))
+        return predicate.test(mapper.apply(expected), mapper.apply(actual)) 
                 ? Feedback.empty(property)
                 : Feedback.nonEqual(property, expected, actual);
     }
-
+    
 }
