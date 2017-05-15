@@ -6,7 +6,7 @@ import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
-public class ListMatcher implements Matcher {
+final class ListMatcher implements Matcher {
     
     @Override
     public FeedbackNode match(String property, Object expected, Object actual) {

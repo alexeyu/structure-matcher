@@ -11,9 +11,9 @@ public final class PredicateMatcher implements Matcher {
     
     private final String specification;
     
-    public PredicateMatcher(Predicate<Object> predicate, String description) {
+    public PredicateMatcher(Predicate<Object> predicate, String specification) {
         this.predicate = predicate;
-        this.specification = description;
+        this.specification = specification;
     }
 
     @Override

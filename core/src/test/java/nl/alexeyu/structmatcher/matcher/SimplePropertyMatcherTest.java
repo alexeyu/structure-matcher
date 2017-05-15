@@ -5,19 +5,20 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
+import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class SimplePropertyMatcherTest {
 
-    private Matcher simpleMatcher = new SimplePropertyMatcher();
-
     @Test
     public void emptyFeedbackWhenPropertiesAreEqual() {
-        assertEquals(Feedback.empty("test"), simpleMatcher.match("test", 100500, 100500));
+        FeedbackNode feedback = new SimplePropertyMatcher().match("test", 100500, 100500); 
+        assertEquals(Feedback.empty("test"), feedback);
     }
 
     @Test
     public void nonEqualPropertyFeedbackWhenPropertiesAreNotEqual() {
-        assertEquals(Feedback.nonEqual("test", "x", "y"), simpleMatcher.match("test", "x", "y"));
+        FeedbackNode feedback = new SimplePropertyMatcher().match("test", "x", "y");
+        assertEquals(Feedback.nonEqual("test", "x", "y"), feedback);
     }
 
 }

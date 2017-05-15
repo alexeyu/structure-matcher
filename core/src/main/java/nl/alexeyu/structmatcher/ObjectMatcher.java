@@ -27,6 +27,10 @@ public class ObjectMatcher {
         return this;
     }
 
+    public ObjectMatcher with(Matcher matcher, String propertyPath) {
+        return withMatcher(matcher, propertyPath.split("\\."));
+    }
+
     public FeedbackNode match(Object expected, Object actual) {
         return Matchers.structuresEqual().match(objectName, expected, actual);
     }

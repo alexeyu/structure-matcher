@@ -70,27 +70,27 @@ public class ResponseMatchingTest {
         assertThat(8081, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.actual"))));
     }
 
+    private ObjectMatcher withMetadataMatchers(ObjectMatcher matcher) {
+        return matcher
+                .with(ipMatcher, "Metadata.Server.Ip")
+                .with(oneOf(8080, 8081, 8090, 8091), "Metadata.Server.Port")
+                .with(inRange(2, 5000), "Metadata.ProcessingTimeMs");
+    }
+    
     @Test
     public void prodAndTestConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
-        FeedbackNode feedback = ObjectMatcher.forObject("response")
-                .withMatcher(ipMatcher, "Metadata", "Server", "Ip")
-                .withMatcher(oneOf(8080, 8081, 8090, 8091), "Metadata", "Server", "Port")
-                .withMatcher(inRange(2, 5000), "Metadata", "ProcessingTimeMs")
+        FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forObject("response"))
                 .match(desktopTest, desktopProd);
         assertTrue(feedback.isEmpty());
     }
     
     @Test
     public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
-        FeedbackNode feedback = ObjectMatcher.forObject("response")
-                .withMatcher(nonNull(), "Metadata", "Platform")
-                .withMatcher(ipMatcher, "Metadata", "Server", "Ip")
-                .withMatcher(oneOf(8080, 8081, 8090, 8091), "Metadata", "Server", "Port")
-                .withMatcher(inRange(2, 5000), "Metadata", "ProcessingTimeMs")
-                .withMatcher(and(nonNull(), nonEmptyString(), new InitialMatcher()), 
-                        "Books", "Authors", "FirstName")
-                .withMatcher((prop, exp, act) -> Integer.valueOf(0).equals(act) ? Feedback.empty(prop) : Feedback.gotNonNull(prop, act), 
-                        "Books", "YearPublished")
+        Matcher emptyYearMatcher = (prop, exp, act) -> Integer.valueOf(0).equals(act) ? Feedback.empty(prop) : Feedback.gotNonNull(prop, act);
+        FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forObject("response"))
+                .with(nonNull(), "Metadata.Platform")
+                .with(and(nonNull(), nonEmptyString(), new InitialMatcher()),  "Books.Authors.FirstName")
+                .with(emptyYearMatcher, "Books.YearPublished")
                 .match(desktopTest, mobileTest);
         assertTrue(feedback.isEmpty());
     }

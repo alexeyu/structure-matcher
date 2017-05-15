@@ -1,6 +1,7 @@
 package nl.alexeyu.structmatcher.matcher;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import nl.alexeyu.structmatcher.Context;
@@ -20,7 +21,7 @@ public class Matchers {
         return new NullAwareMatcher(nextMatcher);
     }
 
-    public static Matcher expectAnyValue() {
+    public static Matcher anyValue() {
         return new ContextAwareMatcher(context, 
                 (prop, exp, act) -> nullAware(() -> ((p, e, a) -> Feedback.empty(p))).match(prop, exp, act));
     }
@@ -41,6 +42,10 @@ public class Matchers {
 
     public static Matcher and(Matcher... matchers) {
         return new ContextAwareMatcher(context, new AndMatcher(matchers));
+    }
+
+    public static Matcher normalizing(Function<Object, Object> normalizer, Matcher delegate) {
+        return (prop, exp, act) -> delegate.match(prop, exp, normalizer.apply(act));
     }
 
     public static Matcher getMatcher(Property property) {

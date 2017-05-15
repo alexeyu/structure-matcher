@@ -9,7 +9,7 @@ import org.junit.Test;
 import nl.alexeyu.structmatcher.ObjectMatcher;
 import nl.alexeyu.structmatcher.examples.bookstore.model.Author;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
-import nl.alexeyu.structmatcher.matcher.SimplePropertyMatcher;
+import nl.alexeyu.structmatcher.matcher.Matchers;
 
 public class BookMatchingTest {
     
@@ -19,15 +19,16 @@ public class BookMatchingTest {
     @Test
     public void notNormalizedStringsDoNotMatchByDefault() {
         FeedbackNode feedback = ObjectMatcher.forObject("author")
-                .match(francoiseSagan, francoiseSaganNormalized);
+                .match(francoiseSaganNormalized, francoiseSagan);
         assertFalse(feedback.isEmpty());
     }
 
     @Test
     public void notNormalizedStringsDoMatchWithNormalizationAwareMatcher() {
         FeedbackNode feedback = ObjectMatcher.forObject("author")
-                .withMatcher(new SimplePropertyMatcher((name) -> stripAccents(name.toString())), "FirstName")
-                .match(francoiseSagan, francoiseSaganNormalized);
+                .with(Matchers.normalizing(name -> stripAccents(name.toString()), 
+                        Matchers.propertyEquals()), "FirstName")
+                .match(francoiseSaganNormalized, francoiseSagan);
         assertTrue(feedback.isEmpty());
     }
 

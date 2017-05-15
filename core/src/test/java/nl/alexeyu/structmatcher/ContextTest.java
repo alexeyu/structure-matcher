@@ -15,7 +15,7 @@ public class ContextTest {
 
     private Context context;
     
-    private Matcher customMatcher = Matchers.expectAnyValue();
+    private Matcher customMatcher = Matchers.anyValue();
     
     @Before
     public void setUp() {

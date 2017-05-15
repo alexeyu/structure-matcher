@@ -25,7 +25,7 @@ public class IntegerMatcherTest {
     @Test
     public void wrongTypeFeedbackIfActualIsNotAnInteger() {
         FeedbackNode feedback = matcher.match("test", -1, 1.2f);
-        assertEquals(new BrokenExpectation("test", "Must be an integer", 1.2f), feedback);
+        assertEquals(new BrokenExpectation("test", "An integer", 1.2f), feedback);
     }
 
 }
