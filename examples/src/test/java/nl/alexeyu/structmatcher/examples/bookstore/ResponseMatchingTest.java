@@ -2,9 +2,8 @@ package nl.alexeyu.structmatcher.examples.bookstore;
 
 import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.inRange;
 import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.oneOf;
-import static nl.alexeyu.structmatcher.matcher.Matchers.and;
-import static nl.alexeyu.structmatcher.matcher.PredicateMatchers.nonEmptyString;
-import static nl.alexeyu.structmatcher.matcher.PredicateMatchers.nonNull;
+import static nl.alexeyu.structmatcher.matcher.Matchers.constant;
+import static nl.alexeyu.structmatcher.matcher.Matchers.propertyEquals;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -13,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.Function;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,11 +23,12 @@ import com.jayway.jsonpath.JsonPath;
 
 import nl.alexeyu.structmatcher.ObjectMatcher;
 import nl.alexeyu.structmatcher.examples.bookstore.model.BookSearchResult;
+import nl.alexeyu.structmatcher.examples.bookstore.model.Platform;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.json.Json;
 import nl.alexeyu.structmatcher.matcher.Matcher;
-import nl.alexeyu.structmatcher.matcher.PredicateMatchers;
+import nl.alexeyu.structmatcher.matcher.Matchers;
 
 public class ResponseMatchingTest {
 
@@ -37,7 +38,7 @@ public class ResponseMatchingTest {
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
-    private Matcher ipMatcher = PredicateMatchers.regex(IPADDRESS_PATTERN);
+    private Matcher ipMatcher = Matchers.regex(IPADDRESS_PATTERN);
     
     private Path rootPath;
     
@@ -86,25 +87,20 @@ public class ResponseMatchingTest {
     
     @Test
     public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
-        Matcher emptyYearMatcher = (prop, exp, act) -> Integer.valueOf(0).equals(act) ? Feedback.empty(prop) : Feedback.gotNonNull(prop, act);
+        Matcher emptyYearMatcher = (prop, exp, act) -> Integer.valueOf(0).equals(act) 
+                                        ? Feedback.empty(prop) 
+                                        : Feedback.gotNonNull(prop, act);
+        Function<Object, Object> nameToInitial = name -> name.toString().substring(0, 1) + ".";
         FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forObject("response"))
-                .with(nonNull(), "Metadata.Platform")
-                .with(and(nonNull(), nonEmptyString(), new InitialMatcher()),  "Books.Authors.FirstName")
+                .with(constant(Platform.MOBILE), "Metadata.Platform")
+                .with(Matchers.and(
+                        Matchers.nonNull(),
+                        Matchers.nonEmptyString(),
+                        Matchers.normalizingBase(nameToInitial, propertyEquals())
+                      ),  "Books.Authors.FirstName")
                 .with(emptyYearMatcher, "Books.YearPublished")
                 .match(desktopTest, mobileTest);
         assertTrue(feedback.isEmpty());
     }
 
-    private static class InitialMatcher implements Matcher {
-
-        @Override
-        public FeedbackNode match(String property, Object expected, Object actual) {
-            String expectedString = expected.toString().substring(0,  1) + "."; 
-            if (actual.equals(expectedString)) {
-                return Feedback.empty(property);
-            }
-            return Feedback.doesNotConform(property, actual, expectedString);
-        }
-    }
-    
 }

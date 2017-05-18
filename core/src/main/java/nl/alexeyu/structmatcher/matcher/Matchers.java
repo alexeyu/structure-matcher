@@ -3,6 +3,7 @@ package nl.alexeyu.structmatcher.matcher;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import nl.alexeyu.structmatcher.Context;
 import nl.alexeyu.structmatcher.Property;
@@ -24,6 +25,11 @@ public class Matchers {
     public static Matcher anyValue() {
         return new ContextAwareMatcher(context, 
                 (prop, exp, act) -> nullAware(() -> ((p, e, a) -> Feedback.empty(p))).match(prop, exp, act));
+    }
+
+    public static Matcher constant(Object alwaysExpected) {
+        return new ContextAwareMatcher(context, 
+                (prop, exp, act) -> nullAware(() -> new SimplePropertyMatcher()).match(prop, alwaysExpected, act));
     }
 
     public static Matcher propertyEquals() {
@@ -48,6 +54,18 @@ public class Matchers {
         return (prop, exp, act) -> delegate.match(prop, exp, normalizer.apply(act));
     }
 
+    public static Matcher normalizingBase(Function<Object, Object> normalizer, Matcher delegate) {
+        return (prop, exp, act) -> delegate.match(prop, 
+                normalizer.apply(exp), 
+                act);
+    }
+
+    public static Matcher normalizingBoth(Function<Object, Object> normalizer, Matcher delegate) {
+        return (prop, exp, act) -> delegate.match(prop, 
+                normalizer.apply(exp), 
+                normalizer.apply(act));
+    }
+
     public static Matcher getMatcher(Property property) {
         if (property.isList()) {
             return listsEqual();
@@ -57,6 +75,21 @@ public class Matchers {
         }
         return structuresEqual();
 
+    }
+    
+    public static Matcher regex(String expr) {
+        return new PredicateMatcher(
+                v -> Pattern.compile(expr).matcher(String.valueOf(v)).matches(),
+                "The regular expression: " + expr);
+    }
+
+    public static Matcher nonEmptyString() {
+        return new PredicateMatcher(v -> !v.toString().isEmpty(),
+                "Non-empty string");
+    }
+
+    public static Matcher nonNull() {
+        return new PredicateMatcher(v -> v != null, "Any value");
     }
 
     public static Matcher getNullAwareMatcher(Object obj) {
