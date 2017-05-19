@@ -13,14 +13,14 @@ public class NullAwareMatcherTest {
     
     @Test
     public void treatsNullsAsEqualObjects() {
-        Matcher m = new NullAwareMatcher(() -> failingMatcher);
+        Matcher m = new NullAwareMatcher(failingMatcher);
         assertEquals(Feedback.empty("test"), m.match("test", null, null));
     }
 
     @Test
     public void passesControlToDelegateMatcherIfBothValuesAreNotNull() {
         FakeMatcher delegateMatcher = new FakeMatcher();
-        Matcher m = new NullAwareMatcher(() -> delegateMatcher);
+        Matcher m = new NullAwareMatcher(delegateMatcher);
         m.match("test", "something", "something else");
         assertEquals("test", delegateMatcher.property);
         assertEquals("something", delegateMatcher.expected);
@@ -29,13 +29,13 @@ public class NullAwareMatcherTest {
 
     @Test
     public void specifiesThatExpectedNullButGotNonNull() {
-        Matcher m = new NullAwareMatcher(() -> failingMatcher);
+        Matcher m = new NullAwareMatcher(failingMatcher);
         assertEquals(Feedback.gotNonNull("test", ""), m.match("test", null, ""));
     }
 
     @Test
     public void specifiesExpectedNonNullButGotNull() {
-        Matcher m = new NullAwareMatcher(() -> failingMatcher);
+        Matcher m = new NullAwareMatcher(failingMatcher);
         assertEquals(Feedback.gotNull("test", "something"),
                 m.match("test", "something", null));
     }

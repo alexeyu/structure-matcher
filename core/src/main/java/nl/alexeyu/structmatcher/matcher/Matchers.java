@@ -2,7 +2,6 @@ package nl.alexeyu.structmatcher.matcher;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import nl.alexeyu.structmatcher.Context;
@@ -22,20 +21,20 @@ public class Matchers {
         return new ContextAwareMatcher(context, defaultMatcher);
     }
 
-    public static Matcher nullAware(Supplier<Matcher> nextMatcher) {
+    public static Matcher nullAware(Matcher nextMatcher) {
         return new NullAwareMatcher(nextMatcher);
     }
 
     public static Matcher anyValue() {
-        return createNullAwareMatcher((p, e, a) -> Feedback.empty(p));
+        return nullAware((p, e, a) -> Feedback.empty(p));
     }
 
     public static Matcher constant(Object alwaysExpected) {
-        return (prop, exp, act) -> nullAware(() -> new ValuesEqualMatcher()).match(prop, alwaysExpected, act);
+        return (prop, exp, act) -> valuesEqual().match(prop, alwaysExpected, act);
     }
 
     public static Matcher valuesEqual() {
-        return createNullAwareMatcher(new ValuesEqualMatcher());
+        return nullAware(new ValuesEqualMatcher());
     }
 
     public static Matcher listsEqual() {
@@ -43,13 +42,9 @@ public class Matchers {
     }
 
     public static Matcher structuresEqual() {
-        return createNullAwareMatcher(new StructureMatcher());
+        return nullAware(new StructureMatcher());
     }
     
-    private static Matcher createNullAwareMatcher(Matcher innerMatcher) {
-        return nullAware(() -> innerMatcher);
-    }
-
     public static Matcher and(Matcher... matchers) {
         return new AndMatcher(matchers);
     }
@@ -95,12 +90,16 @@ public class Matchers {
         return new MustConformMatcher(v -> v != null, "Any value");
     }
 
-    public static Matcher getNullAwareMatcher(Object obj) {
-        return nullAware(() -> getMatcher(obj.getClass()));
+    static Matcher getNullAwareMatcher(Object obj) {
+        return nullAware(forObject(obj));
     }
 
-    public static Matcher getMatcher(Class<?> cl) {
-        if (Property.isSimple(cl)) {
+    static Matcher forObject(Object obj) {
+        if (obj == null) {
+             // Should not happen due to the null-aware matcher logic
+            return (p, e, a) -> { throw new NullPointerException("Cannot match null value.");};
+        }
+        if (Property.isSimple(obj.getClass())) {
             return valuesEqual();
         }
         return structuresEqual();
