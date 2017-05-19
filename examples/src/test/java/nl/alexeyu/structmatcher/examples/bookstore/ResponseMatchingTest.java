@@ -64,11 +64,11 @@ public class ResponseMatchingTest {
         assertFalse(feedback.isEmpty());
         String json = Json.mapper().writeValueAsString(feedback);
         assertThat(12, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.expectation"))));
-        assertThat(14, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.actual"))));
+        assertThat(14, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.value"))));
         assertThat("192.168.10.10", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.expectation"))));
-        assertThat("192.168.10.14", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.actual"))));
+        assertThat("192.168.10.14", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.value"))));
         assertThat(8080, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.expectation"))));
-        assertThat(8081, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.actual"))));
+        assertThat(8081, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.value"))));
     }
 
     private ObjectMatcher withMetadataMatchers(ObjectMatcher matcher) {

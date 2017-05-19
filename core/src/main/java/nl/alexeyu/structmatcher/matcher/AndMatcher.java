@@ -15,9 +15,9 @@ public class AndMatcher implements Matcher {
     }
 
     @Override
-    public FeedbackNode match(String property, Object expected, Object actual) {
+    public FeedbackNode match(String property, Object expectation, Object value) {
         return matchers.stream()
-            .map(m -> m.match(property, expected, actual))
+            .map(m -> m.match(property, expectation, value))
             .filter(f -> !f.isEmpty())
             .findFirst()
             .orElse(Feedback.empty(property));

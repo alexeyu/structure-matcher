@@ -5,12 +5,17 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 
+/**
+ * Feedback node for a complex data structure (a list or a POJO). Contains other
+ * feedback nodes which correspond to properties of an object or members of a
+ * list. Empty iff all its children are empty.
+ */
 public final class CompositeFeedbackNode implements FeedbackNode {
 
     private final Collection<FeedbackNode> children = new LinkedHashSet<>();
-    
+
     private final String property;
-    
+
     CompositeFeedbackNode(String property) {
         this.property = property;
     }
@@ -29,7 +34,7 @@ public final class CompositeFeedbackNode implements FeedbackNode {
     public boolean isEmpty() {
         return children.stream().allMatch(FeedbackNode::isEmpty);
     }
-    
+
     public Collection<FeedbackNode> getChildren() {
         return Collections.unmodifiableCollection(children);
     }
@@ -55,5 +60,5 @@ public final class CompositeFeedbackNode implements FeedbackNode {
     public String toString() {
         return children.toString();
     }
-    
+
 }

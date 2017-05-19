@@ -14,22 +14,22 @@ public class IntegerMatchers {
     }
 
     public static Matcher any() {
-        return new PredicateMatcher(v -> TO_INT.apply(v).isPresent(), "An integer");
+        return new MustConformMatcher(v -> TO_INT.apply(v).isPresent(), "An integer");
     }
 
     public static Matcher positive() {
-        return new PredicateMatcher(
+        return new MustConformMatcher(
                 v -> TO_INT.apply(v).orElse(Integer.MIN_VALUE) > 0, "A positive integer");
     }
 
     public static Matcher inRange(int minExclusive, int maxExclusive) {
-        return new PredicateMatcher(
+        return new MustConformMatcher(
                 v -> TO_INT.andThen(new Within(minExclusive, maxExclusive)).apply(v),
                 String.format("Bigger than %s but smaller than %s", minExclusive, maxExclusive));
     }
     
     public static Matcher oneOf(Integer... possibleValues) {
-        return new PredicateMatcher(
+        return new MustConformMatcher(
                 v -> TO_INT.andThen(new OneOf(possibleValues)).apply(v),
                 String.format("One of the following values: %s", Arrays.asList(possibleValues)));
     }

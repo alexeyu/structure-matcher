@@ -78,18 +78,18 @@ public class Matchers {
     }
     
     public static Matcher regex(String expr) {
-        return new PredicateMatcher(
+        return new MustConformMatcher(
                 v -> Pattern.compile(expr).matcher(String.valueOf(v)).matches(),
                 "The regular expression: " + expr);
     }
 
     public static Matcher nonEmptyString() {
-        return new PredicateMatcher(v -> !v.toString().isEmpty(),
+        return new MustConformMatcher(v -> !v.toString().isEmpty(),
                 "Non-empty string");
     }
 
     public static Matcher nonNull() {
-        return new PredicateMatcher(v -> v != null, "Any value");
+        return new MustConformMatcher(v -> v != null, "Any value");
     }
 
     public static Matcher getNullAwareMatcher(Object obj) {

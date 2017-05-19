@@ -2,11 +2,15 @@ package nl.alexeyu.structmatcher.feedback;
 
 import java.util.Objects;
 
-final class EmptyFeedbackNode implements FeedbackNode {
-    
+/**
+ * Positive feedback, which implies an expectation about a property value was
+ * met.
+ */
+final class ExpecteationMet implements FeedbackNode {
+
     private final String property;
-    
-    EmptyFeedbackNode(String property) {
+
+    ExpecteationMet(String property) {
         this.property = property;
     }
 
@@ -35,8 +39,8 @@ final class EmptyFeedbackNode implements FeedbackNode {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof EmptyFeedbackNode) {
-            EmptyFeedbackNode other = (EmptyFeedbackNode) obj;
+        if (obj instanceof ExpecteationMet) {
+            ExpecteationMet other = (ExpecteationMet) obj;
             return Objects.equals(this.property, other.property);
         }
         return false;
