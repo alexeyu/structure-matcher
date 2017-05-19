@@ -3,7 +3,7 @@ package nl.alexeyu.structmatcher.examples.bookstore;
 import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.inRange;
 import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.oneOf;
 import static nl.alexeyu.structmatcher.matcher.Matchers.constant;
-import static nl.alexeyu.structmatcher.matcher.Matchers.propertyEquals;
+import static nl.alexeyu.structmatcher.matcher.Matchers.valuesEqual;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -96,7 +96,7 @@ public class ResponseMatchingTest {
                 .with(Matchers.and(
                         Matchers.nonNull(),
                         Matchers.nonEmptyString(),
-                        Matchers.normalizingBase(nameToInitial, propertyEquals())
+                        Matchers.normalizingBase(nameToInitial, valuesEqual())
                       ),  "Books.Authors.FirstName")
                 .with(emptyYearMatcher, "Books.YearPublished")
                 .match(desktopTest, mobileTest);

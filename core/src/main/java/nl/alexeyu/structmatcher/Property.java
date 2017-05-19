@@ -5,13 +5,14 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
- * Convenient wrapper of a getter method. 
+ * Convenient wrapper of POJO properties (which are represented by getter methods). 
  */
 public class Property {
     
-    private static List<String> BLACKLIST = Arrays.asList("getClass", "getDeclaringClass");
+    private static List<String> HIDDEN_GETTERS = Arrays.asList("getClass", "getDeclaringClass");
 
     private final Method method;
 
@@ -19,12 +20,19 @@ public class Property {
         this.method = method;
     }
     
-    public static Optional<Property> of(Method method) {
+    public static Stream<Property> forClass(Class<?> cl) {
+        return Arrays.stream(cl.getMethods())
+            .map(Property::of)
+            .filter(Optional::isPresent)
+            .map(Optional::get);
+    }
+
+    static Optional<Property> of(Method method) {
         return isValid(method)
             ? Optional.of(new Property(method))
             : Optional.empty();
     }
-    
+
     public String getName() {
         if (isGetMethod(method)) {
             return method.getName().substring(3);
@@ -59,20 +67,20 @@ public class Property {
                 || cl.isPrimitive();
     }
 
-    public static boolean isValid(Method method) {
+    private static boolean isValid(Method method) {
         return nameMatches(method) && parametersMatch(method) && isNotBlacklisted(method);
     }
 
     private static boolean nameMatches(Method method) {
         return isGetMethod(method) || isIsMethod(method);
     }
-    
+ 
     private static boolean parametersMatch(Method method) {
         return method.getParameterCount() == 0;
     }
     
     private static boolean isNotBlacklisted(Method method) {
-        return !BLACKLIST.contains(method.getName());
+        return !HIDDEN_GETTERS.contains(method.getName());
     }
     
     private static boolean isGetMethod(Method method) {

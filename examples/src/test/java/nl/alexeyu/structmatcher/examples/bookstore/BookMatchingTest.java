@@ -27,7 +27,7 @@ public class BookMatchingTest {
     public void notNormalizedStringsDoMatchWithNormalizationAwareMatcher() {
         FeedbackNode feedback = ObjectMatcher.forObject("author")
                 .with(Matchers.normalizing(name -> stripAccents(name.toString()), 
-                        Matchers.propertyEquals()), "FirstName")
+                        Matchers.valuesEqual()), "FirstName")
                 .match(francoiseSaganNormalized, francoiseSagan);
         assertTrue(feedback.isEmpty());
     }

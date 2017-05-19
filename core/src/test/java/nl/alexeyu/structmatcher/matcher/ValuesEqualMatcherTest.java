@@ -7,17 +7,17 @@ import org.junit.Test;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
-public class SimplePropertyMatcherTest {
+public class ValuesEqualMatcherTest {
 
     @Test
     public void emptyFeedbackWhenPropertiesAreEqual() {
-        FeedbackNode feedback = new SimplePropertyMatcher().match("test", 100500, 100500); 
+        FeedbackNode feedback = new ValuesEqualMatcher().match("test", 100500, 100500); 
         assertEquals(Feedback.empty("test"), feedback);
     }
 
     @Test
     public void nonEqualPropertyFeedbackWhenPropertiesAreNotEqual() {
-        FeedbackNode feedback = new SimplePropertyMatcher().match("test", "x", "y");
+        FeedbackNode feedback = new ValuesEqualMatcher().match("test", "x", "y");
         assertEquals(Feedback.nonEqual("test", "x", "y"), feedback);
     }
 

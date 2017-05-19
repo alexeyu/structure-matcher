@@ -32,7 +32,7 @@ public class ObjectMatcher {
     }
 
     public FeedbackNode match(Object expected, Object actual) {
-        return Matchers.structuresEqual().match(objectName, expected, actual);
+        return Matchers.contextAware(Matchers.structuresEqual()).match(objectName, expected, actual);
     }
 
 }

@@ -18,36 +18,40 @@ public class Matchers {
         context.register(propertyPath, matcher);
     }
     
+    public static Matcher contextAware(Matcher defaultMatcher) {
+        return new ContextAwareMatcher(context, defaultMatcher);
+    }
+
     public static Matcher nullAware(Supplier<Matcher> nextMatcher) {
         return new NullAwareMatcher(nextMatcher);
     }
 
     public static Matcher anyValue() {
-        return new ContextAwareMatcher(context, 
-                (prop, exp, act) -> nullAware(() -> ((p, e, a) -> Feedback.empty(p))).match(prop, exp, act));
+        return createNullAwareMatcher((p, e, a) -> Feedback.empty(p));
     }
 
     public static Matcher constant(Object alwaysExpected) {
-        return new ContextAwareMatcher(context, 
-                (prop, exp, act) -> nullAware(() -> new SimplePropertyMatcher()).match(prop, alwaysExpected, act));
+        return (prop, exp, act) -> nullAware(() -> new ValuesEqualMatcher()).match(prop, alwaysExpected, act);
     }
 
-    public static Matcher propertyEquals() {
-        return new ContextAwareMatcher(context, 
-                (prop, exp, act) -> nullAware(() -> new SimplePropertyMatcher()).match(prop, exp, act));
+    public static Matcher valuesEqual() {
+        return createNullAwareMatcher(new ValuesEqualMatcher());
     }
 
     public static Matcher listsEqual() {
-        return new ContextAwareMatcher(context, new ListMatcher());
+        return new ListMatcher();
     }
 
     public static Matcher structuresEqual() {
-        return new ContextAwareMatcher(context, 
-                (prop, exp, act) -> nullAware(() -> new StructureMatcher()).match(prop, exp, act));
+        return createNullAwareMatcher(new StructureMatcher());
+    }
+    
+    private static Matcher createNullAwareMatcher(Matcher innerMatcher) {
+        return nullAware(() -> innerMatcher);
     }
 
     public static Matcher and(Matcher... matchers) {
-        return new ContextAwareMatcher(context, new AndMatcher(matchers));
+        return new AndMatcher(matchers);
     }
 
     public static Matcher normalizing(Function<Object, Object> normalizer, Matcher delegate) {
@@ -66,12 +70,12 @@ public class Matchers {
                 normalizer.apply(act));
     }
 
-    public static Matcher getMatcher(Property property) {
+    public static Matcher forProperty(Property property) {
         if (property.isList()) {
             return listsEqual();
         }
         if (property.isSimple()) {
-            return propertyEquals();
+            return valuesEqual();
         }
         return structuresEqual();
 
@@ -84,8 +88,7 @@ public class Matchers {
     }
 
     public static Matcher nonEmptyString() {
-        return new MustConformMatcher(v -> !v.toString().isEmpty(),
-                "Non-empty string");
+        return new MustConformMatcher(v -> !v.toString().isEmpty(), "Non-empty string");
     }
 
     public static Matcher nonNull() {
@@ -98,7 +101,7 @@ public class Matchers {
 
     public static Matcher getMatcher(Class<?> cl) {
         if (Property.isSimple(cl)) {
-            return propertyEquals();
+            return valuesEqual();
         }
         return structuresEqual();
     }
