@@ -20,19 +20,19 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 public class ContextAwareMatcherTest {
 
     @Mock
-    private Matcher defaultMatcher;
+    private Matcher<String> defaultMatcher;
 
     @Mock
-    private Matcher customMatcher;
+    private Matcher<String> customMatcher;
 
     @Mock
     private Context context;
 
-    private ContextAwareMatcher contextAwareMatcher;
+    private ContextAwareMatcher<String> contextAwareMatcher;
     
     @Before
     public void setUp() {
-        contextAwareMatcher = new ContextAwareMatcher(context, defaultMatcher);
+        contextAwareMatcher = new ContextAwareMatcher<>(context, defaultMatcher);
     }
     
     @Test
@@ -50,7 +50,7 @@ public class ContextAwareMatcherTest {
     @Test
     public void callsCustomMatcherIfRegistered() {
         FeedbackNode expectedFeedback = Feedback.empty("test");
-        when(context.getCustomMatcher()).thenReturn(Optional.of(customMatcher));
+        when(context.<String>getCustomMatcher()).thenReturn(Optional.of(customMatcher));
         when(customMatcher.match("specific", "a", "b")).thenReturn(expectedFeedback);
         FeedbackNode feedback = contextAwareMatcher.match("specific", "a", "b");
         verify(context).push("specific");

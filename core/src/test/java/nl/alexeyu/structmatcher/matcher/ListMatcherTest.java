@@ -15,7 +15,7 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class ListMatcherTest {
     
-    private Matcher matcher = Matchers.listsEqual(); 
+    private ListMatcher matcher = Matchers.listsEqual(); 
 
     @Test       
     public void emptyListsMatch() {
@@ -24,9 +24,9 @@ public class ListMatcherTest {
 
     @Test
     public void listsWithNullsMatch() {
-        List<?> expectedList = new ArrayList<>();
+        List<Object> expectedList = new ArrayList<>();
         expectedList.add(null);
-        List<?> actualList = new ArrayList<>();
+        List<Object> actualList = new ArrayList<>();
         actualList.add(null);
         assertTrue(matcher.match("empty", expectedList, actualList).isEmpty());
     }

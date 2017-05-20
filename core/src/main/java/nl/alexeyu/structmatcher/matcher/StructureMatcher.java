@@ -5,10 +5,10 @@ import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
-final class StructureMatcher implements Matcher {
+final class StructureMatcher<V> implements Matcher<V> {
     
     @Override
-    public FeedbackNode match(String property, Object expected, Object actual) {
+    public FeedbackNode match(String property, V expected, V actual) {
         CompositeFeedbackNode feedback = Feedback.composite(property);
         Property.forClass(expected.getClass())
                 .map(p -> matchProperty(p, expected, actual))
@@ -17,6 +17,7 @@ final class StructureMatcher implements Matcher {
         return feedback;
     }
 
+    @SuppressWarnings("unchecked")
     private FeedbackNode matchProperty(Property property, Object expected, Object actual) {
         return Matchers.contextAware(
                  Matchers.forProperty(property))

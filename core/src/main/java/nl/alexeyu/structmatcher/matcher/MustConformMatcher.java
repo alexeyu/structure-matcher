@@ -5,19 +5,19 @@ import java.util.function.Predicate;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
-public final class MustConformMatcher implements Matcher {
+public final class MustConformMatcher<V> implements Matcher<V> {
     
-    private final Predicate<Object> condition;
+    private final Predicate<V> condition;
     
     private final String specification;
     
-    public MustConformMatcher(Predicate<Object> predicate, String specification) {
+    public MustConformMatcher(Predicate<V> predicate, String specification) {
         this.condition = predicate;
         this.specification = specification;
     }
 
     @Override
-    public FeedbackNode match(String property, Object baseValue, Object testedValue) {
+    public FeedbackNode match(String property, V baseValue, V testedValue) {
         if (!condition.test(baseValue)) {
             throw new BrokenSpecificationException(property, baseValue, specification);
         }

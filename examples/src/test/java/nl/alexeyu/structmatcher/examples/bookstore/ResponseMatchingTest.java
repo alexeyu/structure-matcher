@@ -24,7 +24,6 @@ import com.jayway.jsonpath.JsonPath;
 import nl.alexeyu.structmatcher.ObjectMatcher;
 import nl.alexeyu.structmatcher.examples.bookstore.model.BookSearchResult;
 import nl.alexeyu.structmatcher.examples.bookstore.model.Platform;
-import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.json.Json;
 import nl.alexeyu.structmatcher.matcher.Matcher;
@@ -38,7 +37,7 @@ public class ResponseMatchingTest {
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
-    private Matcher ipMatcher = Matchers.regex(IPADDRESS_PATTERN);
+    private Matcher<String> ipMatcher = Matchers.regex(IPADDRESS_PATTERN);
     
     private Path rootPath;
     
@@ -87,10 +86,8 @@ public class ResponseMatchingTest {
     
     @Test
     public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
-        Matcher emptyYearMatcher = (prop, exp, act) -> Integer.valueOf(0).equals(act) 
-                                        ? Feedback.empty(prop) 
-                                        : Feedback.gotNonNull(prop, act);
-        Function<Object, Object> nameToInitial = name -> name.toString().substring(0, 1) + ".";
+        Matcher<Integer> emptyYearMatcher = Matchers.constant(0);
+        Function<String, String> nameToInitial = name -> name.substring(0, 1) + ".";
         FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forObject("response"))
                 .with(constant(Platform.MOBILE), "Metadata.Platform")
                 .with(Matchers.and(

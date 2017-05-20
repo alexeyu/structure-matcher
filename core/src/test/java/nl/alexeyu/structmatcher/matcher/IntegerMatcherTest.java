@@ -10,7 +10,7 @@ import nl.alexeyu.structmatcher.feedback.ExpectationBroken;
 
 public class IntegerMatcherTest {
     
-    private Matcher matcher = IntegerMatchers.any();
+    private Matcher<Object> matcher = IntegerMatchers.any();
     
     @Test(expected = BrokenSpecificationException.class)
     public void throwsExceptionIfExpectedIsNotAnInt() {

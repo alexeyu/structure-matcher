@@ -13,58 +13,60 @@ public class Matchers {
     
     private static final Context context = new ThreadLocalContext();
     
-    public static void registerCustomMatcher(List<String> propertyPath, Matcher matcher) {
+    public static <V> void registerCustomMatcher(List<String> propertyPath, Matcher<V> matcher) {
         context.register(propertyPath, matcher);
     }
     
-    public static Matcher contextAware(Matcher defaultMatcher) {
-        return new ContextAwareMatcher(context, defaultMatcher);
+    public static <V> Matcher<V> contextAware(Matcher<V> defaultMatcher) {
+        return new ContextAwareMatcher<>(context, defaultMatcher);
     }
 
-    public static Matcher nullAware(Matcher nextMatcher) {
-        return new NullAwareMatcher(nextMatcher);
+    public static <V> Matcher<V> nullAware(Matcher<V> nextMatcher) {
+        return new NullAwareMatcher<>(nextMatcher);
     }
 
-    public static Matcher anyValue() {
+    public static <V> Matcher<V> anyValue() {
         return nullAware((p, e, a) -> Feedback.empty(p));
     }
 
-    public static Matcher constant(Object alwaysExpected) {
+    public static <V> Matcher<V> constant(V alwaysExpected) {
         return (prop, exp, act) -> valuesEqual().match(prop, alwaysExpected, act);
     }
 
-    public static Matcher valuesEqual() {
-        return nullAware(new ValuesEqualMatcher());
+    public static <V> Matcher<V> valuesEqual() {
+        return nullAware(new ValuesEqualMatcher<>());
     }
 
-    public static Matcher listsEqual() {
+    public static ListMatcher listsEqual() {
         return new ListMatcher();
     }
 
-    public static Matcher structuresEqual() {
-        return nullAware(new StructureMatcher());
+    public static <V> Matcher<V> structuresEqual() {
+        return nullAware(new StructureMatcher<>());
     }
     
-    public static Matcher and(Matcher... matchers) {
-        return new AndMatcher(matchers);
+    @SafeVarargs
+    public static <V> Matcher<V> and(Matcher<V>... matchers) {
+        return new AndMatcher<>(matchers);
     }
 
-    public static Matcher normalizing(Function<Object, Object> normalizer, Matcher delegate) {
+    public static <V> Matcher<V> normalizing(Function<V, V> normalizer, Matcher<V> delegate) {
         return (prop, exp, act) -> delegate.match(prop, exp, normalizer.apply(act));
     }
 
-    public static Matcher normalizingBase(Function<Object, Object> normalizer, Matcher delegate) {
+    public static <V> Matcher<V>  normalizingBase(Function<V, V> normalizer, Matcher<V>  delegate) {
         return (prop, exp, act) -> delegate.match(prop, 
                 normalizer.apply(exp), 
                 act);
     }
 
-    public static Matcher normalizingBoth(Function<Object, Object> normalizer, Matcher delegate) {
+    public static <V> Matcher<V> normalizingBoth(Function<V, V> normalizer, Matcher<V> delegate) {
         return (prop, exp, act) -> delegate.match(prop, 
                 normalizer.apply(exp), 
                 normalizer.apply(act));
     }
 
+    @SuppressWarnings("rawtypes")
     public static Matcher forProperty(Property property) {
         if (property.isList()) {
             return listsEqual();
@@ -76,25 +78,25 @@ public class Matchers {
 
     }
     
-    public static Matcher regex(String expr) {
-        return new MustConformMatcher(
-                v -> Pattern.compile(expr).matcher(String.valueOf(v)).matches(),
+    public static Matcher<String> regex(String expr) {
+        return new MustConformMatcher<>(
+                str -> Pattern.compile(expr).matcher(str).matches(),
                 "The regular expression: " + expr);
     }
 
-    public static Matcher nonEmptyString() {
-        return new MustConformMatcher(v -> !v.toString().isEmpty(), "Non-empty string");
+    public static Matcher<String> nonEmptyString() {
+        return new MustConformMatcher<>(str -> !str.toString().isEmpty(), "Non-empty string");
     }
 
-    public static Matcher nonNull() {
-        return new MustConformMatcher(v -> v != null, "Any value");
+    public static <V> Matcher<V> nonNull() {
+        return new MustConformMatcher<>(v -> v != null, "Any value");
     }
 
-    static Matcher getNullAwareMatcher(Object obj) {
+    static <V> Matcher<V> getNullAwareMatcher(V obj) {
         return nullAware(forObject(obj));
     }
 
-    static Matcher forObject(Object obj) {
+    static <V> Matcher<V> forObject(V obj) {
         if (obj == null) {
              // Should not happen due to the null-aware matcher logic
             return (p, e, a) -> { throw new NullPointerException("Cannot match null value.");};

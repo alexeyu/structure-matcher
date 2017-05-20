@@ -11,8 +11,8 @@ public interface Context {
 
     void pop();
     
-    void register(List<String> propertyPath, Matcher matcher);
+    <V> void register(List<String> propertyPath, Matcher<V> matcher);
 
-    Optional<Matcher> getCustomMatcher();
+    <V> Optional<Matcher<V>> getCustomMatcher();
     
 }

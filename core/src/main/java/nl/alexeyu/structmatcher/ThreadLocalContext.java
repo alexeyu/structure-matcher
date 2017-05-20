@@ -12,7 +12,7 @@ public final class ThreadLocalContext implements Context {
 
     private final ThreadLocal<List<String>> path = new ThreadLocal<>();
     
-    private final Map<List<String>, Matcher> propertyToMatcher = new HashMap<>();
+    private final Map<List<String>, Matcher<?>> propertyToMatcher = new HashMap<>();
 
     public ThreadLocalContext() {
         path.set(new ArrayList<>());
@@ -31,13 +31,15 @@ public final class ThreadLocalContext implements Context {
     }
 
     @Override
-    public void register(List<String> propertyPath, Matcher matcher) {
+    public <V> void register(List<String> propertyPath, Matcher<V> matcher) {
         propertyToMatcher.put(propertyPath, matcher);        
     }
 
     @Override
-    public Optional<Matcher> getCustomMatcher() {
-        return Optional.ofNullable(propertyToMatcher.get(path.get()));
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public <V> Optional<Matcher<V>> getCustomMatcher() {
+        Matcher matcher = propertyToMatcher.get(path.get());
+        return Optional.ofNullable(matcher);
     }
 
 }

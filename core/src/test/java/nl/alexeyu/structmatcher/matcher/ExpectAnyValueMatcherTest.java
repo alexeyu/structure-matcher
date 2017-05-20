@@ -8,7 +8,7 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 
 public class ExpectAnyValueMatcherTest {
 
-    private Matcher matcher = Matchers.anyValue();
+    private Matcher<Object> matcher = Matchers.anyValue();
 
     @Test
     public void treatsNullsAsEqual() {

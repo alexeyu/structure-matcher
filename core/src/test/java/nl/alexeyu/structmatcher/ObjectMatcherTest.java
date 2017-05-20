@@ -18,7 +18,7 @@ public class ObjectMatcherTest {
 
     private final Structure actual = new Structure(Color.BLACK, asList("b"), new Substructure(false));
     
-    private final Matcher ignore = Matchers.anyValue();
+    private final Matcher<Object> ignore = Matchers.anyValue();
     
     @Test
     public void ignoreAllPropertiesOnTheHighestLevel() {

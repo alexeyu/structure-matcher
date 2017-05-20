@@ -5,16 +5,16 @@ import java.util.Optional;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
-public final class NullAwareMatcher implements Matcher {
+public final class NullAwareMatcher<V> implements Matcher<V> {
     
-    private final Matcher nextMatcher;
+    private final Matcher<V> nextMatcher;
     
-    public NullAwareMatcher(Matcher nextMatcher) {
+    public NullAwareMatcher(Matcher<V> nextMatcher) {
         this.nextMatcher = nextMatcher;
     }
 
     @Override
-    public FeedbackNode match(String property, Object expected, Object actual) {
+    public FeedbackNode match(String property, V expected, V actual) {
         return maybeMatch(property, expected, actual)
                 .orElseGet(() -> nextMatcher.match(property, expected, actual));
     }

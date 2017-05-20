@@ -6,12 +6,10 @@ import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
-final class ListMatcher implements Matcher {
+final class ListMatcher implements Matcher<List<?>> {
     
     @Override
-    public FeedbackNode match(String property, Object expected, Object actual) {
-        List<?> expectedList = List.class.cast(expected);
-        List<?> actualList = List.class.cast(actual);
+    public FeedbackNode match(String property, List<?> expectedList, List<?> actualList) {
         if (expectedList.size() != actualList.size()) {
             return Feedback.differentCollectionSizes(property, expectedList.size(), actualList.size());
         }
@@ -20,8 +18,8 @@ final class ListMatcher implements Matcher {
             Object actualElement = actualList.get(i);
             Object expectedElement = expectedList.get(i);
             String elementProperty = property + "[" + i + "]";
-            FeedbackNode childFeedback = Matchers.getNullAwareMatcher(actualElement)
-                    .match(elementProperty, expectedElement, actualElement);
+            Matcher<Object> elementMatcher = Matchers.getNullAwareMatcher(actualElement);
+            FeedbackNode childFeedback = elementMatcher.match(elementProperty, expectedElement, actualElement);
             if (!childFeedback.isEmpty()) {
                 feedback.add(childFeedback);
             }

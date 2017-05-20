@@ -20,14 +20,14 @@ public class ObjectMatcher {
         return new ObjectMatcher(name);
     }
     
-    public ObjectMatcher withMatcher(Matcher matcher, String... propertyPath) {
+    public ObjectMatcher withMatcher(Matcher<?> matcher, String... propertyPath) {
         List<String> path = new LinkedList<>(Arrays.asList(propertyPath));
         path.add(0, objectName);
         Matchers.registerCustomMatcher(path, matcher);
         return this;
     }
 
-    public ObjectMatcher with(Matcher matcher, String propertyPath) {
+    public ObjectMatcher with(Matcher<?> matcher, String propertyPath) {
         return withMatcher(matcher, propertyPath.split("\\."));
     }
 
