@@ -1,9 +1,10 @@
 package nl.alexeyu.structmatcher.feedback;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,20 +14,16 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 
-import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
-import nl.alexeyu.structmatcher.feedback.Feedback;
-import nl.alexeyu.structmatcher.feedback.FeedbackNode;
-
 public class FeedbackTest {
-    
+
     private ObjectMapper mapper;
-    
+
     @Before
     public void init() {
-        mapper  = new ObjectMapper();
-        mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);        
+        mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
     }
-    
+
     @Test
     public void emptyFeedbackContainsOnlyPropertyName() throws Exception {
         FeedbackNode feedback = Feedback.empty("test");
@@ -51,7 +48,7 @@ public class FeedbackTest {
         assertEquals("null", JsonPath.read(json, "$.expectation"));
         assertEquals("black", JsonPath.read(json, "$.value"));
     }
-    
+
     @Test
     public void nonEqualPropertyFeedbackContainsPropertyInfo() throws Exception {
         FeedbackNode feedback = Feedback.nonEqual("color", "white", "black");
@@ -63,26 +60,22 @@ public class FeedbackTest {
 
     @Test
     public void compositeFeedbackRemainsEmptyWhileAllItsChildrenAreEmpty() {
-        CompositeFeedbackNode feedback = Feedback.composite("primary");
-        feedback.add(Feedback.empty("color"));
-        feedback.add(Feedback.composite(""));
+        CompositeFeedbackNode feedback = Feedback.composite("primary",
+                asList(Feedback.empty("color"), Feedback.composite("", asList())));
         assertTrue(feedback.isEmpty());
     }
 
     @Test
     public void compositeFeedbackIsNoLongerEmptyWhenOneChildIsNotEmpty() {
-        CompositeFeedbackNode feedback = Feedback.composite("primary");
-        feedback.add(Feedback.empty("color"));
-        feedback.add(Feedback.composite("secondary")
-                .add(Feedback.nonEqual("letter", "a", "b")));
+        CompositeFeedbackNode feedback = Feedback.composite("primary", asList(Feedback.empty("color"),
+                Feedback.composite("secondary", asList(Feedback.nonEqual("letter", "a", "b")))));
         assertFalse(feedback.isEmpty());
     }
 
     @Test
     public void compositeFeedbackAccumulatesOthers() throws Exception {
-        CompositeFeedbackNode feedback = Feedback.composite("primary");
-        feedback.add(Feedback.nonEqual("color", "white", "black"));
-        feedback.add(Feedback.nonEqual("qty", 15, 17));
+        CompositeFeedbackNode feedback = Feedback.composite("primary",
+                asList(Feedback.nonEqual("color", "white", "black"), Feedback.nonEqual("qty", 15, 17)));
         String json = mapper.writeValueAsString(feedback);
         assertEquals(2, getChildrenLength(json));
         assertEquals("color", JsonPath.read(json, "$.children[0].property"));
@@ -91,10 +84,9 @@ public class FeedbackTest {
 
     @Test
     public void feedbackCanBeNested() throws Exception {
-        FeedbackNode feedback = Feedback.composite("primary")
-                .add(Feedback.nonEqual("color", "white", "black"))
-                .add(Feedback.composite("secondary")
-                        .add(Feedback.nonEqual("shade", "ivory", "noir")));
+        FeedbackNode feedback = Feedback.composite("primary", asList(
+                Feedback.nonEqual("color", "white", "black"),
+                Feedback.composite("secondary", asList(Feedback.nonEqual("shade", "ivory", "noir")))));
         String json = mapper.writeValueAsString(feedback);
         assertEquals(2, getChildrenLength(json));
         assertEquals("color", JsonPath.read(json, "$.children[0].property"));

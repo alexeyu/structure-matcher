@@ -12,22 +12,18 @@ import java.util.Objects;
  */
 public final class CompositeFeedbackNode implements FeedbackNode {
 
-    private final Collection<FeedbackNode> children = new LinkedHashSet<>();
-
     private final String property;
 
-    CompositeFeedbackNode(String property) {
+    private final Collection<FeedbackNode> children;
+
+    CompositeFeedbackNode(String property, Collection<FeedbackNode> children) {
         this.property = property;
+        this.children = new LinkedHashSet<>(children);
     }
 
     @Override
     public String getProperty() {
         return property;
-    }
-
-    public CompositeFeedbackNode add(FeedbackNode node) {
-        children.add(node);
-        return this;
     }
 
     @Override
@@ -41,7 +37,7 @@ public final class CompositeFeedbackNode implements FeedbackNode {
 
     @Override
     public int hashCode() {
-        return Objects.hash(children);
+        return Objects.hash(property, children);
     }
 
     @Override
@@ -51,14 +47,15 @@ public final class CompositeFeedbackNode implements FeedbackNode {
         }
         if (obj instanceof CompositeFeedbackNode) {
             CompositeFeedbackNode other = (CompositeFeedbackNode) obj;
-            return Objects.equals(this.children, other.children);
+            return Objects.equals(this.property, other.property) && 
+                    Objects.equals(this.children, other.children);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return children.toString();
+        return property + ": " + children;
     }
 
 }

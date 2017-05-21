@@ -1,5 +1,7 @@
 package nl.alexeyu.structmatcher.feedback;
 
+import java.util.Collection;
+
 /**
  * A factory of feedback nodes used by matchers.
  */
@@ -77,8 +79,8 @@ public final class Feedback {
      *            a property name.
      * @return an empty composite feedback node.
      */
-    public static CompositeFeedbackNode composite(String property) {
-        return new CompositeFeedbackNode(property);
+    public static CompositeFeedbackNode composite(String property, Collection<FeedbackNode> children) {
+        return new CompositeFeedbackNode(property, children);
     }
 
     /**

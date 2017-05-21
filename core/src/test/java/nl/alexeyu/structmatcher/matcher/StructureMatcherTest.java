@@ -30,10 +30,14 @@ public class StructureMatcherTest {
         Structure expected = new Structure(Color.WHITE, asList("white color"), new Substructure(true));
         Structure actual = new Structure(Color.BLACK, asList("black color"), new Substructure(false));
         FeedbackNode feedback = matcher.match("struct", expected, actual);
-        FeedbackNode expectedFeedback = Feedback.composite("")
-                .add(Feedback.nonEqual("Color", Color.WHITE, Color.BLACK))
-                .add(Feedback.composite("").add(Feedback.nonEqual("Strings[0]", "white color", "black color")))
-                .add(Feedback.composite("").add(Feedback.nonEqual("Bool", true, false)));
+
+        FeedbackNode expSubstructureFeedback = Feedback.composite("Sub", asList(Feedback.nonEqual("Bool", true, false)));
+        FeedbackNode expCcolorListFeedback = Feedback.composite("Strings",
+                asList(Feedback.nonEqual("Strings[0]", "white color", "black color")));
+        FeedbackNode expectedFeedback = Feedback.composite("struct", asList(
+                Feedback.nonEqual("Color", Color.WHITE, Color.BLACK),
+                expCcolorListFeedback,
+                expSubstructureFeedback));
         
         assertEquals(expectedFeedback, feedback);
     }

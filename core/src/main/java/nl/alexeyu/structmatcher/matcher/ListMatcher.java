@@ -1,8 +1,9 @@
 package nl.alexeyu.structmatcher.matcher;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
@@ -13,18 +14,18 @@ final class ListMatcher implements Matcher<List<?>> {
         if (expectedList.size() != actualList.size()) {
             return Feedback.differentCollectionSizes(property, expectedList.size(), actualList.size());
         }
-        CompositeFeedbackNode feedback = Feedback.composite(property);
+        Collection<FeedbackNode> feedbackSubnodes = new ArrayList<>();
         for (int i = 0; i < actualList.size(); i++) {
             Object actualElement = actualList.get(i);
             Object expectedElement = expectedList.get(i);
             String elementProperty = property + "[" + i + "]";
             Matcher<Object> elementMatcher = Matchers.getNullAwareMatcher(actualElement);
-            FeedbackNode childFeedback = elementMatcher.match(elementProperty, expectedElement, actualElement);
-            if (!childFeedback.isEmpty()) {
-                feedback.add(childFeedback);
+            FeedbackNode elementFeedback = elementMatcher.match(elementProperty, expectedElement, actualElement);
+            if (!elementFeedback.isEmpty()) {
+                feedbackSubnodes.add(elementFeedback);
             }
         }
-        return feedback;        
+        return Feedback.composite(property, feedbackSubnodes);
     }
 
 }

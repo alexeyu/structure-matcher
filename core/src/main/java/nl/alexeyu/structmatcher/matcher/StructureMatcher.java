@@ -1,7 +1,9 @@
 package nl.alexeyu.structmatcher.matcher;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 import nl.alexeyu.structmatcher.Property;
-import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
@@ -9,12 +11,11 @@ final class StructureMatcher<V> implements Matcher<V> {
     
     @Override
     public FeedbackNode match(String property, V expected, V actual) {
-        CompositeFeedbackNode feedback = Feedback.composite(property);
-        Property.forClass(expected.getClass())
+        Collection<FeedbackNode> feedbackSubnodes = Property.forClass(expected.getClass())
                 .map(p -> matchProperty(p, expected, actual))
                 .filter(f -> !f.isEmpty())
-                .forEach(feedback::add);
-        return feedback;
+                .collect(Collectors.toList());
+        return Feedback.composite(property, feedbackSubnodes);
     }
 
     @SuppressWarnings("unchecked")
