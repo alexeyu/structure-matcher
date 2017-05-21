@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -78,6 +80,16 @@ public class PropertyTest {
         Optional<Property> property = Property.of(getStructMethod("getColor"));
         assertTrue(property.isPresent());
         assertEquals(Color.WHITE, property.get().getValue(testStructure));
+    }
+
+    @Test
+    public void returnsAllThePropertiesOfClass() {
+        Set<String> propertyNames = Property.forClass(Structure.class)
+                .map(p -> p.getName()).collect(Collectors.toSet());
+        assertEquals(3, propertyNames.size());
+        assertTrue(propertyNames.contains("Color"));
+        assertTrue(propertyNames.contains("Sub"));
+        assertTrue(propertyNames.contains("Strings"));
     }
 
     private Method getStructMethod(String methodName) throws NoSuchMethodException {
