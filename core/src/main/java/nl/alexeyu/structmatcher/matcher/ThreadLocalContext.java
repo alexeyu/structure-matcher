@@ -1,14 +1,13 @@
-package nl.alexeyu.structmatcher;
+package nl.alexeyu.structmatcher.matcher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import nl.alexeyu.structmatcher.matcher.Matcher;
-
-public final class ThreadLocalContext implements Context {
+final class ThreadLocalContext implements Context {
 
     private final ThreadLocal<List<String>> path = new ThreadLocal<>();
     
@@ -19,8 +18,11 @@ public final class ThreadLocalContext implements Context {
     }
 
     @Override
-    public void push(String property) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public <V> Optional<Matcher<V>> push(String property) {
         path.get().add(property);
+        Matcher matcher = propertyToMatcher.get(path.get());
+        return Optional.ofNullable(matcher);
     }
 
     @Override
@@ -31,15 +33,8 @@ public final class ThreadLocalContext implements Context {
     }
 
     @Override
-    public <V> void register(List<String> propertyPath, Matcher<V> matcher) {
-        propertyToMatcher.put(propertyPath, matcher);        
-    }
-
-    @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public <V> Optional<Matcher<V>> getCustomMatcher() {
-        Matcher matcher = propertyToMatcher.get(path.get());
-        return Optional.ofNullable(matcher);
+    public <V> void register(Matcher<V> matcher, String... propertyPath) {
+        propertyToMatcher.put(Arrays.asList(propertyPath), matcher);        
     }
 
 }

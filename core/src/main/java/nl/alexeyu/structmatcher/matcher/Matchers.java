@@ -1,20 +1,17 @@
 package nl.alexeyu.structmatcher.matcher;
 
-import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import nl.alexeyu.structmatcher.Context;
 import nl.alexeyu.structmatcher.Property;
-import nl.alexeyu.structmatcher.ThreadLocalContext;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 
 public class Matchers {
     
     private static final Context context = new ThreadLocalContext();
     
-    public static <V> void registerCustomMatcher(List<String> propertyPath, Matcher<V> matcher) {
-        context.register(propertyPath, matcher);
+    public static <V> void registerCustomMatcher(Matcher<V> matcher, String... propertyPath) {
+        context.register(matcher, propertyPath);
     }
     
     public static <V> Matcher<V> contextAware(Matcher<V> defaultMatcher) {

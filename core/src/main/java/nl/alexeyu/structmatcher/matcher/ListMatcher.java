@@ -18,7 +18,7 @@ final class ListMatcher implements Matcher<List<?>> {
         for (int i = 0; i < actualList.size(); i++) {
             Object actualElement = actualList.get(i);
             Object expectedElement = expectedList.get(i);
-            String elementProperty = property + "[" + i + "]";
+            String elementProperty = String.format("%s[%s]", property, i);
             Matcher<Object> elementMatcher = Matchers.getNullAwareMatcher(actualElement);
             FeedbackNode elementFeedback = elementMatcher.match(elementProperty, expectedElement, actualElement);
             if (!elementFeedback.isEmpty()) {

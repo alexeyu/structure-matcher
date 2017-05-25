@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import nl.alexeyu.structmatcher.Context;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
@@ -20,15 +19,15 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 public class ContextAwareMatcherTest {
 
     @Mock
-    private Matcher<String> defaultMatcher;
+    private Matcher<Object> defaultMatcher;
 
     @Mock
-    private Matcher<String> customMatcher;
+    private Matcher<Object> customMatcher;
 
     @Mock
     private Context context;
 
-    private ContextAwareMatcher<String> contextAwareMatcher;
+    private ContextAwareMatcher<Object> contextAwareMatcher;
     
     @Before
     public void setUp() {
@@ -38,7 +37,7 @@ public class ContextAwareMatcherTest {
     @Test
     public void callsDefaultMatcherIfCustomOneIsNotRegistered() {
         FeedbackNode expectedFeedback = Feedback.empty("test");
-        when(context.getCustomMatcher()).thenReturn(Optional.empty());
+        when(context.push("test")).thenReturn(Optional.empty());
         when(defaultMatcher.match("test", "a", "b")).thenReturn(expectedFeedback);
         FeedbackNode feedback = contextAwareMatcher.match("test", "a", "b");
         verify(context).push("test");
@@ -50,7 +49,7 @@ public class ContextAwareMatcherTest {
     @Test
     public void callsCustomMatcherIfRegistered() {
         FeedbackNode expectedFeedback = Feedback.empty("test");
-        when(context.<String>getCustomMatcher()).thenReturn(Optional.of(customMatcher));
+        when(context.push("specific")).thenReturn(Optional.of(customMatcher));
         when(customMatcher.match("specific", "a", "b")).thenReturn(expectedFeedback);
         FeedbackNode feedback = contextAwareMatcher.match("specific", "a", "b");
         verify(context).push("specific");

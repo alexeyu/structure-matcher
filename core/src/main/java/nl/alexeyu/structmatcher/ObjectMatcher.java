@@ -1,9 +1,5 @@
 package nl.alexeyu.structmatcher;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.matcher.Matcher;
 import nl.alexeyu.structmatcher.matcher.Matchers;
@@ -21,9 +17,10 @@ public class ObjectMatcher {
     }
     
     public ObjectMatcher withMatcher(Matcher<?> matcher, String... propertyPath) {
-        List<String> path = new LinkedList<>(Arrays.asList(propertyPath));
-        path.add(0, objectName);
-        Matchers.registerCustomMatcher(path, matcher);
+        String[] fullPath = new String[propertyPath.length + 1];
+        System.arraycopy(propertyPath, 0, fullPath, 1, propertyPath.length);
+        fullPath[0] = objectName;
+        Matchers.registerCustomMatcher(matcher, fullPath);
         return this;
     }
 
