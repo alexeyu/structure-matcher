@@ -5,7 +5,14 @@ import java.util.Optional;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
-public final class NullAwareMatcher<V> implements Matcher<V> {
+/**
+ * It is a proxy matcher that assumes that both, base and target values may be
+ * <code>null</code>. If they both are <code>null</code>, they considered
+ * matching. If they both are not <code>null</code>, it calls a delegate
+ * matcher, expecting it to yield the result. If one of the values is
+ * <code>null</code> and another isn't, they indeed are considered non-matching.
+ */
+final class NullAwareMatcher<V> implements Matcher<V> {
     
     private final Matcher<V> nextMatcher;
     

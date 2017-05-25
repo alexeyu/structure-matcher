@@ -18,14 +18,14 @@ public class BookMatchingTest {
     
     @Test
     public void notNormalizedStringsDoNotMatchByDefault() {
-        FeedbackNode feedback = ObjectMatcher.forObject("author")
+        FeedbackNode feedback = ObjectMatcher.forClass(Author.class)
                 .match(francoiseSaganNormalized, francoiseSagan);
         assertFalse(feedback.isEmpty());
     }
 
     @Test
     public void notNormalizedStringsDoMatchWithNormalizationAwareMatcher() {
-        FeedbackNode feedback = ObjectMatcher.forObject("author")
+        FeedbackNode feedback = ObjectMatcher.forClass(Author.class)
                 .with(Matchers.normalizing(name -> stripAccents(name.toString()), 
                         Matchers.valuesEqual()), "FirstName")
                 .match(francoiseSaganNormalized, francoiseSagan);

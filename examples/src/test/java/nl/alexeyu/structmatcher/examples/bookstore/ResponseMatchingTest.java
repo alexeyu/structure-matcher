@@ -58,7 +58,7 @@ public class ResponseMatchingTest {
 
     @Test
     public void feedbackShowsAllTheDifferences() throws Exception {
-        FeedbackNode feedback = ObjectMatcher.forObject("response")
+        FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
                 .match(desktopTest, desktopProd);
         assertFalse(feedback.isEmpty());
         String json = Json.mapper().writeValueAsString(feedback);
@@ -70,7 +70,7 @@ public class ResponseMatchingTest {
         assertThat(8081, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.value"))));
     }
 
-    private ObjectMatcher withMetadataMatchers(ObjectMatcher matcher) {
+    private <V> ObjectMatcher<V> withMetadataMatchers(ObjectMatcher<V> matcher) {
         return matcher
                 .with(ipMatcher, "Metadata.Server.Ip")
                 .with(oneOf(8080, 8081, 8090, 8091), "Metadata.Server.Port")
@@ -79,7 +79,7 @@ public class ResponseMatchingTest {
     
     @Test
     public void prodAndTestConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
-        FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forObject("response"))
+        FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
                 .match(desktopTest, desktopProd);
         assertTrue(feedback.isEmpty());
     }
@@ -88,7 +88,7 @@ public class ResponseMatchingTest {
     public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
         Matcher<Integer> emptyYearMatcher = Matchers.constant(0);
         Function<String, String> nameToInitial = name -> name.substring(0, 1) + ".";
-        FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forObject("response"))
+        FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
                 .with(constant(Platform.MOBILE), "Metadata.Platform")
                 .with(Matchers.and(
                         Matchers.nonNull(),

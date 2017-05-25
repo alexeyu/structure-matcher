@@ -2,6 +2,7 @@ package nl.alexeyu.structmatcher.matcher;
 
 import java.util.Optional;
 
+import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 class ContextAwareMatcher<V> implements Matcher<V> {
@@ -20,7 +21,10 @@ class ContextAwareMatcher<V> implements Matcher<V> {
         try {
             Optional<Matcher<V>> customMatcher = context.push(property);
             Matcher<V> matcher = customMatcher.orElse(defaultMatcher);
-            return matcher.match(property, expected, actual);
+            FeedbackNode result = matcher.match(property, expected, actual);
+            return result == Feedback.useDefault()
+                    ? defaultMatcher.match(property, expected, actual)
+                    : result;
         } finally {
             context.pop();
         }

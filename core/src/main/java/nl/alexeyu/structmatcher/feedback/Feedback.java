@@ -7,6 +7,8 @@ import java.util.Collection;
  */
 public final class Feedback {
 
+    private static final FeedbackNode USE_DEFAULT = new UseDefaultFeedbackNode();
+
     /**
      * Produces an empty feedback about comparison two values of a property.
      * 
@@ -96,6 +98,10 @@ public final class Feedback {
      */
     public static FeedbackNode differentCollectionSizes(String property, int expectedSize, int actualSize) {
         return new ExpectationBroken(property, "Size " + expectedSize, actualSize);
+    }
+
+    public static FeedbackNode useDefault() {
+        return USE_DEFAULT;
     }
 
 }

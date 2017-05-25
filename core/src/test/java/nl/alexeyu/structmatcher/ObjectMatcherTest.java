@@ -22,7 +22,7 @@ public class ObjectMatcherTest {
     
     @Test
     public void ignoreAllPropertiesOnTheHighestLevel() {
-        FeedbackNode feedback = ObjectMatcher.forObject("test")
+        FeedbackNode feedback = ObjectMatcher.forClass(Structure.class)
                 .withMatcher(ignore, "Color")
                 .withMatcher(ignore, "Strings")
                 .withMatcher(ignore, "Sub")
@@ -32,7 +32,7 @@ public class ObjectMatcherTest {
 
     @Test
     public void ignoreAllPropertiesOnTheLowestLevel() {
-        FeedbackNode feedback = ObjectMatcher.forObject("test")
+        FeedbackNode feedback = ObjectMatcher.forClass(Structure.class)
                 .withMatcher(ignore, "Color")
                 .withMatcher(ignore, "Strings")
                 .withMatcher(ignore, "Sub", "Bool")

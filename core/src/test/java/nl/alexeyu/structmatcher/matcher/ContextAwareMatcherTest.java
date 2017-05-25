@@ -1,11 +1,13 @@
 package nl.alexeyu.structmatcher.matcher;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +58,19 @@ public class ContextAwareMatcherTest {
         verify(customMatcher).match("specific", "a", "b");
         verify(context).pop();
         assertSame(expectedFeedback, feedback);
+    }
+
+    @Test
+    public void callsCustomAndThenDefaultMatcherIfNecessary() {
+        when(context.push("specific")).thenReturn(Optional.of(customMatcher));
+        when(customMatcher.match("specific", "a", "b")).thenReturn(Feedback.useDefault());
+        when(defaultMatcher.match("specific", "a", "b")).thenReturn(Feedback.nonEqual("specific", "a", "b"));
+        FeedbackNode feedback = contextAwareMatcher.match("specific", "a", "b");
+        verify(context).push("specific");
+        verify(customMatcher).match("specific", "a", "b");
+        verify(defaultMatcher).match("specific", "a", "b");
+        verify(context).pop();
+        assertEquals(Feedback.nonEqual("specific", "a", "b"), feedback);
     }
 
 }
