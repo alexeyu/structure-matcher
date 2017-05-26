@@ -1,25 +1,30 @@
 package nl.alexeyu.structmatcher.matcher;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class ThreadLocalContextTest {
+import nl.alexeyu.structmatcher.DefaultMatchingStack;
+import nl.alexeyu.structmatcher.MatchingStack;
 
-    private Context context;
+public class DefaultMatchingStackTest {
+
+    private MatchingStack context;
     
     private Matcher<?> customMatcher = Matchers.anyValue();
     
     @Before
     public void setUp() {
-        context = new ThreadLocalContext();
+        context = new DefaultMatchingStack(
+                singletonMap(asList("a", "b"), customMatcher));
     }
 
     @Test
     public void matchersGetRegisteredAndCanBeReached() {
-        context.register(customMatcher, "a", "b");
         assertFalse(context.push("a").isPresent());
         assertSame(context.push("b").get(), customMatcher);
     }

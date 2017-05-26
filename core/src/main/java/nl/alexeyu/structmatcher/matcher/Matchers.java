@@ -3,19 +3,14 @@ package nl.alexeyu.structmatcher.matcher;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import nl.alexeyu.structmatcher.MatchingStackHolder;
 import nl.alexeyu.structmatcher.Property;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 
 public class Matchers {
     
-    private static final Context context = new ThreadLocalContext();
-    
-    public static <V> void registerCustomMatcher(Matcher<V> matcher, String... propertyPath) {
-        context.register(matcher, propertyPath);
-    }
-    
     public static <V> Matcher<V> contextAware(Matcher<V> defaultMatcher) {
-        return new ContextAwareMatcher<>(context, defaultMatcher);
+        return new ContextAwareMatcher<>(MatchingStackHolder.get(), defaultMatcher);
     }
 
     public static <V> Matcher<V> nullAware(Matcher<V> nextMatcher) {
