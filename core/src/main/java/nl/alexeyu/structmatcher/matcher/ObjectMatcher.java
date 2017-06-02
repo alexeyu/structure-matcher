@@ -1,4 +1,4 @@
-package nl.alexeyu.structmatcher;
+package nl.alexeyu.structmatcher.matcher;
 
 import static java.util.Arrays.asList;
 
@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
-import nl.alexeyu.structmatcher.matcher.Matcher;
-import nl.alexeyu.structmatcher.matcher.Matchers;
 
 /**
  * Matches two objects of a given class. This is the entry point to the library.

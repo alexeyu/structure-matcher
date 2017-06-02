@@ -1,6 +1,6 @@
-package nl.alexeyu.structmatcher;
+package nl.alexeyu.structmatcher.matcher;
 
-public class MatchingStackHolder {
+final class MatchingStackHolder {
 
     private static final ThreadLocal<MatchingStack> context = new ThreadLocal<>();
     

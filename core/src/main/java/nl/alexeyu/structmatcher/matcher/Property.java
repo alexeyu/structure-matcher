@@ -1,4 +1,4 @@
-package nl.alexeyu.structmatcher;
+package nl.alexeyu.structmatcher.matcher;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 /**
  * Convenient wrapper of POJO properties (which are represented by getter methods). 
  */
-public class Property {
+final class Property {
     
     private static List<String> HIDDEN_GETTERS = Arrays.asList("getClass");
 

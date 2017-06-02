@@ -6,7 +6,7 @@ import java.util.List;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
-public class AndMatcher<V> implements Matcher<V> {
+class AndMatcher<V> implements Matcher<V> {
     
     private final List<Matcher<V>> matchers;
 

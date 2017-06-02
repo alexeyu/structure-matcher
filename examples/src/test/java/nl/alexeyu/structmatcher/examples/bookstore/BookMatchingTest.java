@@ -6,10 +6,10 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import nl.alexeyu.structmatcher.ObjectMatcher;
 import nl.alexeyu.structmatcher.examples.bookstore.model.Author;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.matcher.Matchers;
+import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 
 public class BookMatchingTest {
     
@@ -26,7 +26,7 @@ public class BookMatchingTest {
     @Test
     public void notNormalizedStringsDoMatchWithNormalizationAwareMatcher() {
         FeedbackNode feedback = ObjectMatcher.forClass(Author.class)
-                .with(Matchers.normalizing(name -> stripAccents(name.toString()), 
+                .with(Matchers.<String>normalizing(name -> stripAccents(name), 
                         Matchers.valuesEqual()), "FirstName")
                 .match(francoiseSaganNormalized, francoiseSagan);
         assertTrue(feedback.isEmpty());

@@ -3,7 +3,6 @@ package nl.alexeyu.structmatcher.matcher;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import nl.alexeyu.structmatcher.Property;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 

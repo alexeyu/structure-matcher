@@ -2,7 +2,6 @@ package nl.alexeyu.structmatcher.matcher;
 
 import java.util.Optional;
 
-import nl.alexeyu.structmatcher.MatchingStack;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 class ContextAwareMatcher<V> implements Matcher<V> {

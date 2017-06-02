@@ -21,13 +21,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.jayway.jsonpath.JsonPath;
 
-import nl.alexeyu.structmatcher.ObjectMatcher;
 import nl.alexeyu.structmatcher.examples.bookstore.model.BookSearchResult;
 import nl.alexeyu.structmatcher.examples.bookstore.model.Platform;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.json.Json;
 import nl.alexeyu.structmatcher.matcher.Matcher;
 import nl.alexeyu.structmatcher.matcher.Matchers;
+import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 
 public class ResponseMatchingTest {
 
@@ -92,7 +92,7 @@ public class ResponseMatchingTest {
                 .with(constant(Platform.MOBILE), "Metadata.Platform")
                 .with(Matchers.and(
                         Matchers.nonNull(),
-                        Matchers.nonEmptyString(),
+                        Matchers.stringMustBeNonEmpty(),
                         Matchers.normalizingBase(nameToInitial, valuesEqual())
                       ),  "Books.Authors.FirstName")
                 .with(emptyYearMatcher, "Books.YearPublished")

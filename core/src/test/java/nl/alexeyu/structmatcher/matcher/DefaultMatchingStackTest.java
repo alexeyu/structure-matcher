@@ -8,9 +8,6 @@ import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 
-import nl.alexeyu.structmatcher.DefaultMatchingStack;
-import nl.alexeyu.structmatcher.MatchingStack;
-
 public class DefaultMatchingStackTest {
 
     private MatchingStack context;

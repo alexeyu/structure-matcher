@@ -1,4 +1,4 @@
-package nl.alexeyu.structmatcher;
+package nl.alexeyu.structmatcher.matcher;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertTrue;
@@ -6,11 +6,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
-import nl.alexeyu.structmatcher.matcher.Color;
 import nl.alexeyu.structmatcher.matcher.Matcher;
 import nl.alexeyu.structmatcher.matcher.Matchers;
-import nl.alexeyu.structmatcher.matcher.Structure;
-import nl.alexeyu.structmatcher.matcher.Substructure;
+import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 
 public class ObjectMatcherTest {
 

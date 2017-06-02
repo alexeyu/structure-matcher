@@ -1,8 +1,6 @@
-package nl.alexeyu.structmatcher;
+package nl.alexeyu.structmatcher.matcher;
 
 import java.util.Optional;
-
-import nl.alexeyu.structmatcher.matcher.Matcher;
 
 /**
  * Supports usage of custom matchers for certain properties. A matcher can be
@@ -12,7 +10,7 @@ import nl.alexeyu.structmatcher.matcher.Matcher;
  * registered for the current path, the system calls this matcher. Otherwise it
  * falls back to a default matcher.
  */
-public interface MatchingStack {
+interface MatchingStack {
 
     <V> Optional<Matcher<V>> push(String property);
 

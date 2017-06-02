@@ -1,4 +1,4 @@
-package nl.alexeyu.structmatcher;
+package nl.alexeyu.structmatcher.matcher;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -12,9 +12,7 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 
-import nl.alexeyu.structmatcher.matcher.Color;
-import nl.alexeyu.structmatcher.matcher.Structure;
-import nl.alexeyu.structmatcher.matcher.Substructure;
+import nl.alexeyu.structmatcher.matcher.Property;
 
 public class PropertyTest {
     

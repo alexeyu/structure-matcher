@@ -1,4 +1,4 @@
-package nl.alexeyu.structmatcher;
+package nl.alexeyu.structmatcher.matcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import nl.alexeyu.structmatcher.matcher.Matcher;
-
-public final class DefaultMatchingStack implements MatchingStack {
+final class DefaultMatchingStack implements MatchingStack {
     
     public static final MatchingStack BARE = new DefaultMatchingStack(Collections.emptyMap());
 

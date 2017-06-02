@@ -14,7 +14,7 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
  * bug. If the target structure does not conform the condition, it returns a
  * non-empty feedback node.
  */
-public final class MustConformMatcher<V> implements Matcher<V> {
+final class MustConformMatcher<V> implements Matcher<V> {
 
     private final Predicate<V> condition;
 
