@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  */
 final class Property {
     
-    private static List<String> HIDDEN_GETTERS = Arrays.asList("getClass");
+    private static final List<String> HIDDEN_GETTERS = Arrays.asList("getClass");
 
     private final Method method;
 
@@ -26,7 +26,7 @@ final class Property {
      * getter if its name starts from 'get' or 'is' and it does not take any
      * parameters. The method <code>getClass()</code> is ignored.
      */
-    public static Stream<Property> forClass(Class<?> cl) {
+    static Stream<Property> forClass(Class<?> cl) {
         return Arrays.stream(cl.getMethods())
             .map(Property::of)
             .filter(Optional::isPresent)
@@ -47,7 +47,7 @@ final class Property {
      * <b>Note:</b> provided the method names are in the camel case, property
      * name will always start with a capital letter.
      */
-    public String getName() {
+    String getName() {
         if (isGetMethod(method)) {
             return method.getName().substring(3);
         }
@@ -67,7 +67,7 @@ final class Property {
      * @throws IllegalStateException
      *             if there was an exception on the method call.
      */
-    public Object getValue(Object obj) {
+    Object getValue(Object obj) {
         try {
             return method.invoke(obj);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -87,7 +87,7 @@ final class Property {
      * <li><code>String</code>
      * </ul>
      */
-    public boolean isSimple() {
+    boolean isSimple() {
         return isSimple(method.getReturnType());
     }
 
@@ -95,11 +95,11 @@ final class Property {
      * Tells if a property a list (implements the
      * <code>java.util.list.List</code> interface).
      */
-    public boolean isList() {
+    boolean isList() {
         return method.getReturnType().isAssignableFrom(List.class);
     }
     
-    public static boolean isSimple(Class<?> cl) {
+    static boolean isSimple(Class<?> cl) {
         return String.class.isAssignableFrom(cl)
                 || Number.class.isAssignableFrom(cl)
                 || Boolean.class.isAssignableFrom(cl)

@@ -8,15 +8,18 @@ final class MatchingStackHolder {
         clear();
     }
 
-    public static void set(MatchingStack stack) {
+    private MatchingStackHolder() {
+    }
+    
+    static void set(MatchingStack stack) {
         context.set(stack);
     }
 
-    public static void clear() {
+    static void clear() {
         context.set(DefaultMatchingStack.BARE);
     }
     
-    public static MatchingStack get() {
+    static MatchingStack get() {
         return context.get();
     }
 

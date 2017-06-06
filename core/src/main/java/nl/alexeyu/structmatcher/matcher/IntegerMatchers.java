@@ -1,11 +1,16 @@
 package nl.alexeyu.structmatcher.matcher;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
+/**
+ * Factory of integer-specific matchers. 
+ */
 public class IntegerMatchers {
     
     private static final ToInteger TO_INT = new ToInteger(); 
@@ -13,25 +18,68 @@ public class IntegerMatchers {
     private IntegerMatchers() {
     }
 
+    /**
+     * Returns a strict matcher which considers an actual value matching if it
+     * is any integer. Please note that the matcher will throw
+     * <code>BrokenSpecificationException</code> if a base value is not an
+     * integer.
+     * 
+     * @return a matcher with the behavior specified above.
+     * @see {@link MustConformMatcher}
+     */
     public static Matcher<Object> any() {
         return new MustConformMatcher<>(v -> TO_INT.apply(v).isPresent(), "An integer");
     }
 
+    /**
+     * Returns a strict matcher which considers an actual value matching if it
+     * is any positive integer. Please note that the matcher will throw
+     * <code>BrokenSpecificationException</code> if a base value is not a
+     * positive integer.
+     * 
+     * @return a matcher with the behavior specified above.
+     * @see {@link MustConformMatcher}
+     */
     public static Matcher<Object> positive() {
         return new MustConformMatcher<>(
                 v -> TO_INT.apply(v).orElse(Integer.MIN_VALUE) > 0, "A positive integer");
     }
 
+    /**
+     * Returns a strict matcher which considers an actual value matching if it
+     * belongs to a specified range. Please note that the matcher will throw
+     * <code>BrokenSpecificationException</code> if a base value is not within a
+     * given range.
+     * 
+     * @param minExclusive
+     *            a minimum of the range: a value being verified should be
+     *            bigger than this parameter.
+     * @param maxExclusive
+     *            a maximum of the range: a value being verified should be
+     *            bigger than this parameter.
+     * @return a matcher with the behavior specified above.
+     */
     public static Matcher<Object> inRange(int minExclusive, int maxExclusive) {
         return new MustConformMatcher<>(
                 v -> TO_INT.andThen(new Within(minExclusive, maxExclusive)).apply(v),
                 String.format("Bigger than %s but smaller than %s", minExclusive, maxExclusive));
     }
-    
+
+    /**
+     * Returns a strict matcher which considers an actual value matching if it
+     * belongs to a set of specified numbers. Please note that the matcher will
+     * throw <code>BrokenSpecificationException</code> if it does not belong to
+     * the argument list.
+     * 
+     * @param possibleValues
+     *            a list of values a value being verified should belong to.
+     * @return a matcher with the behavior specified above.
+     */
     public static Matcher<Object> oneOf(Integer... possibleValues) {
+        List<Integer> possibleValuesList = Arrays.asList(possibleValues);
         return new MustConformMatcher<>(
-                v -> TO_INT.andThen(new OneOf(possibleValues)).apply(v),
-                String.format("One of the following values: %s", Arrays.asList(possibleValues)));
+                v -> TO_INT.andThen(new OneOf(possibleValuesList)).apply(v),
+                String.format("One of the following values: %s", possibleValuesList));
     }
 
     private static class Within implements Function<Optional<Integer>, Boolean> {
@@ -56,8 +104,8 @@ public class IntegerMatchers {
         
         private final Set<Integer> possibleValues;
 
-        public OneOf(Integer... possibleValues) {
-            this.possibleValues = Arrays.stream(possibleValues).collect(Collectors.toSet());
+        public OneOf(Collection<Integer> possibleValues) {
+            this.possibleValues = new HashSet<>(possibleValues);
         }
 
         @Override

@@ -12,8 +12,26 @@ import java.util.Optional;
  */
 interface MatchingStack {
 
+    /**
+     * Pushes a property with a given name to a stack and returns a custom
+     * matcher which has been registered for a current path (the previous stack
+     * plus a specified property), if any. If no custom matcher was registered,
+     * a verification algorithm should pick up a standard matcher according to a
+     * type of data being verified. Must be called before verification to help
+     * to select a proper matcher.
+     * 
+     * @param property
+     *            current property to be pushed to the stack.
+     * @return <code>Optional</code> which contains a custom matcher if such a
+     *         matcher was registered for current traversal path. An empty
+     *         <code>Optional</code> otherwise.
+     */
     <V> Optional<Matcher<V>> push(String property);
 
+    /**
+     * Throws a top property out of stack. A verification algorithm must call
+     * this method after it a verification of any property.
+     */
     void pop();
 
 }

@@ -14,6 +14,18 @@ public final class ExpectationBroken implements FeedbackNode {
 
     private final Object value;
 
+    /**
+     * Creates an instance which describes a broken expectation.
+     * 
+     * @param property
+     *            name of a property which was verified.
+     * @param expectation
+     *            description of an expected value. Depends on the
+     *            implementation of a matcher. For example 'Non-null', 'A
+     *            positive integer', '42'.
+     * @param value
+     *            actual value which does not match the provided expectation.
+     */
     public ExpectationBroken(String property, Object expectation, Object value) {
         this.property = property;
         this.expectation = expectation;

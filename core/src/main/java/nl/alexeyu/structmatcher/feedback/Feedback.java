@@ -6,6 +6,9 @@ import java.util.Collection;
  * A factory of feedback nodes used by matchers.
  */
 public final class Feedback {
+    
+    private Feedback() {
+    }
 
     /**
      * Produces an empty feedback about comparison two values of a property.
@@ -19,6 +22,16 @@ public final class Feedback {
         return new ExpecteationMet(property);
     }
 
+    /**
+     * Produces feedback which two values of a property are not equal.
+     * 
+     * @param property
+     *            name of a property which was verified.
+     * @param expected
+     *            an expected value of the property.
+     * @param actual
+     *            an actual value of a property.
+     */
     public static FeedbackNode nonEqual(String property, Object expected, Object actual) {
         return new ExpectationBroken(property, expected, actual);
     }

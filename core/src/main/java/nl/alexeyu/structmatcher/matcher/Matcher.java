@@ -14,6 +14,7 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
  * The result should contain the necessary information for such a case (a name
  * of the property, an expected value or condition and the actual value).
  */
+@FunctionalInterface
 public interface Matcher<V> {
 
     FeedbackNode match(String property, V expected, V value);

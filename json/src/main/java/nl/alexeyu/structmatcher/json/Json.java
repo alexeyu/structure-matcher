@@ -13,6 +13,9 @@ public final class Json {
     private Json() {
     }
     
+    /**
+     * Produces a convenient mapper to convert feedback into JSON.
+     */
     public static ObjectMapper mapper() {
         ObjectMapper mapper  = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY); 
