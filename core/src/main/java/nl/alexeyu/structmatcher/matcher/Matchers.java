@@ -1,5 +1,6 @@
 package nl.alexeyu.structmatcher.matcher;
 
+import java.util.Comparator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -71,20 +72,34 @@ public final class Matchers {
     }
 
     /**
-     * Produces a matcher which considers two lists matching all their elements
-     * match to each other. By default, the elements will be processed with the
-     * <code>valuesMatcher</code>, which means they would be considered matching
-     * if both are null or equal. However it is possible to redefine this
-     * matcher with a custom one. Such custom matcher would be applied to every
-     * pair of elements of the lists. Indeed, lists of different size are
+     * Produces a matcher which considers two lists matching if all their
+     * elements match to each other. By default, the elements will be processed
+     * with the <code>valuesMatcher</code>, which means they would be considered
+     * matching if both are null or equal. However it is possible to redefine
+     * this matcher with a custom one. Such custom matcher would be applied to
+     * every pair of elements of the lists. Indeed, lists of different size are
      * considered non-matching (this logic cannot be re-defined). Does not allow
      * arguments to be null.
      * 
      * @return a matcher with the behavior specified above.
      * @see {@link ObjectMatcher}
      */
-    public static ListMatcher listsEqual() {
-        return new ListMatcher();
+    public static <V> ListMatcher<V> listsEqual() {
+        return new ListMatcher<>();
+    }
+
+    /**
+     * Produces a matcher which considers two lists matching if if all their
+     * elements match to each other. Unlike the previous matcher, this one
+     * ignores the order of elements. For instance, lists <code>[1, 2, 3]</code>
+     * and <code>[2, 3, 1]</code> will be considered matching.
+     * 
+     * @param an element comparator which will be used by the matcher. 
+     * @return a matcher with the behavior specified above.
+     * @see {@link ObjectMatcher}
+     */
+    public static <V> IgnoreOrderListMatcher<V> listsHaveEqualElements(Comparator<V> comparator) {
+        return new IgnoreOrderListMatcher<>(comparator);
     }
 
     /**
