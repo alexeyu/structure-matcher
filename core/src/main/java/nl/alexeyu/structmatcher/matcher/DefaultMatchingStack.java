@@ -12,18 +12,16 @@ final class DefaultMatchingStack implements MatchingStack {
 
     private final List<String> path = new ArrayList<>();
     
-    private final Map<List<String>, Matcher<?>> propertyToMatcher;
+    private final CustomMatcherResolver customMatcherResolver;
 
     public DefaultMatchingStack(Map<List<String>, Matcher<?>> propertyToMatcher) {
-        this.propertyToMatcher = propertyToMatcher;
+        this.customMatcherResolver = new WildcardCustomMatcherResolver(propertyToMatcher);
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public <V> Optional<Matcher<V>> push(String property) {
         path.add(property);
-        Matcher matcher = propertyToMatcher.get(path);
-        return Optional.ofNullable(matcher);
+        return customMatcherResolver.forPath(path);
     }
 
     @Override
