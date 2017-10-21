@@ -33,6 +33,19 @@ public class IntegerMatchers {
 
     /**
      * Returns a strict matcher which considers an actual value matching if it
+     * is any non-negative integer. Please note that the matcher will throw
+     * <code>BrokenSpecificationException</code> if a base value is not a
+     * positive integer.
+     * 
+     * @return a matcher with the behavior specified above.
+     * @see {@link MustConformMatcher}
+     */
+    public static Matcher<Object> nonNegative() {
+        return greaterThan(-1);
+    }
+
+    /**
+     * Returns a strict matcher which considers an actual value matching if it
      * is any positive integer. Please note that the matcher will throw
      * <code>BrokenSpecificationException</code> if a base value is not a
      * positive integer.
@@ -41,8 +54,50 @@ public class IntegerMatchers {
      * @see {@link MustConformMatcher}
      */
     public static Matcher<Object> positive() {
+        return greaterThan(0);
+    }
+
+    /**
+     * Returns a strict matcher which considers an actual value matching if it
+     * is greater than a parameter value. Please note that the matcher will
+     * throw <code>BrokenSpecificationException</code> if a base value is not a
+     * positive integer.
+     * 
+     * @return a matcher with the behavior specified above.
+     * @see {@link MustConformMatcher}
+     */
+    public static Matcher<Object> greaterThan(int value) {
         return new MustConformMatcher<>(
-                v -> TO_INT.apply(v).orElse(Integer.MIN_VALUE) > 0, "A positive integer");
+                v -> TO_INT.apply(v).orElse(Integer.MIN_VALUE) > value,
+                "An integer greater than " + value);
+    }
+
+    /**
+     * Returns a strict matcher which considers an actual value matching if it
+     * is any negative integer. Please note that the matcher will throw
+     * <code>BrokenSpecificationException</code> if a base value is not a
+     * positive integer.
+     * 
+     * @return a matcher with the behavior specified above.
+     * @see {@link MustConformMatcher}
+     */
+    public static Matcher<Object> negative() {
+        return lessThan(0);
+    }
+
+    /**
+     * Returns a strict matcher which considers an actual value matching if it
+     * is less than a parameter value. Please note that the matcher will
+     * throw <code>BrokenSpecificationException</code> if a base value is not a
+     * positive integer.
+     * 
+     * @return a matcher with the behavior specified above.
+     * @see {@link MustConformMatcher}
+     */
+    public static Matcher<Object> lessThan(int value) {
+        return new MustConformMatcher<>(
+                v -> TO_INT.apply(v).orElse(Integer.MAX_VALUE) < value,
+                "An integer less than " + value);
     }
 
     /**

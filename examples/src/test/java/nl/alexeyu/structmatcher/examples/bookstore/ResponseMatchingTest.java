@@ -92,7 +92,7 @@ public class ResponseMatchingTest {
                 .with(constant(Platform.MOBILE), "Metadata.Platform")
                 .with(Matchers.and(
                         Matchers.nonNull(),
-                        Matchers.stringMustBeNonEmpty(),
+                        Matchers.nonEmptyString(),
                         Matchers.normalizingBase(nameToInitial, valuesEqual())
                       ),  "Books.Authors.FirstName")
                 .with(emptyYearMatcher, "Books.YearPublished")

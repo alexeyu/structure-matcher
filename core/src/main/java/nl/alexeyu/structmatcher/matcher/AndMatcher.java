@@ -19,7 +19,7 @@ class AndMatcher<V> implements Matcher<V> {
     public FeedbackNode match(String property, V expected, V value) {
         return matchers.stream()
             .map(m -> m.match(property, expected, value))
-            .filter(f -> !f.isEmpty())
+            .filter(feedback -> !feedback.isEmpty())
             .findFirst()
             .orElse(Feedback.empty(property));
     }

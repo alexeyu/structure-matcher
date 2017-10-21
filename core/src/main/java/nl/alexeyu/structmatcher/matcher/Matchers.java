@@ -89,7 +89,7 @@ public final class Matchers {
     }
 
     /**
-     * Produces a matcher which considers two lists matching if if all their
+     * Produces a matcher which considers two lists matching if all their
      * elements match to each other. Unlike the previous matcher, this one
      * ignores the order of elements. For instance, lists <code>[1, 2, 3]</code>
      * and <code>[2, 3, 1]</code> will be considered matching.
@@ -123,12 +123,16 @@ public final class Matchers {
      * Returns a matcher which executes all the matchers passed as parameters
      * and returns an empty feedback only if all these matchers yielded an empty
      * feedback. Otherwise returns the first non-empty feedback produced by
-     * them. <i>Example:</i>
+     * them. It is a convenient method to test a few assumptions about a value
+     * at once. <i>Example:</i>
      * 
      * <pre>
-     * Matchers.and(Matchers.valuesEqual(), Matchers.constant(5)).match("grade", 4, 4);
-     * // Produces non-empty feedback (4 will eventually be compared to 5).
+     * FeedbackNode feedback = Matchers.and(
+     *          Matchers.nonNull(),
+     *          Matchers.nonEmptyString()
+     *     ).match("Title", expected, actual);
      * </pre>
+     * 
      * 
      * @param matchers
      *            matchers to be executed on a given pair of values.
@@ -252,7 +256,7 @@ public final class Matchers {
      * 
      * @return a matcher with the behavior specified above.
      */
-    public static Matcher<String> stringMustBeNonEmpty() {
+    public static Matcher<String> nonEmptyString() {
         return mustConform(str -> str != null && !str.isEmpty(), "A non-empty string");
     }
 

@@ -3,10 +3,10 @@ package nl.alexeyu.structmatcher.feedback;
 import java.util.Collection;
 
 /**
- * A factory of feedback nodes used by matchers.
+ * Factory of feedback nodes used by matchers.
  */
 public final class Feedback {
-    
+
     private Feedback() {
     }
 
@@ -23,7 +23,7 @@ public final class Feedback {
     }
 
     /**
-     * Produces feedback which two values of a property are not equal.
+     * Produces feedback telling that two values of a property are not equal.
      * 
      * @param property
      *            name of a property which was verified.
@@ -43,10 +43,10 @@ public final class Feedback {
      * @param property
      *            property name.
      * @param value
-     *            a value which tested.
+     *            a value which was tested.
      * @param specification
-     *            an expectation regarding a value being tested (e.g. 'a
-     *            positive number')
+     *            a description of the expectation regarding a value being
+     *            tested (e.g. 'a positive number')
      * @return a feedback node which captures information about the broken
      *         expectation.
      */
@@ -85,12 +85,17 @@ public final class Feedback {
     }
 
     /**
-     * Produces an empty composite feedback node for a property. It is expected
-     * that the other feedback nodes will be added to it.
+     * Produces an composite feedback node for a property.
      * 
      * @param property
      *            a property name.
-     * @return an empty composite feedback node.
+     * @param children
+     *            a collection of feedback nodes which represent a result of
+     *            matching sub-properties of a given property
+     * @return a composite feedback node. It is considered empty only if all its
+     *         children are empty. Otherwise its children can be examined to
+     *         find non-matching sub-properties and the reason of their
+     *         difference.
      */
     public static CompositeFeedbackNode composite(String property, Collection<FeedbackNode> children) {
         return new CompositeFeedbackNode(property, children);

@@ -22,15 +22,15 @@ interface MatchingStack {
      * 
      * @param property
      *            current property to be pushed to the stack.
-     * @return <code>Optional</code> which contains a custom matcher if such a
-     *         matcher was registered for current traversal path. An empty
+     * @return <code>Optional</code> which contains a custom matcher if such
+     *         matcher was registered for the current traversal path. An empty
      *         <code>Optional</code> otherwise.
      */
     <V> Optional<Matcher<V>> push(String property);
 
     /**
-     * Throws a top property out of stack. A verification algorithm must call
-     * this method after it a verification of any property.
+     * Removes a top property out of the stack. A verification algorithm must
+     * call this method after a verification of any property.
      */
     void pop();
 
