@@ -66,12 +66,17 @@ class WildcardPathChecker implements BiPredicate<PropertyPathPattern, PropertyPa
         if (!pattern.startsWithWildcard()) {
             return false;
         }
-        PropertyPathPattern remainedPattern = pattern.tail();
-        if (!remainedPattern.isEmpty() &&
-                (remainedPattern.headsMatch(path) || remainedPattern.startsWithWildcard())) {
-            return test(remainedPattern, path);
+        if (maybeMatch(pattern.tail(), path)) {
+            return test(pattern.tail(), path);
         }
         return test(pattern, path.tail());
+    }
+    
+    private boolean maybeMatch(PropertyPathPattern pattern, PropertyPath path) {
+        if (pattern.isEmpty()) {
+            return false;
+        }
+        return pattern.headsMatch(path) || pattern.startsWithWildcard();
     }
 
 }

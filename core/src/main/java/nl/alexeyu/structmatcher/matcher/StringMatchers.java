@@ -6,6 +6,9 @@ import java.util.regex.Pattern;
  * Factory of string-specific matchers. 
  */
 public class StringMatchers {
+    
+    private StringMatchers() {
+    }
 
     /**
      * Returns a strict matcher which ensures the values are not null or empty

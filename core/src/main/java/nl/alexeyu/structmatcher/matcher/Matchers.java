@@ -228,7 +228,6 @@ public final class Matchers {
             return valuesEqual();
         }
         return structuresEqual();
-
     }
     
     /**
