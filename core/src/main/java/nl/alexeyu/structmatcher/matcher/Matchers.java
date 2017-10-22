@@ -3,7 +3,6 @@ package nl.alexeyu.structmatcher.matcher;
 import java.util.Comparator;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.property.Property;
@@ -232,35 +231,6 @@ public final class Matchers {
 
     }
     
-    /**
-     * Returns a strict regular expression-based matcher. A base value must match a
-     * given regular expression, otherwise
-     * <code>BrokenSpecificationException</code> will be thrown. The matcher
-     * will return an empty feedback if an actual value matches the regular
-     * expression and a non-empty feedback otherwise.
-     * 
-     * @param expr a regular expression to match values against.
-     * @return a matcher with the behavior specified above.
-     */
-    public static Matcher<String> regex(String expr) {
-        return new MustConformMatcher<>(
-                str -> Pattern.compile(expr).matcher(str).matches(),
-                "The regular expression: " + expr);
-    }
-
-    /**
-     * Returns a strict matcher which ensures the values are not null or empty
-     * strings. A base value must be a non-empty string, otherwise
-     * <code>BrokenSpecificationException</code> will be thrown. The matcher
-     * will return an empty feedback if an actual value is a non-empty string a
-     * non-empty feedback otherwise.
-     * 
-     * @return a matcher with the behavior specified above.
-     */
-    public static Matcher<String> nonEmptyString() {
-        return mustConform(str -> str != null && !str.isEmpty(), "A non-empty string");
-    }
-
     /**
      * Returns a strict matcher which ensures the values are not null. If a base
      * value appears to be <code>null</code>,

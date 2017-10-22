@@ -123,8 +123,8 @@ FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
         .with(IntegerMatchers.oneOf(8080, 8081, 8090, 8091), "Metadata.Server.Port") // verifies that the port in the response is one of the values from the list
         .with(IntegerMatchers.inRange(2, 5000), "Metadata.ProcessingTimeMs") // verifies that the processing time is a reasonable number
         .with(Matchers.and(  // verifies that all the suppositions below are correct
-        	Matchers.nonNull(), // verifies that the property is present...
-                Matchers.nonEmptyString(), // ... and is a non-empty string
+        	    Matchers.nonNull(), // verifies that the property is present...
+                StringMatchers.nonEmpty(), // ... and is a non-empty string
                 Matchers.normalizingBase(name -> name.substring(0, 1) + ".", valuesEqual()) // ...and, provided that the first name is converted to an initial
               ),  "Books.Authors.FirstName") // the initials match
         .with(Matchers.constant(0), "Books.YearPublished") // verifies that the publishing year for a target repsonse is empty

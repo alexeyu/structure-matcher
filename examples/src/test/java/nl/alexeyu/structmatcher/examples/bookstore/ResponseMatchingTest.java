@@ -28,6 +28,7 @@ import nl.alexeyu.structmatcher.json.Json;
 import nl.alexeyu.structmatcher.matcher.Matcher;
 import nl.alexeyu.structmatcher.matcher.Matchers;
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
+import nl.alexeyu.structmatcher.matcher.StringMatchers;
 
 public class ResponseMatchingTest {
 
@@ -37,7 +38,7 @@ public class ResponseMatchingTest {
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
-    private Matcher<String> ipMatcher = Matchers.regex(IPADDRESS_PATTERN);
+    private Matcher<String> ipMatcher = StringMatchers.regex(IPADDRESS_PATTERN);
     
     private Path rootPath;
     
@@ -92,7 +93,7 @@ public class ResponseMatchingTest {
                 .with(constant(Platform.MOBILE), "Metadata.Platform")
                 .with(Matchers.and(
                         Matchers.nonNull(),
-                        Matchers.nonEmptyString(),
+                        StringMatchers.nonEmpty(),
                         Matchers.normalizingBase(nameToInitial, valuesEqual())
                       ),  "Books.Authors.FirstName")
                 .with(emptyYearMatcher, "Books.YearPublished")
