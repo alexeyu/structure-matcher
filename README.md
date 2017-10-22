@@ -20,7 +20,7 @@ Imagine we have a book store REST API. The search endpoint returns a list of boo
 The legacy version is written for a traditional website and returns XML. The new version, written for mobile devices, returns JSON.
 Moreover, the response for mobile devices should be lighter since network throughput can be low.
 So, it was decided to omit certain properties from the "mobile" response. Moreover, some other property values, like the author's
-first name are shortnened. There are examples of the same response for both versions:
+first name are shortened. There are examples of the same response for both versions:
 
 ```xml
 <BookSearchResult>
@@ -136,9 +136,9 @@ Please note that only exceptions are defined. All the other properties are compa
 ### Pros and cons
 
 The library is: 
-* lightweight - no dependencies at all;
+* lightweight - no dependencies at all for the core module; json and examples modules depend on Jackson library.
 * flexible - you can assign any matcher to any property of a composite object;
-* extensible - you can write your matchers, however two dozen of them are already availble,
+* extensible - you can write your matchers, however two dozen of them are already available,
 covering many use cases.
 
 The result can be converted to JSON and stored to a file which will make comparison of thousands of objects easy to read or parse.
