@@ -8,7 +8,7 @@ public class Book {
     
     private List<Author> authors;
     
-    private int yearPublished;
+    private Integer yearPublished;
 
     public Book() {
     }
@@ -27,7 +27,7 @@ public class Book {
         return authors;
     }
 
-    public int getYearPublished() {
+    public Integer getYearPublished() {
         return yearPublished;
     }
     

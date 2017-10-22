@@ -127,7 +127,7 @@ FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
                 StringMatchers.nonEmpty(), // ... and is a non-empty string
                 Matchers.normalizingBase(name -> name.substring(0, 1) + ".", valuesEqual()) // ...and, provided that the first name is converted to an initial
               ),  "Books.Authors.FirstName") // the initials match
-        .with(Matchers.constant(0), "Books.YearPublished") // verifies that the publishing year for a target repsonse is empty
+        .with(Matchers.constant(null), "Books.YearPublished") // verifies that the publishing year for a target response is empty
         .match(desktopResponse, mobileResponse); // matches the mobile response against the desktop one.
 assertTrue(feedback.isEmpty()); // Correct for the given example
 ```

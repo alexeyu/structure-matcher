@@ -87,7 +87,6 @@ public class ResponseMatchingTest {
     
     @Test
     public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
-        Matcher<Integer> emptyYearMatcher = Matchers.constant(0);
         Function<String, String> nameToInitial = name -> name.substring(0, 1) + ".";
         FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
                 .with(constant(Platform.MOBILE), "Metadata.Platform")
@@ -96,7 +95,7 @@ public class ResponseMatchingTest {
                         StringMatchers.nonEmpty(),
                         Matchers.normalizingBase(nameToInitial, valuesEqual())
                       ),  "Books.Authors.FirstName")
-                .with(emptyYearMatcher, "Books.YearPublished")
+                .with(Matchers.constant(null), "Books.YearPublished")
                 .match(desktopTest, mobileTest);
         assertTrue(feedback.isEmpty());
     }
