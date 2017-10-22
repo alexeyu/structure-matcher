@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
+import nl.alexeyu.structmatcher.property.Property;
 
 /**
  * Matches two data structures. Returns a feedback tree regarding all the

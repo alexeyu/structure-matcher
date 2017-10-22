@@ -19,8 +19,7 @@ class ContextAwareMatcher<V> implements Matcher<V> {
     public FeedbackNode match(String property, V expected, V actual) {
         try {
             Optional<Matcher<V>> customMatcher = matchingStack.push(property);
-            Matcher<V> matcher = customMatcher.orElse(defaultMatcher);
-            return matcher.match(property, expected, actual);
+            return customMatcher.orElse(defaultMatcher).match(property, expected, actual);
         } finally {
             matchingStack.pop();
         }

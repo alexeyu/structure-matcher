@@ -1,12 +1,14 @@
 package nl.alexeyu.structmatcher.matcher;
 
-import static java.util.Arrays.asList;
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
+import nl.alexeyu.structmatcher.property.PropertyPathPattern;
+import nl.alexeyu.structmatcher.property.Property;
 
 /**
  * Matches two objects of a given class. This is the entry point to the library.
@@ -42,7 +44,7 @@ public class ObjectMatcher<T> {
 
     private final Class<T> clazz;
     
-    private final Map<List<String>, Matcher<?>> propertyToMatcher = new HashMap<>();
+    private final Map<PropertyPathPattern, Matcher<?>> propertyToMatcher = new HashMap<>();
 
     private ObjectMatcher(Class<T> clazz) {
         this.clazz = clazz;
@@ -86,10 +88,9 @@ public class ObjectMatcher<T> {
      * @see {@link Property}
      */
     public ObjectMatcher<T> withMatcher(Matcher<?> matcher, String... propertyPath) {
-        String[] fullPath = new String[propertyPath.length + 1];
-        System.arraycopy(propertyPath, 0, fullPath, 1, propertyPath.length);
-        fullPath[0] = clazz.getName();
-        propertyToMatcher.put(asList(fullPath), matcher);
+        List<String> fullPath = new ArrayList<>(Arrays.asList(propertyPath));
+        fullPath.add(0, clazz.getName());
+        propertyToMatcher.put(new PropertyPathPattern(fullPath), matcher);
         return this;
     }
 
@@ -129,8 +130,7 @@ public class ObjectMatcher<T> {
      */
     public FeedbackNode match(T base, T target) {
         try {
-            MatchingStackHolder.set(
-                    new DefaultMatchingStack(propertyToMatcher));
+            MatchingStackHolder.set(new DefaultMatchingStack(propertyToMatcher));
             return Matchers.contextAware(Matchers.structuresEqual())
                     .match(clazz.getName(), base, target);
         } finally {

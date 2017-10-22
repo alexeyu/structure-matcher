@@ -1,4 +1,4 @@
-package nl.alexeyu.structmatcher.matcher;
+package nl.alexeyu.structmatcher.property;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 /**
  * Convenient wrapper of POJO properties (which are represented by getter methods). 
  */
-final class Property {
+public final class Property {
     
     private static final List<String> HIDDEN_GETTERS = Arrays.asList("getClass");
 
@@ -26,14 +26,14 @@ final class Property {
      * getter if its name starts from 'get' or 'is' and it does not take any
      * parameters. The method <code>getClass()</code> is ignored.
      */
-    static Stream<Property> forClass(Class<?> cl) {
+    public static Stream<Property> forClass(Class<?> cl) {
         return Arrays.stream(cl.getMethods())
             .map(Property::of)
             .filter(Optional::isPresent)
             .map(Optional::get);
     }
 
-    static Optional<Property> of(Method method) {
+    public static Optional<Property> of(Method method) {
         return isValid(method)
             ? Optional.of(new Property(method))
             : Optional.empty();
@@ -47,7 +47,7 @@ final class Property {
      * <b>Note:</b> provided the method names are in the camel case, property
      * name will always start with a capital letter.
      */
-    String getName() {
+    public String getName() {
         if (isGetMethod(method)) {
             return method.getName().substring(3);
         }
@@ -67,7 +67,7 @@ final class Property {
      * @throws IllegalStateException
      *             if there was an exception on the method call.
      */
-    Object getValue(Object obj) {
+    public Object getValue(Object obj) {
         try {
             return method.invoke(obj);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -87,7 +87,7 @@ final class Property {
      * <li><code>String</code>
      * </ul>
      */
-    boolean isSimple() {
+    public boolean isSimple() {
         return isSimple(method.getReturnType());
     }
 
@@ -95,11 +95,11 @@ final class Property {
      * Tells if a property a list (implements the
      * <code>java.util.list.List</code> interface).
      */
-    boolean isList() {
+    public boolean isList() {
         return method.getReturnType().isAssignableFrom(List.class);
     }
     
-    static boolean isSimple(Class<?> cl) {
+    public static boolean isSimple(Class<?> cl) {
         return String.class.isAssignableFrom(cl)
                 || Number.class.isAssignableFrom(cl)
                 || Boolean.class.isAssignableFrom(cl)

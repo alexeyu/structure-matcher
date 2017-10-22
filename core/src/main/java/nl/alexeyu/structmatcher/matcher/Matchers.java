@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
+import nl.alexeyu.structmatcher.property.Property;
 
 /**
  * Factory which produces common matchers.  

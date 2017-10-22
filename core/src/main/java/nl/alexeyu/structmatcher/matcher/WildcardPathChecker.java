@@ -1,7 +1,9 @@
 package nl.alexeyu.structmatcher.matcher;
 
-import java.util.List;
 import java.util.function.BiPredicate;
+
+import nl.alexeyu.structmatcher.property.PropertyPathPattern;
+import nl.alexeyu.structmatcher.property.PropertyPath;
 
 /**
  * Check a path to a registered custom matcher against a stack of nested
@@ -48,41 +50,28 @@ import java.util.function.BiPredicate;
  * </tr>
  * </table>
  */
-class WildcardPathChecker implements BiPredicate<List<String>, List<String>> {
+class WildcardPathChecker implements BiPredicate<PropertyPathPattern, PropertyPath> {
 
     @Override
-    public boolean test(List<String> pattern, List<String> path) {
-        if (path.isEmpty() && isPositive(pattern)) {
+    public boolean test(PropertyPathPattern pattern, PropertyPath path) {
+        if (path.isEmpty() && pattern.isPositive()) {
             return true;
         }
         if (path.isEmpty() || pattern.isEmpty()) {
             return false;
         }
-        String nextPattern = pattern.get(0);
-        String nextPath = path.get(0);
-        if (nextPattern.equals(nextPath)) {
-            return test(tail(pattern), tail(path));
+        if (pattern.headsMatch(path)) {
+            return test(pattern.tail(), path.tail());
         }
-        if (isWildcard(nextPattern)) {
-            if (pattern.size() > 1) {
-                if (pattern.get(1).equals(nextPath) || isWildcard(pattern.get(1))) {
-                    return test(tail(pattern), path);
-                }
-            }
-            return test(pattern, tail(path));
+        if (!pattern.startsWithWildcard()) {
+            return false;
         }
-        return false;
+        PropertyPathPattern remainedPattern = pattern.tail();
+        if (!remainedPattern.isEmpty() &&
+                (remainedPattern.headsMatch(path) || remainedPattern.startsWithWildcard())) {
+            return test(remainedPattern, path);
+        }
+        return test(pattern, path.tail());
     }
 
-    private boolean isPositive(List<String> pattern) {
-        return pattern.stream().allMatch(this::isWildcard);
-    }
-
-    private boolean isWildcard(String s) {
-        return "*".equals(s);
-    }
-
-    private List<String> tail(List<String> list) {
-        return list.subList(1, list.size());
-    }
 }

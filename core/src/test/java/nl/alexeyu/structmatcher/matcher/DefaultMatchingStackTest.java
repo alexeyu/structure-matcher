@@ -8,6 +8,8 @@ import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 
+import nl.alexeyu.structmatcher.property.PropertyPathPattern;
+
 public class DefaultMatchingStackTest {
 
     private MatchingStack context;
@@ -17,7 +19,7 @@ public class DefaultMatchingStackTest {
     @Before
     public void setUp() {
         context = new DefaultMatchingStack(
-                singletonMap(asList("a", "b"), customMatcher));
+                singletonMap(new PropertyPathPattern(asList("a", "b")), customMatcher));
     }
 
     @Test
