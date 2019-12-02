@@ -13,9 +13,10 @@ apply plugin: "org.sonarqube"
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'eclipse'
+    apply plugin: 'maven'
 
     repositories {
+        mavenLocal()
         mavenCentral()
     }
 
@@ -23,7 +24,8 @@ subprojects {
     }
 
 
-    version = '1.0'
+    group 'nl.alexeyu.structmatcher'
+    version = '1.1-SNAPSHOT'
 
     jar {
         manifest.attributes provider: 'gradle'
