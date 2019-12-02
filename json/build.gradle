@@ -1,7 +1,7 @@
 dependencies {
     compile project(':core')
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.7'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.8.7'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.7'
+    compile "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+    compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     testCompile 'junit:junit:4.12'
 }

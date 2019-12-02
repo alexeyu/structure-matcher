@@ -1,10 +1,10 @@
 dependencies {
 	compile project(':core')
 	compile project(':json')
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.7'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.8.7'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.7'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.8.7'
+    compile "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+    compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
 	testCompile 'org.apache.commons:commons-lang3:3.5'
 	testCompile 'com.jayway.jsonpath:json-path:2.2.0'
     testCompile 'junit:junit:4.12'
