@@ -11,7 +11,7 @@ import java.util.function.Function;
 /**
  * Factory of integer-specific matchers. 
  */
-public class IntegerMatchers {
+public final class IntegerMatchers {
     
     private static final ToInteger TO_INT = new ToInteger(); 
     

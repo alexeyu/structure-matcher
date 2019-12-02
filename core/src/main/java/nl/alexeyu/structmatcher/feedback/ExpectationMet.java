@@ -6,11 +6,11 @@ import java.util.Objects;
  * Positive feedback, which implies an expectation about a property value was
  * met.
  */
-final class ExpecteationMet implements FeedbackNode {
+final class ExpectationMet implements FeedbackNode {
 
     private final String property;
 
-    ExpecteationMet(String property) {
+    ExpectationMet(String property) {
         this.property = property;
     }
 
@@ -39,8 +39,8 @@ final class ExpecteationMet implements FeedbackNode {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof ExpecteationMet) {
-            ExpecteationMet other = (ExpecteationMet) obj;
+        if (obj instanceof ExpectationMet) {
+            ExpectationMet other = (ExpectationMet) obj;
             return Objects.equals(this.property, other.property);
         }
         return false;

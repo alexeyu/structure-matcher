@@ -6,7 +6,7 @@ import java.util.Optional;
 import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 import nl.alexeyu.structmatcher.property.PropertyPath;
 
-class WildcardMatcherResolver implements CustomMatcherResolver {
+final class WildcardMatcherResolver implements CustomMatcherResolver {
 
     private final Map<PropertyPathPattern, Matcher<?>> propertyToMatcher;
     

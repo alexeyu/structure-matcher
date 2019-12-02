@@ -50,7 +50,7 @@ import nl.alexeyu.structmatcher.property.PropertyPath;
  * </tr>
  * </table>
  */
-class WildcardPathChecker implements BiPredicate<PropertyPathPattern, PropertyPath> {
+final class WildcardPathChecker implements BiPredicate<PropertyPathPattern, PropertyPath> {
 
     @Override
     public boolean test(PropertyPathPattern pattern, PropertyPath path) {

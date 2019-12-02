@@ -19,7 +19,7 @@ public final class Feedback {
      *         matching.
      */
     public static FeedbackNode empty(String property) {
-        return new ExpecteationMet(property);
+        return new ExpectationMet(property);
     }
 
     /**

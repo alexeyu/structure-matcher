@@ -13,6 +13,6 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 @FunctionalInterface
 public interface Matcher<V> {
 
-    FeedbackNode match(String property, V expected, V value);
+    FeedbackNode match(String property, V expected, V actual);
 
 }
