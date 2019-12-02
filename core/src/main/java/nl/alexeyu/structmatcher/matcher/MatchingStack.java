@@ -1,6 +1,6 @@
 package nl.alexeyu.structmatcher.matcher;
 
-import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Supports usage of custom matchers for certain properties. A matcher can be
@@ -10,7 +10,7 @@ import java.util.Optional;
  * registered for the current path, the system calls this matcher. Otherwise it
  * falls back to a default matcher.
  */
-interface MatchingStack {
+interface MatchingStack<T> {
 
     /**
      * Pushes a property with a given name to a stack and returns a custom
@@ -26,12 +26,16 @@ interface MatchingStack {
      *         matcher was registered for the current traversal path. An empty
      *         <code>Optional</code> otherwise.
      */
-    <V> Optional<Matcher<V>> push(String property);
+    <V> Matcher<V> push(String property, Supplier<Matcher<V>> fallbackSupplier);
 
     /**
      * Removes a top property out of the stack. A verification algorithm must
      * call this method after a verification of any property.
      */
     void pop();
+
+    T getBaseStructure();
+
+    T getActualStructure();
 
 }

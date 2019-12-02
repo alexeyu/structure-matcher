@@ -5,6 +5,7 @@ import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,25 +13,27 @@ import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 
 public class DefaultMatchingStackTest {
 
-    private MatchingStack context;
+    private MatchingStack<Object> context;
     
-    private Matcher<?> customMatcher = Matchers.anyValue();
+    private Matcher<?> customMatcher = Matchers.valuesEqual();
+
+    private Matcher<?> fallbackMatcher = Matchers.anyValue();
     
     @Before
     public void setUp() {
-        context = new DefaultMatchingStack(
+        context = new DefaultMatchingStack(new Object(), new Object(),
                 singletonMap(new PropertyPathPattern(asList("a", "b")), customMatcher));
     }
 
     @Test
     public void matchersGetRegisteredAndCanBeReached() {
-        assertFalse(context.push("a").isPresent());
-        assertSame(context.push("b").get(), customMatcher);
+        assertSame(fallbackMatcher, context.push("a", () -> fallbackMatcher));
+        assertSame(customMatcher, context.push("b", () -> fallbackMatcher));
     }
 
     @Test
     public void extraPopIsHarmless() {
-        context.push("a");
+        context.push("a", () -> null);
         context.pop();
         context.pop();
     }

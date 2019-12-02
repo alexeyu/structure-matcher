@@ -15,39 +15,38 @@ import org.junit.Test;
 import nl.alexeyu.structmatcher.matcher.Color;
 import nl.alexeyu.structmatcher.matcher.Structure;
 import nl.alexeyu.structmatcher.matcher.Substructure;
-import nl.alexeyu.structmatcher.property.Property;
 
-public class PropertyTest {
+public class ClassPropertyTest {
     
     private Structure testStructure = new Structure(Color.WHITE, new ArrayList<>(), new Substructure(true));
 
     @Test
     public void doesNotCreateNonGetterProperty() throws NoSuchMethodException {
-        assertFalse(Property.of(getStructMethod("toString")).isPresent());
+        assertFalse(ClassProperty.of(getStructMethod("toString")).isPresent());
     }
 
     @Test
     public void doesNotCreateBlacklistedProperty() throws NoSuchMethodException {
-        assertFalse(Property.of(getStructMethod("getClass")).isPresent());
+        assertFalse(ClassProperty.of(getStructMethod("getClass")).isPresent());
     }
 
     @Test
     public void booleanPropertyIsSimple() throws NoSuchMethodException {
-        Optional<Property> property = Property.of(Substructure.class.getMethod("isBool"));
+        Optional<ClassProperty> property = ClassProperty.of(Substructure.class.getMethod("isBool"));
         assertTrue(property.isPresent());
         assertTrue(property.get().isSimple());
     }
 
     @Test
     public void isPropertyIsConsidered() throws NoSuchMethodException {
-        Optional<Property> property = Property.of(Substructure.class.getMethod("isBool"));
+        Optional<ClassProperty> property = ClassProperty.of(Substructure.class.getMethod("isBool"));
         assertTrue(property.isPresent());
         assertEquals("Bool", property.get().getName());
     }
 
     @Test
     public void enumPropertyIsSimple() throws NoSuchMethodException {
-        Optional<Property> property = Property.of(getStructMethod("getColor"));
+        Optional<ClassProperty> property = ClassProperty.of(getStructMethod("getColor"));
         assertTrue(property.isPresent());
         assertTrue(property.get().isSimple());
         assertFalse(property.get().isList());
@@ -55,7 +54,7 @@ public class PropertyTest {
 
     @Test
     public void substructPropertyIsNotSimple() throws NoSuchMethodException {
-        Optional<Property> property = Property.of(getStructMethod("getSub"));
+        Optional<ClassProperty> property = ClassProperty.of(getStructMethod("getSub"));
         assertTrue(property.isPresent());
         assertFalse(property.get().isSimple());
         assertFalse(property.get().isList());
@@ -63,7 +62,7 @@ public class PropertyTest {
 
     @Test
     public void colorStringPropertyIsList() throws NoSuchMethodException {
-        Optional<Property> property = Property.of(getStructMethod("getStrings"));
+        Optional<ClassProperty> property = ClassProperty.of(getStructMethod("getStrings"));
         assertTrue(property.isPresent());
         assertFalse(property.get().isSimple());
         assertTrue(property.get().isList());
@@ -71,21 +70,21 @@ public class PropertyTest {
 
     @Test
     public void getPropertyIsConsidered() throws NoSuchMethodException {
-        Optional<Property> property = Property.of(getStructMethod("getColor"));
+        Optional<ClassProperty> property = ClassProperty.of(getStructMethod("getColor"));
         assertTrue(property.isPresent());
         assertEquals("Color", property.get().getName());
     }
 
     @Test
     public void getPropertyReturnsValue() throws NoSuchMethodException {
-        Optional<Property> property = Property.of(getStructMethod("getColor"));
+        Optional<ClassProperty> property = ClassProperty.of(getStructMethod("getColor"));
         assertTrue(property.isPresent());
         assertEquals(Color.WHITE, property.get().getValue(testStructure));
     }
 
     @Test
     public void returnsAllThePropertiesOfClass() {
-        Set<String> propertyNames = Property.forClass(Structure.class)
+        Set<String> propertyNames = ClassProperty.forClass(Structure.class)
                 .map(p -> p.getName()).collect(Collectors.toSet());
         assertEquals(3, propertyNames.size());
         assertTrue(propertyNames.contains("Color"));

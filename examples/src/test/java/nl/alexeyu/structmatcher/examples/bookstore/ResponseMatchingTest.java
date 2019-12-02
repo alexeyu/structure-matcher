@@ -46,7 +46,7 @@ public class ResponseMatchingTest {
     
     @Before
     public void setUp() throws Exception {
-        rootPath = Paths.get(ResponseMatchingTest.class.getResource("/").toURI()).resolve("../../resources/test");
+        rootPath = Paths.get(ResponseMatchingTest.class.getResource("/").toURI()).resolve("../../../resources/test");
         ObjectMapper jsonMapper = new ObjectMapper();
         desktopTest = fromFile(jsonMapper, "response-on-smoke-for-desktop-test.json");
         mobileTest = fromFile(jsonMapper, "response-on-smoke-for-mobile-test.json");

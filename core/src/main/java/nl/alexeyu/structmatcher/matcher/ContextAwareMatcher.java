@@ -1,28 +1,41 @@
 package nl.alexeyu.structmatcher.matcher;
 
-import java.util.Optional;
+import java.util.function.Supplier;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
+import nl.alexeyu.structmatcher.property.Property;
 
-class ContextAwareMatcher<V> implements Matcher<V> {
+final class ContextAwareMatcher<T> implements Matcher<Object>{
     
-    private final Matcher<V> defaultMatcher;
+    private final Supplier<Matcher<Object>> defaultMatcherSupplier;
     
-    private final MatchingStack matchingStack;
-    
-    public ContextAwareMatcher(MatchingStack matchingStack, Matcher<V> defaultMatcher) {
+    private final MatchingStack<T> matchingStack;
+
+    private final Property property;
+
+    public ContextAwareMatcher(Property property, MatchingStack<T> matchingStack,
+                               Supplier<Matcher<Object>> defaultMatcherSupplier) {
         this.matchingStack = matchingStack;
-        this.defaultMatcher = defaultMatcher;
+        this.defaultMatcherSupplier = defaultMatcherSupplier;
+        this.property = property;
     }
 
-    @Override
-    public FeedbackNode match(String property, V expected, V actual) {
+    public FeedbackNode match(String description, Object expected, Object actual) {
         try {
-            Optional<Matcher<V>> customMatcher = matchingStack.push(property);
-            return customMatcher.orElse(defaultMatcher).match(property, expected, actual);
+            Matcher<Object> customMatcher = matchingStack.push(property.getName(), defaultMatcherSupplier);
+            if (isIndirect(customMatcher)) {
+                return customMatcher.match(description,
+                        matchingStack.getBaseStructure(),
+                        matchingStack.getActualStructure());
+            }
+            return customMatcher.match(property.getName(), property.getValue(expected), property.getValue(actual));
         } finally {
             matchingStack.pop();
         }
+    }
+
+    private boolean isIndirect(Matcher matcher) {
+        return matcher instanceof IndirectMatcher;
     }
 
 }

@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
-import nl.alexeyu.structmatcher.property.Property;
+import nl.alexeyu.structmatcher.property.ClassProperty;
 
 /**
  * Matches two data structures. Returns a feedback tree regarding all the
@@ -16,20 +16,16 @@ final class StructureMatcher<V> implements Matcher<V> {
     
     @Override
     public FeedbackNode match(String name, V expected, V actual) {
-        Collection<FeedbackNode> feedbackSubnodes = Property.forClass(expected.getClass())
+        Collection<FeedbackNode> feedbackSubnodes = ClassProperty.forClass(expected.getClass())
                 .map(p -> matchProperty(p, expected, actual))
                 .filter(f -> !f.isEmpty())
                 .collect(Collectors.toList());
         return Feedback.composite(name, feedbackSubnodes);
     }
 
-    @SuppressWarnings("unchecked")
-    private FeedbackNode matchProperty(Property property, Object expected, Object actual) {
-        return Matchers.contextAware(
-                 Matchers.forProperty(property))
-                    .match(property.getName(), 
-                           property.getValue(expected),
-                           property.getValue(actual));
+    private FeedbackNode matchProperty(ClassProperty property, Object expected, Object actual) {
+        return Matchers.contextAware(property, () -> Matchers.forProperty(property))
+                .match("", expected, actual);
     }
     
 }

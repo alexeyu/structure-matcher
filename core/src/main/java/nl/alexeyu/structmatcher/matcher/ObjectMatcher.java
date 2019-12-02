@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
-import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 import nl.alexeyu.structmatcher.property.Property;
+import nl.alexeyu.structmatcher.property.PropertyPathPattern;
+import nl.alexeyu.structmatcher.property.ClassProperty;
+import nl.alexeyu.structmatcher.property.SimpleProperty;
 
 /**
  * Matches two objects of a given class. This is the entry point to the library.
@@ -53,11 +55,10 @@ public class ObjectMatcher<T> {
     /**
      * Creates a matcher which would validate the instances of a given class.
      * 
-     * @param the
-     *            class of entities to be matched.
+     * @param clazz the class of entities to be matched.
      * @return a matcher ready to be set up and executed.
      */
-    public static <V> ObjectMatcher<V> forClass(Class<V> clazz) {
+    public static <T> ObjectMatcher<T> forClass(Class<T> clazz) {
         return new ObjectMatcher<>(clazz);
     }
 
@@ -85,7 +86,7 @@ public class ObjectMatcher<T> {
      * 
      * @return the same instance of the <code>ObjectMatcher</code>, ready to be
      *         set up further and/or executed.
-     * @see {@link Property}
+     * @see {@link ClassProperty}
      */
     public ObjectMatcher<T> withMatcher(Matcher<?> matcher, String... propertyPath) {
         List<String> fullPath = new ArrayList<>(Arrays.asList(propertyPath));
@@ -121,18 +122,19 @@ public class ObjectMatcher<T> {
      * objects are considered matching. Otherwise the feedback contains details
      * of which concrete properties do not match and why.
      * 
-     * @param base
+     * @param expected
      *            a "base" object the other object should be compared with.
-     * @param target
+     * @param actual
      *            an object to be compared with the base one.
      * @return empty feedback if the objects are considered matching, a
      *         non-empty feedback tree otherwise.
      */
-    public FeedbackNode match(T base, T target) {
+    public FeedbackNode match(T expected, T actual) {
         try {
-            MatchingStackHolder.set(new DefaultMatchingStack(propertyToMatcher));
-            return Matchers.contextAware(Matchers.structuresEqual())
-                    .match(clazz.getName(), base, target);
+            MatchingStackHolder.set(new DefaultMatchingStack<>(expected, actual, propertyToMatcher));
+            Property property = new SimpleProperty(clazz.getName());
+            return Matchers.contextAware(property, () -> Matchers.structuresEqual())
+                    .match(clazz.getName(), expected, actual);
         } finally {
             MatchingStackHolder.clear();
         }

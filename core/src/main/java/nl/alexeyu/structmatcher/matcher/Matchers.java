@@ -3,9 +3,12 @@ package nl.alexeyu.structmatcher.matcher;
 import java.util.Comparator;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
+import nl.alexeyu.structmatcher.property.ClassProperty;
 import nl.alexeyu.structmatcher.property.Property;
+import nl.alexeyu.structmatcher.property.SimpleProperty;
 
 /**
  * Factory which produces common matchers.  
@@ -65,7 +68,6 @@ public final class Matchers {
      * 
      * @return a matcher with the behavior specified above.
      * @see {@link NullAwareMatcher}
-     * @see {@link Object.equals}
      */
     public static <V> Matcher<V> valuesEqual() {
         return nullAware(new ValuesEqualMatcher<>());
@@ -94,7 +96,7 @@ public final class Matchers {
      * ignores the order of elements. For instance, lists <code>[1, 2, 3]</code>
      * and <code>[2, 3, 1]</code> will be considered matching.
      * 
-     * @param an element comparator which will be used by the matcher. 
+     * @param comparator element comparator which will be used by the matcher.
      * @return a matcher with the behavior specified above.
      * @see {@link ObjectMatcher}
      */
@@ -217,7 +219,7 @@ public final class Matchers {
      * @return <code>listEqual()</code> matcher for a list property,
      *         <code>valuesEqual()</code> matcher for a simple property,
      *         <code>structureMatcher()</code> for any other property.
-     * @see {@link Property}
+     * @see {@link ClassProperty}
      */
     @SuppressWarnings("rawtypes")
     public static Matcher forProperty(Property property) {
@@ -269,9 +271,15 @@ public final class Matchers {
     public static <V> Matcher<V> mustConform(Predicate<V> predicate, String specification) {
         return new MustConformMatcher<>(predicate, specification);
     }
+
+    public static <T, V> IndirectMatcher<T, V> indirectMatcher(Matcher<V> valueMatcher,
+                                                               Function<T, V> expectedValueFetcher,
+                                                               Function<T, V> actualValueFetcher) {
+        return new IndirectMatcher<>(valueMatcher, expectedValueFetcher, actualValueFetcher);
+    }
     
-    static <V> Matcher<V> contextAware(Matcher<V> defaultMatcher) {
-        return new ContextAwareMatcher<>(MatchingStackHolder.get(), defaultMatcher);
+    static <T> ContextAwareMatcher<T> contextAware(Property property, Supplier<Matcher<Object>> defaultMatcherSupplier) {
+        return new ContextAwareMatcher<>(property, MatchingStackHolder.get(), defaultMatcherSupplier);
     }
     
     static <V> Matcher<V> getNullAwareMatcher(V obj) {
@@ -280,10 +288,10 @@ public final class Matchers {
 
     static <V> Matcher<V> forObject(V obj) {
         if (obj == null) {
-             // Should not happen due to the null-aware matcher logic
+             // Should not happen due to null-aware matcher logic
             return (p, e, a) -> { throw new NullPointerException("Cannot match null value.");};
         }
-        if (Property.isSimple(obj.getClass())) {
+        if (ClassProperty.isSimple(obj.getClass())) {
             return valuesEqual();
         }
         return structuresEqual();
