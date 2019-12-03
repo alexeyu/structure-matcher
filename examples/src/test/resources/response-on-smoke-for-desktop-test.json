@@ -15,13 +15,13 @@
       "firstName" : "Stephen",
       "lastName" : "King"
     } ],
-    "yearPublished" : 1999
+    "meta" : 1999
   }, {
     "title" : "Summer and smoke",
     "authors" : [ {
       "firstName" : "Tennessee",
       "lastName" : "Williams"
     } ],
-    "yearPublished" : 1950
+    "meta" : 1950
   } ]
 }

@@ -24,8 +24,7 @@ final class StructureMatcher<V> implements Matcher<V> {
     }
 
     private FeedbackNode matchProperty(ClassProperty property, Object expected, Object actual) {
-        return Matchers.contextAware(property, () -> Matchers.forProperty(property))
-                .match("", expected, actual);
+        return Matchers.contextAware(property, () -> Matchers.forProperty(property)).match(expected, actual);
     }
     
 }

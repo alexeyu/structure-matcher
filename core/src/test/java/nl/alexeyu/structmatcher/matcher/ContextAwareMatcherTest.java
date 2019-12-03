@@ -16,7 +16,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
-import nl.alexeyu.structmatcher.property.PropertyPath;
 import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 import nl.alexeyu.structmatcher.property.SimpleProperty;
 
@@ -40,7 +39,7 @@ public class ContextAwareMatcherTest {
                 new SimpleProperty("test"), context, defaultMatcherSupplier);
         FeedbackNode expectedFeedback = Feedback.empty("test");
         when(defaultMatcher.match("test", "a", "b")).thenReturn(expectedFeedback);
-        FeedbackNode feedback = contextAwareMatcher.match("test", "a", "b");
+        FeedbackNode feedback = contextAwareMatcher.match( "a", "b");
         verify(defaultMatcher).match("test", "a", "b");
         assertSame(expectedFeedback, feedback);
     }
@@ -53,7 +52,7 @@ public class ContextAwareMatcherTest {
                 new SimpleProperty("specific"), context, defaultMatcherSupplier);
         FeedbackNode expectedFeedback = Feedback.empty("test");
         when(customMatcher.match("specific", "a", "b")).thenReturn(expectedFeedback);
-        FeedbackNode feedback = contextAwareMatcher.match("specific", "a", "b");
+        FeedbackNode feedback = contextAwareMatcher.match("a", "b");
         verify(customMatcher).match("specific", "a", "b");
         assertSame(expectedFeedback, feedback);
     }
@@ -61,6 +60,7 @@ public class ContextAwareMatcherTest {
     @Test
     public void callsCustomIndirectMatcherIfRegistered() {
         IndirectMatcher<Structure, Color> colorMatcher = new IndirectMatcher<>(
+                "check color",
                 Matchers.valuesEqual(), Structure::getColor, Structure::getColor);
         Structure expected = new Structure(Color.BLACK, Arrays.asList(), new Substructure(false));
         Structure actual = new Structure(Color.WHITE, Arrays.asList(), new Substructure(false));
@@ -69,8 +69,7 @@ public class ContextAwareMatcherTest {
         contextAwareMatcher = new ContextAwareMatcher<Object>(
                 new SimpleProperty("indirect"), context, defaultMatcherSupplier);
         FeedbackNode expectedFeedback = Feedback.nonEqual("check color", Color.BLACK, Color.WHITE);
-        FeedbackNode feedback = contextAwareMatcher.match("check color",
-                "to-be-ignored-1", "to-be-ignored-2");
+        FeedbackNode feedback = contextAwareMatcher.match("to-be-ignored-1", "to-be-ignored-2");
         assertEquals(expectedFeedback, feedback);
     }
 

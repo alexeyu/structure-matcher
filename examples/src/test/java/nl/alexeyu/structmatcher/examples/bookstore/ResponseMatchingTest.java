@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,8 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.jayway.jsonpath.JsonPath;
 
-import nl.alexeyu.structmatcher.examples.bookstore.model.BookSearchResult;
-import nl.alexeyu.structmatcher.examples.bookstore.model.Platform;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.json.Json;
 import nl.alexeyu.structmatcher.matcher.Matcher;
@@ -87,7 +86,7 @@ public class ResponseMatchingTest {
     
     @Test
     public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
-        Function<String, String> nameToInitial = name -> name.substring(0, 1) + ".";
+        UnaryOperator<String> nameToInitial = name -> name.substring(0, 1) + ".";
         FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
                 .with(constant(Platform.MOBILE), "Metadata.Platform")
                 .with(Matchers.and(
@@ -95,7 +94,7 @@ public class ResponseMatchingTest {
                         StringMatchers.nonEmpty(),
                         Matchers.normalizingBase(nameToInitial, valuesEqual())
                       ),  "Books.Authors.FirstName")
-                .with(Matchers.constant(null), "Books.YearPublished")
+                .with(Matchers.constant(null), "Books.Meta")
                 .match(desktopTest, mobileTest);
         assertTrue(feedback.isEmpty());
     }

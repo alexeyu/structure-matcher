@@ -21,7 +21,7 @@
           <lastName>King</lastName>
         </authors>
       </authors>
-      <yearPublished>1999</yearPublished>
+      <meta>1999</meta>
     </books>
     <books>
       <title>Summer and smoke</title>
@@ -31,7 +31,7 @@
           <lastName>Williams</lastName>
         </authors>
       </authors>
-      <yearPublished>1950</yearPublished>
+      <meta>1950</meta>
     </books>
   </books>
 </BookSearchResult>

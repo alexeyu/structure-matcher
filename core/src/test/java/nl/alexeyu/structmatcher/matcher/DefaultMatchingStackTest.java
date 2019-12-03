@@ -2,10 +2,8 @@ package nl.alexeyu.structmatcher.matcher;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,7 +15,7 @@ public class DefaultMatchingStackTest {
     
     private Matcher<?> customMatcher = Matchers.valuesEqual();
 
-    private Matcher<?> fallbackMatcher = Matchers.anyValue();
+    private Matcher<Object> fallbackMatcher = Matchers.anyValue();
     
     @Before
     public void setUp() {

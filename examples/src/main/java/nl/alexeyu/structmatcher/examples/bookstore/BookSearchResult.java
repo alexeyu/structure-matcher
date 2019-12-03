@@ -1,17 +1,17 @@
-package nl.alexeyu.structmatcher.examples.bookstore.model;
+package nl.alexeyu.structmatcher.examples.bookstore;
 
 import java.util.List;
 
-public class BookSearchResult {
+public final class BookSearchResult {
     
     private SearchMetadata metadata;
     
     private List<Book> books;
     
-    public BookSearchResult() {
+    BookSearchResult() {
     }
 
-    public BookSearchResult(SearchMetadata metadata, List<Book> books) {
+    BookSearchResult(SearchMetadata metadata, List<Book> books) {
         this.metadata = metadata;
         this.books = books;
     }

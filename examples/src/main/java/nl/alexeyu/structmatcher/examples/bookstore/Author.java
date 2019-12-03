@@ -1,15 +1,15 @@
-package nl.alexeyu.structmatcher.examples.bookstore.model;
+package nl.alexeyu.structmatcher.examples.bookstore;
 
-public class Author {
+public final class Author {
 
     private String firstName;
 
     private String lastName;
 
-    public Author() {
+    Author() {
     }
 
-    public Author(String firstName, String lastName) {
+     Author(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }

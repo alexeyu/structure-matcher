@@ -1,4 +1,4 @@
-package nl.alexeyu.structmatcher.examples.bookstore.model;
+package nl.alexeyu.structmatcher.examples.bookstore;
 
 public final class Server {
 
@@ -6,10 +6,10 @@ public final class Server {
 
     private int port;
 
-    public Server() {
+    Server() {
     }
 
-    public Server(String ip, int port) {
+    Server(String ip, int port) {
         this.ip = ip;
         this.port = port;
     }

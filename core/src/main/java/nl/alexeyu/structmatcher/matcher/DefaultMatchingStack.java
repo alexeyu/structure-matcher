@@ -21,16 +21,16 @@ final class DefaultMatchingStack<T> implements MatchingStack<T> {
 
     private final T actual;
 
-    public DefaultMatchingStack(T expected, T actual, Map<PropertyPathPattern, Matcher<?>> propertyToMatcher) {
+    public DefaultMatchingStack(T expected, T actual, Map<PropertyPathPattern, Matcher<Object>> propertyToMatcher) {
         this.expected = expected;
         this.actual = actual;
         this.customMatcherResolver = new WildcardMatcherResolver(propertyToMatcher);
     }
 
     @Override
-    public <V> Matcher<V> push(String property, Supplier<Matcher<V>> fallbackSupplier) {
+    public Matcher<Object> push(String property, Supplier<Matcher<Object>> fallbackSupplier) {
         path.push(property);
-        Optional<Matcher<V>> maybeMatcher = customMatcherResolver.forPath(path);
+        Optional<Matcher<Object>> maybeMatcher = customMatcherResolver.forPath(path);
         return maybeMatcher.orElseGet(fallbackSupplier);
     }
 

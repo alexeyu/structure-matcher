@@ -1,8 +1,8 @@
-package nl.alexeyu.structmatcher.examples.bookstore.model;
+package nl.alexeyu.structmatcher.examples.bookstore;
 
 import java.util.List;
 
-public class SearchMetadata {
+public final class SearchMetadata {
     
     private List<String> keywords;
     
@@ -14,7 +14,7 @@ public class SearchMetadata {
     
     private Platform platform;
 
-    public SearchMetadata() {
+    SearchMetadata() {
     }
 
     public List<String> getKeywords() {

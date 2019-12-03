@@ -8,10 +8,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Convenient wrapper of POJO properties (which are represented by getter methods). 
+ * Convenient wrapper of POJO properties (which are represented by getter methods).
  */
 public final class ClassProperty implements Property {
-    
+
     private static final List<String> HIDDEN_GETTERS = Arrays.asList("getClass");
 
     private final Method method;
@@ -19,7 +19,7 @@ public final class ClassProperty implements Property {
     private ClassProperty(Method method) {
         this.method = method;
     }
-    
+
     /**
      * Provides stream of properties of a given class. Properties are derived by
      * looking at public getter methods of the class. A method considered as a
@@ -28,15 +28,15 @@ public final class ClassProperty implements Property {
      */
     public static Stream<ClassProperty> forClass(Class<?> cl) {
         return Arrays.stream(cl.getMethods())
-            .map(ClassProperty::of)
-            .filter(Optional::isPresent)
-            .map(Optional::get);
+                .map(ClassProperty::of)
+                .filter(Optional::isPresent)
+                .map(Optional::get);
     }
 
     public static Optional<ClassProperty> of(Method method) {
         return isValid(method)
-            ? Optional.of(new ClassProperty(method))
-            : Optional.empty();
+                ? Optional.of(new ClassProperty(method))
+                : Optional.empty();
     }
 
     /**
@@ -61,11 +61,10 @@ public final class ClassProperty implements Property {
     /**
      * Gets the value of this property for a given object by calling the
      * propertie's get method.
-     * 
+     *
      * @param obj an object to get the property value from.
      * @return a value of a property.
-     * @throws IllegalStateException
-     *             if there was an exception on the method call.
+     * @throws IllegalStateException if there was an exception on the method call.
      */
     @Override
     public Object getValue(Object obj) {
@@ -101,7 +100,7 @@ public final class ClassProperty implements Property {
     public boolean isList() {
         return method.getReturnType().isAssignableFrom(List.class);
     }
-    
+
     public static boolean isSimple(Class<?> cl) {
         return String.class.isAssignableFrom(cl)
                 || Number.class.isAssignableFrom(cl)
@@ -118,19 +117,19 @@ public final class ClassProperty implements Property {
     private static boolean nameMatches(Method method) {
         return isGetMethod(method) || isIsMethod(method);
     }
- 
+
     private static boolean parametersMatch(Method method) {
         return method.getParameterCount() == 0;
     }
-    
+
     private static boolean isNotBlacklisted(Method method) {
         return !HIDDEN_GETTERS.contains(method.getName());
     }
-    
+
     private static boolean isGetMethod(Method method) {
         return method.getName().startsWith("get");
     }
-    
+
     private static boolean isIsMethod(Method method) {
         return method.getName().startsWith("is");
     }

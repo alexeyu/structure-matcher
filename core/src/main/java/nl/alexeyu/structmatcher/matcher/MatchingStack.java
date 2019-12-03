@@ -20,13 +20,13 @@ interface MatchingStack<T> {
      * type of data being verified. Must be called before verification to help
      * to select a proper matcher.
      * 
-     * @param property
-     *            current property to be pushed to the stack.
-     * @return <code>Optional</code> which contains a custom matcher if such
-     *         matcher was registered for the current traversal path. An empty
-     *         <code>Optional</code> otherwise.
+     * @param property name of a current property to be pushed to the stack.
+     * @param fallbackSupplier a supplier of a matcher it should return if no custom
+     *                         matcher is defined for the property.
+     * @return a custom matcher if such matcher was registered for the current traversal
+     *         path or a fallback returned by the <code>fallbackSupplier</code>.
      */
-    <V> Matcher<V> push(String property, Supplier<Matcher<V>> fallbackSupplier);
+    Matcher<Object> push(String property, Supplier<Matcher<Object>> fallbackSupplier);
 
     /**
      * Removes a top property out of the stack. A verification algorithm must
@@ -34,8 +34,14 @@ interface MatchingStack<T> {
      */
     void pop();
 
+    /**
+     * Returns the base object that is being verified.
+     */
     T getBaseStructure();
 
+    /**
+     * Returns the target object that is being verified.
+     */
     T getActualStructure();
 
 }
