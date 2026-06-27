@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 
 import nl.alexeyu.structmatcher.matcher.Color;
+import nl.alexeyu.structmatcher.matcher.RecordStructure;
+import nl.alexeyu.structmatcher.matcher.RecordSubstructure;
 import nl.alexeyu.structmatcher.matcher.Structure;
 import nl.alexeyu.structmatcher.matcher.Substructure;
 
@@ -90,6 +92,41 @@ public class ClassPropertyTest {
         assertTrue(propertyNames.contains("Color"));
         assertTrue(propertyNames.contains("Sub"));
         assertTrue(propertyNames.contains("Strings"));
+    }
+
+    @Test
+    public void returnsAllThePropertiesOfRecord() {
+        Set<String> propertyNames = ClassProperty.forClass(RecordStructure.class)
+                .map(ClassProperty::getName).collect(Collectors.toSet());
+        assertEquals(3, propertyNames.size());
+        assertTrue(propertyNames.contains("Color"));
+        assertTrue(propertyNames.contains("Sub"));
+        assertTrue(propertyNames.contains("Strings"));
+    }
+
+    @Test
+    public void recordComponentNamesMatchBeanGetterNames() {
+        Set<String> recordNames = ClassProperty.forClass(RecordStructure.class)
+                .map(ClassProperty::getName).collect(Collectors.toSet());
+        Set<String> beanNames = ClassProperty.forClass(Structure.class)
+                .map(ClassProperty::getName).collect(Collectors.toSet());
+        assertEquals(beanNames, recordNames);
+    }
+
+    @Test
+    public void recordBooleanComponentIsSimpleAndCapitalized() {
+        ClassProperty bool = ClassProperty.forClass(RecordSubstructure.class).findFirst().get();
+        assertEquals("Bool", bool.getName());
+        assertTrue(bool.isSimple());
+        assertFalse(bool.isList());
+    }
+
+    @Test
+    public void recordComponentReturnsValue() {
+        RecordStructure rec = new RecordStructure(Color.WHITE, new ArrayList<>(), new RecordSubstructure(true));
+        ClassProperty color = ClassProperty.forClass(RecordStructure.class)
+                .filter(p -> p.getName().equals("Color")).findFirst().get();
+        assertEquals(Color.WHITE, color.getValue(rec));
     }
 
     private Method getStructMethod(String methodName) throws NoSuchMethodException {

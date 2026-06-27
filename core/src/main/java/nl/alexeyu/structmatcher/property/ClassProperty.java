@@ -2,13 +2,16 @@ package nl.alexeyu.structmatcher.property;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Convenient wrapper of POJO properties (which are represented by getter methods).
+ * Convenient wrapper of POJO properties. For a classic bean these are its getter
+ * methods; for a {@code record} they are its components (whose accessors carry no
+ * {@code get}/{@code is} prefix).
  */
 public final class ClassProperty implements Property {
 
@@ -16,17 +19,31 @@ public final class ClassProperty implements Property {
 
     private final Method method;
 
-    private ClassProperty(Method method) {
+    /**
+     * Whether {@link #method} is a record component accessor (e.g. {@code name()})
+     * rather than a {@code get}/{@code is}-prefixed bean getter. Record accessors
+     * carry no prefix, so their property name is derived by capitalization only.
+     */
+    private final boolean recordComponent;
+
+    private ClassProperty(Method method, boolean recordComponent) {
         this.method = method;
+        this.recordComponent = recordComponent;
     }
 
     /**
-     * Provides stream of properties of a given class. Properties are derived by
-     * looking at public getter methods of the class. A method considered as a
-     * getter if its name starts from 'get' or 'is' and it does not take any
-     * parameters. The method <code>getClass()</code> is ignored.
+     * Provides stream of properties of a given class. For a {@code record} the
+     * properties are its components, in declaration order. For any other class they
+     * are derived from its public getter methods: a method is considered a getter if
+     * its name starts with 'get' or 'is' and it takes no parameters. The method
+     * <code>getClass()</code> is ignored.
      */
     public static Stream<ClassProperty> forClass(Class<?> cl) {
+        if (cl.isRecord()) {
+            return Arrays.stream(cl.getRecordComponents())
+                    .map(RecordComponent::getAccessor)
+                    .map(accessor -> new ClassProperty(accessor, true));
+        }
         return Arrays.stream(cl.getMethods())
                 .map(ClassProperty::of)
                 .filter(Optional::isPresent)
@@ -35,20 +52,22 @@ public final class ClassProperty implements Property {
 
     public static Optional<ClassProperty> of(Method method) {
         return isValid(method)
-                ? Optional.of(new ClassProperty(method))
+                ? Optional.of(new ClassProperty(method, false))
                 : Optional.empty();
     }
 
     /**
-     * Returns the name of a property derive from the name of its getter method.
-     * If the method name is <code>getFoo</code>, the property name would be
-     * 'Foo'. If the method name is <code>isFoo</code>, the property name would
-     * be 'Foo' as well.<br/>
+     * Returns the name of a property. For a bean getter the prefix is stripped:
+     * <code>getFoo</code> and <code>isFoo</code> both yield 'Foo'. For a record
+     * component the accessor name is used as-is: <code>foo()</code> yields 'Foo'.<br/>
      * <b>Note:</b> provided the method names are in the camel case, property
-     * name will always start with a capital letter.
+     * name will always start with a capital letter, regardless of the source.
      */
     @Override
     public String getName() {
+        if (recordComponent) {
+            return capitalize(method.getName());
+        }
         if (isGetMethod(method)) {
             return method.getName().substring(3);
         }
@@ -56,6 +75,10 @@ public final class ClassProperty implements Property {
             return method.getName().substring(2);
         }
         return method.getName();
+    }
+
+    private static String capitalize(String name) {
+        return Character.toUpperCase(name.charAt(0)) + name.substring(1);
     }
 
     /**
