@@ -55,14 +55,21 @@ failures.
 These are the "a 2026 developer bounces off it" issues. Each makes the library
 viable for code people actually write today.
 
-### 1a. Java `record` support (highest priority)
+### 1a. Java `record` support (highest priority) — DONE
 Records are the natural shape for the DTO/response payloads this library targets,
-and **they don't work today**: `ClassProperty` only recognizes `get`/`is`-prefixed
-methods, but record accessors are `name()`, not `getName()`.
-- [ ] Generalize property discovery: detect `Class::isRecord` and derive properties
-      from `getRecordComponents()`; keep getter-based discovery for classic POJOs.
-- [ ] Decide property-naming policy across both (record `name()` vs bean `Name` —
-      paths are currently capitalized; unify, see Phase 2).
+and **they didn't work**: `ClassProperty` only recognized `get`/`is`-prefixed
+methods, but record accessors are `name()`, not `getName()` — so a record appeared
+to have no properties and any two records silently "matched".
+- [x] Generalize property discovery: `ClassProperty.forClass` detects
+      `Class::isRecord` and derives properties from `getRecordComponents()`; getter-
+      based discovery unchanged for classic POJOs.
+- [x] Naming policy decided & unified: record component names are **capitalized**
+      (`name()` → `Name`), identical to bean getters, so custom-matcher paths are
+      the same whether a model uses records or beans. A `recordComponent` flag keeps
+      a component literally named `getX` from being mis-stripped.
+- [x] Tests: `RecordMatcherTest` mirrors `StructureMatcherTest` (identical feedback
+      from record models) + path-based custom matcher on a nested record component;
+      `ClassPropertyTest` covers record discovery/naming/values. 92 tests green.
 
 ### 1b. `Map`, `Set`, array support
 Currently only simple values, `List`, and structures are handled. Modern models use

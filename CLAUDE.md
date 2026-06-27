@@ -30,8 +30,8 @@ Tests run on the **JUnit 5 Platform**, but the test sources are still JUnit 4 (`
 ### Entry point and the four-step flow
 `ObjectMatcher.forClass(T.class)` → register custom matchers with `.with(matcher, "Dot.Separated.Path")` or `.withMatcher(matcher, "Path", "Parts")` → `.match(expected, actual)` → inspect the returned `FeedbackNode` (`feedback.isEmpty()` means they matched). See `matcher/ObjectMatcher.java`.
 
-### Properties come from getters, by reflection
-A "property" is a no-arg `getX()`/`isX()` method (`getClass` excluded). The property name is the getter name minus the `get`/`is` prefix, so paths are **capitalized**: `getServer().getIp()` → path `Server.Ip`. See `property/ClassProperty.java`. Only three shapes are supported: **simple** values (primitives, `Number`, `Boolean`, `Character`, `String`, enums), **`List`s**, and **structures** (everything else, recursed into). Arrays, sets, maps are **not** supported in a model.
+### Properties come from getters (or record components), by reflection
+For a classic bean, a "property" is a no-arg `getX()`/`isX()` method (`getClass` excluded), named by stripping the prefix. For a **`record`**, properties are its components (via `getRecordComponents()`), named by the component accessor. Both are **capitalized** so paths are identical regardless of model style: `getServer().getIp()` and `server().ip()` both give path `Server.Ip`. See `property/ClassProperty.java` (the `recordComponent` flag distinguishes the two so a component literally named `getX` isn't mis-stripped). Only three shapes are supported: **simple** values (primitives, `Number`, `Boolean`, `Character`, `String`, enums), **`List`s**, and **structures** (everything else, recursed into). Arrays, sets, maps are **not yet** supported in a model (see ROADMAP Phase 1b).
 
 ### Default matcher selection
 For each property, `Matchers.forProperty` picks a default: `valuesEqual()` for simple, `listsEqual()` for lists, `structuresEqual()` for structures (which recurses). Most matchers are wrapped `nullAware` (both-null matches; one-null is a mismatch).
