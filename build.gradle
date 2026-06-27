@@ -1,38 +1,50 @@
-buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-  dependencies {
-    classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5"
-  }
-}
-
 ext {
-    jacksonVersion = '2.10.1'
+    jacksonVersion = '2.18.1'
 }
-
-apply plugin: "org.sonarqube"
 
 subprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven'
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+
+    group = 'nl.alexeyu.structmatcher'
+    version = '1.1-SNAPSHOT'
 
     repositories {
-        mavenLocal()
         mavenCentral()
     }
 
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    // The legacy Javadoc in this codebase predates strict doclint (e.g. `@see {@link X}`);
+    // keep it from failing the build until it is cleaned up.
+    javadoc {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+
     dependencies {
+        // JUnit 5 platform; the existing JUnit 4 tests run via the Vintage engine.
+        testImplementation 'junit:junit:4.13.2'
+        testImplementation platform('org.junit:junit-bom:5.11.3')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 
-
-    group 'nl.alexeyu.structmatcher'
-    version = '1.1-SNAPSHOT'
-
-    jar {
-        manifest.attributes provider: 'gradle'
+    test {
+        useJUnitPlatform()
     }
 
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from components.java
+            }
+        }
+    }
 }

@@ -1,8 +1,7 @@
 dependencies {
-    testCompile "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
-    testCompile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
-    testCompile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-    testCompile 'org.mockito:mockito-all:1.10.19'
-    testCompile 'com.jayway.jsonpath:json-path:2.2.0'
-    testCompile 'junit:junit:4.12'
+    testImplementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+    testImplementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+    testImplementation 'com.jayway.jsonpath:json-path:2.9.0'
 }
