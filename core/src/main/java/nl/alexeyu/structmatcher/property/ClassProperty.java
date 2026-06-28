@@ -11,9 +11,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Convenient wrapper of POJO properties. For a classic bean these are its getter
- * methods; for a {@code record} they are its components (whose accessors carry no
- * {@code get}/{@code is} prefix).
+ * Convenient wrapper of POJO properties. For a classic bean these are its getter methods; for a
+ * {@code record} they are its components (whose accessors carry no {@code get}/{@code is} prefix).
  */
 public final class ClassProperty implements Property {
 
@@ -22,9 +21,9 @@ public final class ClassProperty implements Property {
     private final Method method;
 
     /**
-     * Whether {@link #method} is a record component accessor (e.g. {@code name()})
-     * rather than a {@code get}/{@code is}-prefixed bean getter. Record accessors
-     * carry no prefix, so their property name is derived by capitalization only.
+     * Whether {@link #method} is a record component accessor (e.g. {@code name()}) rather than a
+     * {@code get}/{@code is}-prefixed bean getter. Record accessors carry no prefix, so their
+     * property name is derived by capitalization only.
      */
     private final boolean recordComponent;
 
@@ -34,36 +33,30 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Provides stream of properties of a given class. For a {@code record} the
-     * properties are its components, in declaration order. For any other class they
-     * are derived from its public getter methods: a method is considered a getter if
-     * its name starts with 'get' or 'is' and it takes no parameters. The method
-     * <code>getClass()</code> is ignored.
+     * Provides stream of properties of a given class. For a {@code record} the properties are its
+     * components, in declaration order. For any other class they are derived from its public getter
+     * methods: a method is considered a getter if its name starts with 'get' or 'is' and it takes
+     * no parameters. The method <code>getClass()</code> is ignored.
      */
     public static Stream<ClassProperty> forClass(Class<?> cl) {
         if (cl.isRecord()) {
-            return Arrays.stream(cl.getRecordComponents())
-                    .map(RecordComponent::getAccessor)
+            return Arrays.stream(cl.getRecordComponents()).map(RecordComponent::getAccessor)
                     .map(accessor -> new ClassProperty(accessor, true));
         }
-        return Arrays.stream(cl.getMethods())
-                .map(ClassProperty::of)
-                .filter(Optional::isPresent)
+        return Arrays.stream(cl.getMethods()).map(ClassProperty::of).filter(Optional::isPresent)
                 .map(Optional::get);
     }
 
     public static Optional<ClassProperty> of(Method method) {
-        return isValid(method)
-                ? Optional.of(new ClassProperty(method, false))
-                : Optional.empty();
+        return isValid(method) ? Optional.of(new ClassProperty(method, false)) : Optional.empty();
     }
 
     /**
-     * Returns the name of a property. For a bean getter the prefix is stripped:
-     * <code>getFoo</code> and <code>isFoo</code> both yield 'Foo'. For a record
-     * component the accessor name is used as-is: <code>foo()</code> yields 'Foo'.<br/>
-     * <b>Note:</b> provided the method names are in the camel case, property
-     * name will always start with a capital letter, regardless of the source.
+     * Returns the name of a property. For a bean getter the prefix is stripped: <code>getFoo</code>
+     * and <code>isFoo</code> both yield 'Foo'. For a record component the accessor name is used
+     * as-is: <code>foo()</code> yields 'Foo'.<br/>
+     * <b>Note:</b> provided the method names are in the camel case, property name will always start
+     * with a capital letter, regardless of the source.
      */
     @Override
     public String getName() {
@@ -84,25 +77,26 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Gets the value of this property for a given object by calling the
-     * property's get method.
+     * Gets the value of this property for a given object by calling the property's get method.
      *
-     * @param obj an object to get the property value from.
+     * @param obj
+     *            an object to get the property value from.
      * @return a value of a property.
-     * @throws IllegalStateException if there was an exception on the method call.
+     * @throws IllegalStateException
+     *             if there was an exception on the method call.
      */
     @Override
     public Object getValue(Object obj) {
         try {
             return method.invoke(obj);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new IllegalStateException("Could not invoke " + method.getName() + " for " + obj, e);
+            throw new IllegalStateException("Could not invoke " + method.getName() + " for " + obj,
+                    e);
         }
     }
 
     /**
-     * Tells if a property is simple. Properties of the following types are
-     * considered simple:
+     * Tells if a property is simple. Properties of the following types are considered simple:
      * <ul>
      * <li>all primitive types
      * <li>enumerations
@@ -118,8 +112,7 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is a list (implements the
-     * <code>java.util.List</code> interface).
+     * Tells if a property is a list (implements the <code>java.util.List</code> interface).
      */
     @Override
     public boolean isList() {
@@ -127,8 +120,7 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is a map (implements the
-     * <code>java.util.Map</code> interface).
+     * Tells if a property is a map (implements the <code>java.util.Map</code> interface).
      */
     @Override
     public boolean isMap() {
@@ -136,8 +128,7 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is a set (implements the
-     * <code>java.util.Set</code> interface).
+     * Tells if a property is a set (implements the <code>java.util.Set</code> interface).
      */
     @Override
     public boolean isSet() {
@@ -153,8 +144,8 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is an {@link Optional}. <code>Optional</code> is final, so
-     * this is an exact type check rather than an "is-assignable" one.
+     * Tells if a property is an {@link Optional}. <code>Optional</code> is final, so this is an
+     * exact type check rather than an "is-assignable" one.
      */
     @Override
     public boolean isOptional() {
@@ -162,12 +153,9 @@ public final class ClassProperty implements Property {
     }
 
     public static boolean isSimple(Class<?> cl) {
-        return String.class.isAssignableFrom(cl)
-                || Number.class.isAssignableFrom(cl)
-                || Boolean.class.isAssignableFrom(cl)
-                || Character.class.isAssignableFrom(cl)
-                || cl.isEnum()
-                || cl.isPrimitive();
+        return String.class.isAssignableFrom(cl) || Number.class.isAssignableFrom(cl)
+                || Boolean.class.isAssignableFrom(cl) || Character.class.isAssignableFrom(cl)
+                || cl.isEnum() || cl.isPrimitive();
     }
 
     private static boolean isValid(Method method) {

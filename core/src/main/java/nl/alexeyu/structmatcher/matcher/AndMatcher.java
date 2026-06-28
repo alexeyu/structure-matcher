@@ -17,11 +17,9 @@ final class AndMatcher<V> implements Matcher<V> {
 
     @Override
     public FeedbackNode match(String property, V expected, V value) {
-        return matchers.stream()
-            .map(m -> m.match(property, expected, value))
-            .filter(feedback -> !feedback.isEmpty())
-            .findFirst()
-            .orElse(Feedback.empty(property));
+        return matchers.stream().map(m -> m.match(property, expected, value))
+                .filter(feedback -> !feedback.isEmpty()).findFirst()
+                .orElse(Feedback.empty(property));
     }
 
 }

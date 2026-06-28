@@ -1,8 +1,7 @@
 package nl.alexeyu.structmatcher.feedback;
 
 /**
- * Positive feedback, which implies an expectation about a property value was
- * met.
+ * Positive feedback, which implies an expectation about a property value was met.
  */
 record ExpectationMet(String property) implements FeedbackNode {
 

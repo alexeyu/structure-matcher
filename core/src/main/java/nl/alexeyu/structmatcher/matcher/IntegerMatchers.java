@@ -18,10 +18,9 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it
-     * is any integer. Please note that the matcher will throw
-     * <code>BrokenSpecificationException</code> if a base value is not an
-     * integer.
+     * Returns a strict matcher which considers an actual value matching if it is any integer.
+     * Please note that the matcher will throw <code>BrokenSpecificationException</code> if a base
+     * value is not an integer.
      *
      * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
@@ -31,10 +30,9 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it
-     * is any non-negative integer. Please note that the matcher will throw
-     * <code>BrokenSpecificationException</code> if a base value is not a
-     * positive integer.
+     * Returns a strict matcher which considers an actual value matching if it is any non-negative
+     * integer. Please note that the matcher will throw <code>BrokenSpecificationException</code> if
+     * a base value is not a positive integer.
      *
      * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
@@ -44,10 +42,9 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it
-     * is any positive integer. Please note that the matcher will throw
-     * <code>BrokenSpecificationException</code> if a base value is not a
-     * positive integer.
+     * Returns a strict matcher which considers an actual value matching if it is any positive
+     * integer. Please note that the matcher will throw <code>BrokenSpecificationException</code> if
+     * a base value is not a positive integer.
      *
      * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
@@ -57,25 +54,22 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it
-     * is greater than a parameter value. Please note that the matcher will
-     * throw <code>BrokenSpecificationException</code> if a base value is not a
-     * positive integer.
+     * Returns a strict matcher which considers an actual value matching if it is greater than a
+     * parameter value. Please note that the matcher will throw
+     * <code>BrokenSpecificationException</code> if a base value is not a positive integer.
      *
      * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
      */
     public static Matcher<Object> greaterThan(int value) {
-        return new MustConformMatcher<>(
-                v -> TO_INT.apply(v).orElse(Integer.MIN_VALUE) > value,
+        return new MustConformMatcher<>(v -> TO_INT.apply(v).orElse(Integer.MIN_VALUE) > value,
                 "An integer greater than " + value);
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it
-     * is any negative integer. Please note that the matcher will throw
-     * <code>BrokenSpecificationException</code> if a base value is not a
-     * positive integer.
+     * Returns a strict matcher which considers an actual value matching if it is any negative
+     * integer. Please note that the matcher will throw <code>BrokenSpecificationException</code> if
+     * a base value is not a positive integer.
      *
      * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
@@ -85,32 +79,29 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it
-     * is less than a parameter value. Please note that the matcher will
-     * throw <code>BrokenSpecificationException</code> if a base value is not a
-     * positive integer.
+     * Returns a strict matcher which considers an actual value matching if it is less than a
+     * parameter value. Please note that the matcher will throw
+     * <code>BrokenSpecificationException</code> if a base value is not a positive integer.
      *
      * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
      */
     public static Matcher<Object> lessThan(int value) {
-        return new MustConformMatcher<>(
-                v -> TO_INT.apply(v).orElse(Integer.MAX_VALUE) < value,
+        return new MustConformMatcher<>(v -> TO_INT.apply(v).orElse(Integer.MAX_VALUE) < value,
                 "An integer less than " + value);
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it
-     * belongs to a specified range. Please note that the matcher will throw
-     * <code>BrokenSpecificationException</code> if a base value is not within a
-     * given range.
+     * Returns a strict matcher which considers an actual value matching if it belongs to a
+     * specified range. Please note that the matcher will throw
+     * <code>BrokenSpecificationException</code> if a base value is not within a given range.
      *
      * @param minExclusive
-     *            a minimum of the range: a value being verified should be
-     *            bigger than this parameter.
+     *            a minimum of the range: a value being verified should be bigger than this
+     *            parameter.
      * @param maxExclusive
-     *            a maximum of the range: a value being verified should be
-     *            bigger than this parameter.
+     *            a maximum of the range: a value being verified should be bigger than this
+     *            parameter.
      * @return a matcher with the behavior specified above.
      */
     public static Matcher<Object> inRange(int minExclusive, int maxExclusive) {
@@ -120,10 +111,9 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it
-     * belongs to a set of specified numbers. Please note that the matcher will
-     * throw <code>BrokenSpecificationException</code> if it does not belong to
-     * the argument list.
+     * Returns a strict matcher which considers an actual value matching if it belongs to a set of
+     * specified numbers. Please note that the matcher will throw
+     * <code>BrokenSpecificationException</code> if it does not belong to the argument list.
      *
      * @param possibleValues
      *            a list of values a value being verified should belong to.
@@ -131,8 +121,7 @@ public final class IntegerMatchers {
      */
     public static Matcher<Object> oneOf(Integer... possibleValues) {
         var possibleValuesList = Arrays.asList(possibleValues);
-        return new MustConformMatcher<>(
-                v -> TO_INT.andThen(new OneOf(possibleValuesList)).apply(v),
+        return new MustConformMatcher<>(v -> TO_INT.andThen(new OneOf(possibleValuesList)).apply(v),
                 String.format("One of the following values: %s", possibleValuesList));
     }
 
@@ -174,9 +163,7 @@ public final class IntegerMatchers {
         @Override
         public Optional<Integer> apply(Object t) {
             try {
-                return Optional.of(
-                        Integer.valueOf(
-                                String.valueOf(t)));
+                return Optional.of(Integer.valueOf(String.valueOf(t)));
             } catch (NumberFormatException ex) {
                 return Optional.empty();
             }

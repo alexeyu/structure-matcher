@@ -15,12 +15,12 @@ public class PropertyPathPatternTest {
         assertTrue(new PropertyPathPattern().isEmpty());
     }
 
-    @Test(expected = IllegalStateException.class )
+    @Test(expected = IllegalStateException.class)
     public void cannotGetHeadOfEmptyPath() {
         new PropertyPathPattern().head();
     }
 
-    @Test(expected = IllegalStateException.class )
+    @Test(expected = IllegalStateException.class)
     public void cannotGetTailOfEmptyPath() {
         new PropertyPathPattern().tail();
     }
@@ -83,9 +83,11 @@ public class PropertyPathPatternTest {
 
     @Test
     public void headsMatch() {
-        assertTrue(new PropertyPathPattern("a", "x").headsMatch(new PropertyPath(asList("a", "b"))));
+        assertTrue(
+                new PropertyPathPattern("a", "x").headsMatch(new PropertyPath(asList("a", "b"))));
         assertFalse(new PropertyPathPattern("*").headsMatch(new PropertyPath(asList("a"))));
-        assertFalse(new PropertyPathPattern("a", "x").headsMatch(new PropertyPath(asList("b", "z"))));
+        assertFalse(
+                new PropertyPathPattern("a", "x").headsMatch(new PropertyPath(asList("b", "z"))));
     }
 
 }

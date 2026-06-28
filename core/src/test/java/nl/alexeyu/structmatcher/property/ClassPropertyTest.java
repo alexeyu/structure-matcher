@@ -22,7 +22,8 @@ import nl.alexeyu.structmatcher.matcher.Substructure;
 
 public class ClassPropertyTest {
 
-    private Structure testStructure = new Structure(Color.WHITE, new ArrayList<>(), new Substructure(true));
+    private Structure testStructure = new Structure(Color.WHITE, new ArrayList<>(),
+            new Substructure(true));
 
     @Test
     public void doesNotCreateNonGetterProperty() throws NoSuchMethodException {
@@ -134,8 +135,8 @@ public class ClassPropertyTest {
 
     @Test
     public void returnsAllThePropertiesOfClass() {
-        var propertyNames = ClassProperty.forClass(Structure.class)
-                .map(p -> p.getName()).collect(Collectors.toSet());
+        var propertyNames = ClassProperty.forClass(Structure.class).map(p -> p.getName())
+                .collect(Collectors.toSet());
         assertEquals(3, propertyNames.size());
         assertTrue(propertyNames.contains("Color"));
         assertTrue(propertyNames.contains("Sub"));
@@ -154,10 +155,10 @@ public class ClassPropertyTest {
 
     @Test
     public void recordComponentNamesMatchBeanGetterNames() {
-        var recordNames = ClassProperty.forClass(RecordStructure.class)
-                .map(ClassProperty::getName).collect(Collectors.toSet());
-        var beanNames = ClassProperty.forClass(Structure.class)
-                .map(ClassProperty::getName).collect(Collectors.toSet());
+        var recordNames = ClassProperty.forClass(RecordStructure.class).map(ClassProperty::getName)
+                .collect(Collectors.toSet());
+        var beanNames = ClassProperty.forClass(Structure.class).map(ClassProperty::getName)
+                .collect(Collectors.toSet());
         assertEquals(beanNames, recordNames);
     }
 

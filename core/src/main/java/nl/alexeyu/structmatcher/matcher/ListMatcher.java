@@ -11,7 +11,8 @@ public final class ListMatcher<V> implements Matcher<List<V>> {
     @Override
     public FeedbackNode match(String property, List<V> expectedList, List<V> actualList) {
         if (expectedList.size() != actualList.size()) {
-            return Feedback.differentCollectionSizes(property, expectedList.size(), actualList.size());
+            return Feedback.differentCollectionSizes(property, expectedList.size(),
+                    actualList.size());
         }
         var feedbackSubnodes = new ArrayList<FeedbackNode>();
         for (int i = 0; i < actualList.size(); i++) {
@@ -19,7 +20,8 @@ public final class ListMatcher<V> implements Matcher<List<V>> {
             var expectedElement = expectedList.get(i);
             var elementProperty = String.format("%s[%s]", property, i);
             var elementMatcher = Matchers.getNullAwareMatcher(actualElement);
-            var elementFeedback = elementMatcher.match(elementProperty, expectedElement, actualElement);
+            var elementFeedback = elementMatcher.match(elementProperty, expectedElement,
+                    actualElement);
             if (!elementFeedback.isEmpty()) {
                 feedbackSubnodes.add(elementFeedback);
             }

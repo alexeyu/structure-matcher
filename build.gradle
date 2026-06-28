@@ -11,8 +11,9 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'com.diffplug.spotless'
 
-    // Light-touch formatting: keep the existing style, just fix import hygiene and
-    // whitespace. Run `./gradlew spotlessApply` to fix, `spotlessCheck` to verify.
+    // Light-touch formatting: orders imports, removes unused imports, trims trailing
+    // whitespace, and enforces a final newline — no wrapping/indentation reformatting.
+    // Run `./gradlew spotlessApply` to fix, `spotlessCheck` to verify (runs in `build`).
     spotless {
         java {
             // Preserve the existing grouping (static, then java, third-party, project),

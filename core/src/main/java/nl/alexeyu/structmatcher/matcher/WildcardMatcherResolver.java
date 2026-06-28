@@ -18,10 +18,8 @@ final class WildcardMatcherResolver implements CustomMatcherResolver {
 
     @Override
     public Optional<Matcher<Object>> forPath(PropertyPath path) {
-        return propertyToMatcher.entrySet().stream()
-                .filter(e -> pathMatcher.test(e.getKey(), path))
-                .map(e -> e.getValue())
-                .findFirst();
+        return propertyToMatcher.entrySet().stream().filter(e -> pathMatcher.test(e.getKey(), path))
+                .map(e -> e.getValue()).findFirst();
     }
 
 }

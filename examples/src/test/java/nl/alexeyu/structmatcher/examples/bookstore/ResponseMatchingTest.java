@@ -29,11 +29,9 @@ import nl.alexeyu.structmatcher.matcher.StringMatchers;
 
 public class ResponseMatchingTest {
 
-    private static final String IPADDRESS_PATTERN =
-            "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-                    "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-                    "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-                    "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+    private static final String IPADDRESS_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
     private Matcher<String> ipMatcher = StringMatchers.regex(IPADDRESS_PATTERN);
 
@@ -43,7 +41,8 @@ public class ResponseMatchingTest {
 
     @Before
     public void setUp() throws Exception {
-        rootPath = Paths.get(ResponseMatchingTest.class.getResource("/").toURI()).resolve("../../../resources/test");
+        rootPath = Paths.get(ResponseMatchingTest.class.getResource("/").toURI())
+                .resolve("../../../resources/test");
         var jsonMapper = new ObjectMapper();
         desktopTest = fromFile(jsonMapper, "response-on-smoke-for-desktop-test.json");
         mobileTest = fromFile(jsonMapper, "response-on-smoke-for-mobile-test.json");
@@ -56,21 +55,21 @@ public class ResponseMatchingTest {
 
     @Test
     public void feedbackShowsAllTheDifferences() throws Exception {
-        var feedback = ObjectMatcher.forClass(BookSearchResult.class)
-                .match(desktopTest, desktopProd);
+        var feedback = ObjectMatcher.forClass(BookSearchResult.class).match(desktopTest,
+                desktopProd);
         assertFalse(feedback.isEmpty());
         var json = Json.mapper().writeValueAsString(feedback);
         assertThat(12, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.expectation"))));
         assertThat(14, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.value"))));
-        assertThat("192.168.10.10", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.expectation"))));
+        assertThat("192.168.10.10",
+                is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.expectation"))));
         assertThat("192.168.10.14", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.value"))));
         assertThat(8080, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.expectation"))));
         assertThat(8081, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.value"))));
     }
 
     private <V> ObjectMatcher<V> withMetadataMatchers(ObjectMatcher<V> matcher) {
-        return matcher
-                .with(ipMatcher, "Metadata.Server.Ip")
+        return matcher.with(ipMatcher, "Metadata.Server.Ip")
                 .with(oneOf(8080, 8081, 8090, 8091), "Metadata.Server.Port")
                 .with(inRange(2, 5000), "Metadata.ProcessingTimeMs");
     }
@@ -87,13 +86,10 @@ public class ResponseMatchingTest {
         UnaryOperator<String> nameToInitial = name -> name.substring(0, 1) + ".";
         var feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
                 .with(constant(Platform.MOBILE), "Metadata.Platform")
-                .with(Matchers.and(
-                        Matchers.nonNull(),
-                        StringMatchers.nonEmpty(),
-                        Matchers.normalizingBase(nameToInitial, valuesEqual())
-                      ),  "Books.Authors.FirstName")
-                .with(Matchers.constant(null), "Books.Meta")
-                .match(desktopTest, mobileTest);
+                .with(Matchers.and(Matchers.nonNull(), StringMatchers.nonEmpty(),
+                        Matchers.normalizingBase(nameToInitial, valuesEqual())),
+                        "Books.Authors.FirstName")
+                .with(Matchers.constant(null), "Books.Meta").match(desktopTest, mobileTest);
         assertTrue(feedback.isEmpty());
     }
 

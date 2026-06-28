@@ -35,7 +35,8 @@ public class MapMatcherTest {
     public void differentValueIsReportedUnderTheKeyedProperty() {
         var feedback = matcher.match("map", map("a", 1), map("a", 2));
         assertFalse(feedback.isEmpty());
-        assertEquals(Feedback.composite("map", asList(Feedback.nonEqual("map[a]", 1, 2))), feedback);
+        assertEquals(Feedback.composite("map", asList(Feedback.nonEqual("map[a]", 1, 2))),
+                feedback);
     }
 
     @Test
@@ -64,8 +65,8 @@ public class MapMatcherTest {
         var expected = map("x", new Substructure(true));
         var actual = map("x", new Substructure(false));
         var feedback = matcher.match("map", expected, actual);
-        var expectedFeedback = Feedback.composite("map",
-                asList(Feedback.composite("map[x]", asList(Feedback.nonEqual("Bool", true, false)))));
+        var expectedFeedback = Feedback.composite("map", asList(
+                Feedback.composite("map[x]", asList(Feedback.nonEqual("Bool", true, false)))));
         assertEquals(expectedFeedback, feedback);
     }
 
@@ -74,10 +75,9 @@ public class MapMatcherTest {
         var expected = new MapHolder(Map.of("s1", new Substructure(true)));
         var actual = new MapHolder(Map.of("s1", new Substructure(false)));
         var feedback = ObjectMatcher.forClass(MapHolder.class).match(expected, actual);
-        var expectedFeedback = Feedback.composite(MapHolder.class.getName(), asList(
-                Feedback.composite("Sections", asList(
-                        Feedback.composite("Sections[s1]", asList(
-                                Feedback.nonEqual("Bool", true, false)))))));
+        var expectedFeedback = Feedback.composite(MapHolder.class.getName(),
+                asList(Feedback.composite("Sections", asList(Feedback.composite("Sections[s1]",
+                        asList(Feedback.nonEqual("Bool", true, false)))))));
         assertEquals(expectedFeedback, feedback);
     }
 

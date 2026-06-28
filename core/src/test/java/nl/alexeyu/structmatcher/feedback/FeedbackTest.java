@@ -74,8 +74,8 @@ public class FeedbackTest {
 
     @Test
     public void compositeFeedbackAccumulatesOthers() throws Exception {
-        var feedback = Feedback.composite("primary",
-                asList(Feedback.nonEqual("color", "white", "black"), Feedback.nonEqual("qty", 15, 17)));
+        var feedback = Feedback.composite("primary", asList(
+                Feedback.nonEqual("color", "white", "black"), Feedback.nonEqual("qty", 15, 17)));
         var json = mapper.writeValueAsString(feedback);
         assertEquals(2, getChildrenLength(json));
         assertEquals("color", JsonPath.read(json, "$.children[0].property"));
@@ -84,9 +84,9 @@ public class FeedbackTest {
 
     @Test
     public void feedbackCanBeNested() throws Exception {
-        var feedback = Feedback.composite("primary", asList(
-                Feedback.nonEqual("color", "white", "black"),
-                Feedback.composite("secondary", asList(Feedback.nonEqual("shade", "ivory", "noir")))));
+        var feedback = Feedback.composite("primary",
+                asList(Feedback.nonEqual("color", "white", "black"), Feedback.composite("secondary",
+                        asList(Feedback.nonEqual("shade", "ivory", "noir")))));
         var json = mapper.writeValueAsString(feedback);
         assertEquals(2, getChildrenLength(json));
         assertEquals("color", JsonPath.read(json, "$.children[0].property"));

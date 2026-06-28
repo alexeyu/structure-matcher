@@ -22,44 +22,36 @@ public class BookMatchingTest {
 
     @Test
     public void notNormalizedStringsDoNotMatchByDefault() {
-        var feedback = ObjectMatcher.forClass(Author.class)
-                .match(francoiseSaganNormalized, francoiseSagan);
+        var feedback = ObjectMatcher.forClass(Author.class).match(francoiseSaganNormalized,
+                francoiseSagan);
         assertFalse(feedback.isEmpty());
     }
 
     @Test
     public void notNormalizedStringsDoMatchWithNormalizationAwareMatcher() {
         var feedback = ObjectMatcher.forClass(Author.class)
-                .with(Matchers.<String>normalizing(name -> stripAccents(name),
-                        valuesEqual()), "FirstName")
+                .with(Matchers.<String>normalizing(name -> stripAccents(name), valuesEqual()),
+                        "FirstName")
                 .match(francoiseSaganNormalized, francoiseSagan);
         assertTrue(feedback.isEmpty());
     }
 
     @Test
     public void structuralDifferencesCanBeMatchedByIndirectMatcher() {
-        var oldVersion = new Book(
-            "Summer and Smoke",
-            Arrays.asList(new Author("Tenessee", "Williams")),
-            "Signet, 1961, Paperback, 127 pages"
-        );
-        var newVersion = new Book(
-            "Summer and Smoke",
-             Arrays.asList(new Author("Tenessee", "Williams")),
-             "Paperback"
-        );
+        var oldVersion = new Book("Summer and Smoke",
+                Arrays.asList(new Author("Tenessee", "Williams")),
+                "Signet, 1961, Paperback, 127 pages");
+        var newVersion = new Book("Summer and Smoke",
+                Arrays.asList(new Author("Tenessee", "Williams")), "Paperback");
         newVersion.setPublishingInfo(new PublishingInfo("Signet", 1961, 127));
 
         var publishingMatcher = new IndirectMatcher<Book, PublishingInfo>(
-                "Old, unstructured metadata to new, structured one",
-                valuesEqual(),
-                new V1MetadataExtractor(),
-                Book::getPublishingInfo);
+                "Old, unstructured metadata to new, structured one", valuesEqual(),
+                new V1MetadataExtractor(), Book::getPublishingInfo);
 
         var feedback = ObjectMatcher.forClass(Book.class)
                 .withMatcher((p, e, a) -> Feedback.empty("PublishingInfo"), "PublishingInfo")
-                .withMatcher(publishingMatcher, "Meta")
-                .match(oldVersion, newVersion);
+                .withMatcher(publishingMatcher, "Meta").match(oldVersion, newVersion);
         System.out.println(feedback);
         assertTrue(feedback.isEmpty());
     }
@@ -70,9 +62,7 @@ public class BookMatchingTest {
             var meta = book.getMeta().split(",");
             var pages = meta[3].trim();
             var numPages = Integer.valueOf(pages.split(" ")[0]);
-            return new PublishingInfo(meta[0].trim(),
-                    Integer.valueOf(meta[1].trim()),
-                    numPages);
+            return new PublishingInfo(meta[0].trim(), Integer.valueOf(meta[1].trim()), numPages);
         }
     }
 

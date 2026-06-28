@@ -15,12 +15,12 @@ public class PropertyPathTest {
         assertTrue(new PropertyPath().isEmpty());
     }
 
-    @Test(expected = IllegalStateException.class )
+    @Test(expected = IllegalStateException.class)
     public void cannotGetHeadOfEmptyPath() {
         new PropertyPath().head();
     }
 
-    @Test(expected = IllegalStateException.class )
+    @Test(expected = IllegalStateException.class)
     public void cannotGetTailOfEmptyPath() {
         new PropertyPath().tail();
     }

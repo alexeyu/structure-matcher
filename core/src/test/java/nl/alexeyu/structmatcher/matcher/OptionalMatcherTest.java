@@ -44,9 +44,10 @@ public class OptionalMatcherTest {
 
     @Test
     public void presentComplexValuesAreMatchedStructurally() {
-        var feedback = matcher.match("opt",
-                Optional.of(new Substructure(true)), Optional.of(new Substructure(false)));
-        var expectedFeedback = Feedback.composite("opt", asList(Feedback.nonEqual("Bool", true, false)));
+        var feedback = matcher.match("opt", Optional.of(new Substructure(true)),
+                Optional.of(new Substructure(false)));
+        var expectedFeedback = Feedback.composite("opt",
+                asList(Feedback.nonEqual("Bool", true, false)));
         assertEquals(expectedFeedback, feedback);
     }
 
@@ -55,8 +56,8 @@ public class OptionalMatcherTest {
         var expected = new OptionalHolder(Optional.of("Ada"));
         var actual = new OptionalHolder(Optional.empty());
         var feedback = ObjectMatcher.forClass(OptionalHolder.class).match(expected, actual);
-        var expectedFeedback = Feedback.composite(OptionalHolder.class.getName(), asList(
-                Feedback.gotNull("Nickname", "Ada")));
+        var expectedFeedback = Feedback.composite(OptionalHolder.class.getName(),
+                asList(Feedback.gotNull("Nickname", "Ada")));
         assertEquals(expectedFeedback, feedback);
     }
 }

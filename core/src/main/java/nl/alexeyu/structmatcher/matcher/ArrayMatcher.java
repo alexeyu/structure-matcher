@@ -7,13 +7,12 @@ import java.util.List;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * Matches two arrays element by element by adapting them to lists and delegating
- * to {@link ListMatcher}. Reflection ({@link Array}) is used to read the elements,
- * so arrays of objects and of primitives are handled the same way (primitive
- * elements are auto-boxed). Elements are matched the way they are everywhere else:
- * simple values by equality, complex values structurally; each is reported under
- * <code>property[index]</code>. The arrays themselves must not be <code>null</code>
- * (their elements may be).
+ * Matches two arrays element by element by adapting them to lists and delegating to
+ * {@link ListMatcher}. Reflection ({@link Array}) is used to read the elements, so arrays of
+ * objects and of primitives are handled the same way (primitive elements are auto-boxed). Elements
+ * are matched the way they are everywhere else: simple values by equality, complex values
+ * structurally; each is reported under <code>property[index]</code>. The arrays themselves must not
+ * be <code>null</code> (their elements may be).
  */
 public final class ArrayMatcher implements Matcher<Object> {
 

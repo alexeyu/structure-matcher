@@ -1,12 +1,9 @@
 *.class
 
 # IDEs
-.project
-.classpath
 .idea
 *.iml
 out/
-bin/
 .vscode/
 
 # OS
@@ -27,7 +24,6 @@ Thumbs.db
 hs_err_pid*
 /target/
 build/
-.settings/
 .gradle/
 
 # Keep the committed Gradle wrapper (gradlew, gradlew.bat, gradle/wrapper/*),

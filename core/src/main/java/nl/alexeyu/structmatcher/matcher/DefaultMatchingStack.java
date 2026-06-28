@@ -9,8 +9,8 @@ import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 
 final class DefaultMatchingStack<T> implements MatchingStack<T> {
 
-    public static final MatchingStack<Object> BARE = new DefaultMatchingStack<>(
-            new Object(), new Object(), Collections.emptyMap());
+    public static final MatchingStack<Object> BARE = new DefaultMatchingStack<>(new Object(),
+            new Object(), Collections.emptyMap());
 
     private final PropertyPath path = new PropertyPath();
 
@@ -20,7 +20,8 @@ final class DefaultMatchingStack<T> implements MatchingStack<T> {
 
     private final T actual;
 
-    public DefaultMatchingStack(T expected, T actual, Map<PropertyPathPattern, Matcher<Object>> propertyToMatcher) {
+    public DefaultMatchingStack(T expected, T actual,
+            Map<PropertyPathPattern, Matcher<Object>> propertyToMatcher) {
         this.expected = expected;
         this.actual = actual;
         this.customMatcherResolver = new WildcardMatcherResolver(propertyToMatcher);

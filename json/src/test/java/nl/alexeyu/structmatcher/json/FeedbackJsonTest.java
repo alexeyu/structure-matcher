@@ -13,11 +13,10 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * Characterization tests pinning the exact JSON that {@link Json#mapper()} produces
- * for feedback trees. These exist to make any change to the serialized output a
- * conscious decision — they guard the shape across refactorings such as the move of
- * the feedback value types to {@code record}s, which alters how Jackson discovers
- * their properties.
+ * Characterization tests pinning the exact JSON that {@link Json#mapper()} produces for feedback
+ * trees. These exist to make any change to the serialized output a conscious decision — they guard
+ * the shape across refactorings such as the move of the feedback value types to {@code record}s,
+ * which alters how Jackson discovers their properties.
  */
 public class FeedbackJsonTest {
 
@@ -69,8 +68,7 @@ public class FeedbackJsonTest {
                   }
                 }""";
         var composite = Feedback.composite("primary", asList(
-                Feedback.nonEqual("color", "white", "black"),
-                Feedback.nonEqual("qty", 15, 17)));
+                Feedback.nonEqual("color", "white", "black"), Feedback.nonEqual("qty", 15, 17)));
         assertEquals(expected, json(composite));
     }
 
@@ -89,10 +87,9 @@ public class FeedbackJsonTest {
                     }
                   }
                 }""";
-        var nested = Feedback.composite("primary", asList(
-                Feedback.nonEqual("color", "white", "black"),
-                Feedback.composite("secondary", asList(
-                        Feedback.nonEqual("shade", "ivory", "noir")))));
+        var nested = Feedback.composite("primary",
+                asList(Feedback.nonEqual("color", "white", "black"), Feedback.composite("secondary",
+                        asList(Feedback.nonEqual("shade", "ivory", "noir")))));
         assertEquals(expected, json(nested));
     }
 
@@ -101,23 +98,27 @@ public class FeedbackJsonTest {
     @Test
     public void brokenLeafHasNoPropertyField() throws Exception {
         var node = mapper.readTree(json(Feedback.nonEqual("color", "white", "black")));
-        assertFalse("the 'property' name is carried by the composite key, not the leaf", node.has("property"));
+        assertFalse("the 'property' name is carried by the composite key, not the leaf",
+                node.has("property"));
         assertTrue(node.has("expectation"));
         assertTrue(node.has("value"));
     }
 
     @Test
     public void compositeUsesChildPropertyAsKeyNotAChildrenArray() throws Exception {
-        var node = mapper.readTree(json(Feedback.composite("primary", asList(
-                Feedback.nonEqual("color", "white", "black")))));
+        var node = mapper.readTree(json(Feedback.composite("primary",
+                asList(Feedback.nonEqual("color", "white", "black")))));
         assertFalse(node.has("children"));
         assertFalse(node.has("primary"));
         assertTrue(node.has("color"));
     }
 
-    // A "met" (empty) node carries nothing to report, so it renders as an empty object —
-    // consistent with an empty composite, which already renders as "{ }". (Before the value
-    // types became records this threw an empty-bean error; the records made it consistent.)
+    // A "met" (empty) node carries nothing to report, so it renders as an empty
+    // object —
+    // consistent with an empty composite, which already renders as "{ }". (Before
+    // the value
+    // types became records this threw an empty-bean error; the records made it
+    // consistent.)
 
     @Test
     public void standaloneMetNodeRendersAsEmptyObject() {
@@ -134,9 +135,8 @@ public class FeedbackJsonTest {
                     "value" : 17
                   }
                 }""";
-        var composite = Feedback.composite("primary", asList(
-                Feedback.empty("color"),
-                Feedback.nonEqual("qty", 15, 17)));
+        var composite = Feedback.composite("primary",
+                asList(Feedback.empty("color"), Feedback.nonEqual("qty", 15, 17)));
         assertEquals(expected, json(composite));
     }
 

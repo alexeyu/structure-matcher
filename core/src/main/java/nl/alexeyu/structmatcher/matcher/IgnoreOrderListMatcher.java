@@ -7,9 +7,9 @@ import java.util.List;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * List matcher which ignores order of values. It is still not a set matcher
- * because it allows duplicate elements. It simply sorts given lists before
- * matching, so needs to be initialized with a comparator.
+ * List matcher which ignores order of values. It is still not a set matcher because it allows
+ * duplicate elements. It simply sorts given lists before matching, so needs to be initialized with
+ * a comparator.
  */
 final class IgnoreOrderListMatcher<V> implements Matcher<List<V>> {
 

@@ -20,12 +20,9 @@ public class WildcardPathCheckerTest {
 
     @DataPoints("positive")
     public static PropertyPathPattern[] positiveExamples() {
-        return new PropertyPathPattern[] {
-            pattern("*"), pattern("a", "*"), pattern("a", "*", "d"),
-            pattern("a", "b", "c", "d"), pattern("*", "c", "d"),
-            pattern("a", "*", "c", "*"), pattern("*", "*", "d"),
-            pattern("*", "*", "*", "*", "*"),
-        };
+        return new PropertyPathPattern[]{pattern("*"), pattern("a", "*"), pattern("a", "*", "d"),
+                pattern("a", "b", "c", "d"), pattern("*", "c", "d"), pattern("a", "*", "c", "*"),
+                pattern("*", "*", "d"), pattern("*", "*", "*", "*", "*"),};
     }
 
     @Theory
@@ -35,11 +32,9 @@ public class WildcardPathCheckerTest {
 
     @DataPoints("negative")
     public static PropertyPathPattern[] negativeExamples() {
-        return new PropertyPathPattern[] {
-            pattern(""), pattern("a"), pattern("a", "b", "c"),
-            pattern("a", "b", "d", "c"), pattern("*", "c"),
-            pattern("b", "*"), pattern("a", "b", "c", "d", "e")
-        };
+        return new PropertyPathPattern[]{pattern(""), pattern("a"), pattern("a", "b", "c"),
+                pattern("a", "b", "d", "c"), pattern("*", "c"), pattern("b", "*"),
+                pattern("a", "b", "c", "d", "e")};
     }
 
     @Theory

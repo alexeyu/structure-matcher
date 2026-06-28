@@ -9,7 +9,9 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class NullAwareMatcherTest {
 
-    private Matcher<Object> failingMatcher = (p, e, a) -> { throw new IllegalStateException("Should not be called"); };
+    private Matcher<Object> failingMatcher = (p, e, a) -> {
+        throw new IllegalStateException("Should not be called");
+    };
 
     @Test
     public void treatsNullsAsEqualObjects() {
@@ -36,8 +38,7 @@ public class NullAwareMatcherTest {
     @Test
     public void specifiesExpectedNonNullButGotNull() {
         var m = new NullAwareMatcher<>(failingMatcher);
-        assertEquals(Feedback.gotNull("test", "something"),
-                m.match("test", "something", null));
+        assertEquals(Feedback.gotNull("test", "something"), m.match("test", "something", null));
     }
 
     private static class FakeMatcher implements Matcher<Object> {

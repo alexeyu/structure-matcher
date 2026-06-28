@@ -48,8 +48,10 @@ public class SetMatcherTest {
     @Test
     public void differingSetsReportBothMissingAndExtraElements() {
         var feedback = matcher.match("set", set(1, 2), set(1, 3));
-        assertEquals(Feedback.composite("set",
-                asList(Feedback.gotNull("set[2]", 2), Feedback.gotNonNull("set[3]", 3))), feedback);
+        assertEquals(
+                Feedback.composite("set",
+                        asList(Feedback.gotNull("set[2]", 2), Feedback.gotNonNull("set[3]", 3))),
+                feedback);
     }
 
     @Test
@@ -64,9 +66,8 @@ public class SetMatcherTest {
         var expected = new SetHolder(Set.of("a", "b"));
         var actual = new SetHolder(Set.of("a", "c"));
         var feedback = ObjectMatcher.forClass(SetHolder.class).match(expected, actual);
-        var expectedFeedback = Feedback.composite(SetHolder.class.getName(), asList(
-                Feedback.composite("Tags", asList(
-                        Feedback.gotNull("Tags[b]", "b"),
+        var expectedFeedback = Feedback.composite(SetHolder.class.getName(),
+                asList(Feedback.composite("Tags", asList(Feedback.gotNull("Tags[b]", "b"),
                         Feedback.gotNonNull("Tags[c]", "c")))));
         assertEquals(expectedFeedback, feedback);
     }

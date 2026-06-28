@@ -6,9 +6,9 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 
 /**
- * Feedback node for a complex data structure (a list or a POJO). Contains other
- * feedback nodes which correspond to properties of an object or members of a
- * list. Empty iff all its children are empty.
+ * Feedback node for a complex data structure (a list or a POJO). Contains other feedback nodes
+ * which correspond to properties of an object or members of a list. Empty iff all its children are
+ * empty.
  */
 public final class CompositeFeedbackNode implements FeedbackNode {
 
@@ -47,8 +47,8 @@ public final class CompositeFeedbackNode implements FeedbackNode {
         }
         if (obj instanceof CompositeFeedbackNode) {
             var other = (CompositeFeedbackNode) obj;
-            return Objects.equals(this.property, other.property) &&
-                    Objects.equals(this.children, other.children);
+            return Objects.equals(this.property, other.property)
+                    && Objects.equals(this.children, other.children);
         }
         return false;
     }
