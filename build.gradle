@@ -39,10 +39,11 @@ subprojects {
         withJavadocJar()
     }
 
-    // The legacy Javadoc in this codebase predates strict doclint (e.g. `@see {@link X}`);
-    // keep it from failing the build until it is cleaned up.
+    // Enforce the 'reference' doclint group (broken @see/@link targets, wrong @param
+    // names) so those can't regress. The other groups (html/syntax/missing) still have
+    // legacy issues, so they remain disabled for now.
     javadoc {
-        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('Xdoclint:reference', '-quiet')
     }
 
     dependencies {

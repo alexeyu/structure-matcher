@@ -26,7 +26,7 @@ public final class Matchers {
      * @param nextMatcher matcher to be called if both arguments passed for matching are
      *                    not <code>null</code>.
      * @return a matcher with the behavior specified above.
-     * @see {@link NullAwareMatcher}
+     * @see NullAwareMatcher
      */
     public static <V> Matcher<V> nullAware(Matcher<V> nextMatcher) {
         return new NullAwareMatcher<>(nextMatcher);
@@ -37,7 +37,7 @@ public final class Matchers {
      * are <code>null</code> or both of them are not <code>null</code>.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link NullAwareMatcher}
+     * @see NullAwareMatcher
      */
     public static <V> Matcher<V> anyValue() {
         return nullAware((p, e, a) -> Feedback.empty(p));
@@ -66,7 +66,7 @@ public final class Matchers {
      * both <code>null</code> or equal to each other.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link NullAwareMatcher}
+     * @see NullAwareMatcher
      */
     public static <V> Matcher<V> valuesEqual() {
         return nullAware(new ValuesEqualMatcher<>());
@@ -83,7 +83,7 @@ public final class Matchers {
      * arguments to be null.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link ObjectMatcher}
+     * @see ObjectMatcher
      */
     public static <V> ListMatcher<V> listsEqual() {
         return new ListMatcher<>();
@@ -97,7 +97,7 @@ public final class Matchers {
      *
      * @param comparator element comparator which will be used by the matcher.
      * @return a matcher with the behavior specified above.
-     * @see {@link ObjectMatcher}
+     * @see ObjectMatcher
      */
     public static <V> IgnoreOrderListMatcher<V> listsHaveEqualElements(Comparator<V> comparator) {
         return new IgnoreOrderListMatcher<>(comparator);
@@ -111,7 +111,7 @@ public final class Matchers {
      * for complex ones). Does not allow the maps themselves to be null.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link MapMatcher}
+     * @see MapMatcher
      */
     public static <K, V> MapMatcher<K, V> mapsEqual() {
         return new MapMatcher<>();
@@ -125,7 +125,7 @@ public final class Matchers {
      * sets themselves to be null.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link SetMatcher}
+     * @see SetMatcher
      */
     public static <V> SetMatcher<V> setsEqual() {
         return new SetMatcher<>();
@@ -139,7 +139,7 @@ public final class Matchers {
      * complex ones). Does not allow the arrays themselves to be null.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link ArrayMatcher}
+     * @see ArrayMatcher
      */
     public static ArrayMatcher arraysEqual() {
         return new ArrayMatcher();
@@ -152,7 +152,7 @@ public final class Matchers {
      * an empty one do not.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link OptionalMatcher}
+     * @see OptionalMatcher
      */
     public static OptionalMatcher optional() {
         return new OptionalMatcher();
@@ -169,7 +169,7 @@ public final class Matchers {
      * is possible to redefine a matcher for any property with a custom one.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link ObjectMatcher}
+     * @see ObjectMatcher
      */
     public static <V> Matcher<V> structuresEqual() {
         return nullAware(new StructureMatcher<>());
@@ -269,7 +269,7 @@ public final class Matchers {
      * <code>optional()</code> matcher for an Optional property,
      * <code>valuesEqual()</code> matcher for a simple property,
      * <code>structuresEqual()</code> for any other property.
-     * @see {@link ClassProperty}
+     * @see ClassProperty
      */
     @SuppressWarnings("rawtypes")
     public static Matcher forProperty(Property property) {

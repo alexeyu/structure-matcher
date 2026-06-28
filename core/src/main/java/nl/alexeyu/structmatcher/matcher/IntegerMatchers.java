@@ -25,7 +25,7 @@ public final class IntegerMatchers {
      * integer.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link MustConformMatcher}
+     * @see MustConformMatcher
      */
     public static Matcher<Object> any() {
         return new MustConformMatcher<>(v -> TO_INT.apply(v).isPresent(), "An integer");
@@ -38,7 +38,7 @@ public final class IntegerMatchers {
      * positive integer.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link MustConformMatcher}
+     * @see MustConformMatcher
      */
     public static Matcher<Object> nonNegative() {
         return greaterThan(-1);
@@ -51,7 +51,7 @@ public final class IntegerMatchers {
      * positive integer.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link MustConformMatcher}
+     * @see MustConformMatcher
      */
     public static Matcher<Object> positive() {
         return greaterThan(0);
@@ -64,7 +64,7 @@ public final class IntegerMatchers {
      * positive integer.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link MustConformMatcher}
+     * @see MustConformMatcher
      */
     public static Matcher<Object> greaterThan(int value) {
         return new MustConformMatcher<>(
@@ -79,7 +79,7 @@ public final class IntegerMatchers {
      * positive integer.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link MustConformMatcher}
+     * @see MustConformMatcher
      */
     public static Matcher<Object> negative() {
         return lessThan(0);
@@ -92,7 +92,7 @@ public final class IntegerMatchers {
      * positive integer.
      *
      * @return a matcher with the behavior specified above.
-     * @see {@link MustConformMatcher}
+     * @see MustConformMatcher
      */
     public static Matcher<Object> lessThan(int value) {
         return new MustConformMatcher<>(

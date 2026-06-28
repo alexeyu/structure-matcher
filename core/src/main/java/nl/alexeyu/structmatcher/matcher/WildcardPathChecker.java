@@ -7,7 +7,7 @@ import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 
 /**
  * Check a path to a registered custom matcher against a stack of nested
- * properties.' The path may contain wildcards (*), which mean, any subset of
+ * properties. The path may contain wildcards (*), which mean, any subset of
  * properties between two concrete path elements would match. Wildcards are
  * convenient when there are sub-properties with the same name and type in the
  * different objects of the model. For instance, all properties with the

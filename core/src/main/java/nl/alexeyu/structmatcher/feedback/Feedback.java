@@ -105,9 +105,11 @@ public final class Feedback {
      * Produces a non-empty feedback node which means that the size of
      * collection is not as expected. Useful when comparing list properties.
      *
+     * @param property
+     *            name of a property which was verified.
      * @param expectedSize
      *            an expected size of a collection.
-     * @param actual
+     * @param actualSize
      *            an actual collection size.
      * @return a feedback node which captures information about the broken
      *         expectation.

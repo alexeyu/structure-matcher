@@ -85,7 +85,7 @@ public final class ClassProperty implements Property {
 
     /**
      * Gets the value of this property for a given object by calling the
-     * propertie's get method.
+     * property's get method.
      *
      * @param obj an object to get the property value from.
      * @return a value of a property.
@@ -118,8 +118,8 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property a list (implements the
-     * <code>java.util.list.List</code> interface).
+     * Tells if a property is a list (implements the
+     * <code>java.util.List</code> interface).
      */
     @Override
     public boolean isList() {

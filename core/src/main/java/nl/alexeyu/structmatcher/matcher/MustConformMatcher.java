@@ -10,7 +10,7 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
  * condition both to a value of a base and a target structure. It assumes the
  * base value absolutely must conform the condition, so, if it it doesn't, it
  * throws an exception, which effectively breaks the matching. It means either
- * that the contract is defined wrongly, or the base ("ethalon") structure has a
+ * that the contract is defined wrongly, or the base ("reference") structure has a
  * bug. If the target structure does not conform the condition, it returns a
  * non-empty feedback node.
  */

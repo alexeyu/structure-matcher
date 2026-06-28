@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
+import nl.alexeyu.structmatcher.property.ClassProperty;
 import nl.alexeyu.structmatcher.property.Property;
 import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 import nl.alexeyu.structmatcher.property.SimpleProperty;
@@ -66,7 +67,7 @@ public class ObjectMatcher<T> {
      *
      * @param matcher      to be registered and invoked when two values of a specified
      *                     property will be matched.
-     * @param propertyPath a path to a property, imcluding the property itself. Every
+     * @param propertyPath a path to a property, including the property itself. Every
      *                     string value corresponds to a property name in a given
      *                     structure. Properties of a class are defined by getter methods
      *                     without parameters. For example,
@@ -82,7 +83,7 @@ public class ObjectMatcher<T> {
      *                                </pre>
      * @return the same instance of the <code>ObjectMatcher</code>, ready to be
      * set up further and/or executed.
-     * @see {@link ClassProperty}
+     * @see ClassProperty
      */
     public ObjectMatcher<T> withMatcher(Matcher<?> matcher, String... propertyPath) {
         List<String> fullPath = new ArrayList<>(Arrays.asList(propertyPath));

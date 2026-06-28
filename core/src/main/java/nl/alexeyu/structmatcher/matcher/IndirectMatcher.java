@@ -6,7 +6,7 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
  * A matcher that allows the maximal level of flexibility: operates with 2 functions
- * that derive an expected and a actual values from the base and target objects respectively.
+ * that derive an expected and an actual value from the base and target objects respectively.
  * Then it feeds these values to an underlying matcher.
  */
 public final class IndirectMatcher<T, V> implements Matcher<T> {
