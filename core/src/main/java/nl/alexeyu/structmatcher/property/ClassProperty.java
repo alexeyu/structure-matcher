@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -132,6 +133,15 @@ public final class ClassProperty implements Property {
     @Override
     public boolean isMap() {
         return method.getReturnType().isAssignableFrom(Map.class);
+    }
+
+    /**
+     * Tells if a property is a set (implements the
+     * <code>java.util.Set</code> interface).
+     */
+    @Override
+    public boolean isSet() {
+        return method.getReturnType().isAssignableFrom(Set.class);
     }
 
     public static boolean isSimple(Class<?> cl) {

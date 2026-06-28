@@ -10,5 +10,7 @@ public interface Property {
 
     boolean isMap();
 
+    boolean isSet();
+
     boolean isSimple();
 }

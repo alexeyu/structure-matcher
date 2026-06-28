@@ -79,8 +79,14 @@ all three constantly.
       mismatches under `property[key]`. Wired via `Property.isMap()` /
       `Matchers.forProperty` / `Matchers.mapsEqual()`. Tests: `MapMatcherTest` +
       `isMap` coverage in `ClassPropertyTest`.
-- [ ] `Set` / unordered collections: generalize the existing
-      `IgnoreOrderListMatcher` logic.
+- [x] `Set` matcher: `SetMatcher` matches by **membership** — same elements
+      regardless of order, comparing elements by their own `equals`/`hashCode`,
+      reporting missing/extra elements under `property[element]`. Wired via
+      `Property.isSet()` / `Matchers.setsEqual()`. Tests: `SetMatcherTest` + `isSet`
+      coverage. **Deviation from the original plan:** did *not* reuse
+      `IgnoreOrderListMatcher` — it needs a `Comparator` (no default available) and a
+      set's defining trait is membership, not sortable order. `IgnoreOrderListMatcher`
+      stays as the comparator-based, field-aware option for *lists*.
 - [ ] Array matcher (delegate to list logic after `Arrays.asList`-style adaptation).
 
   Known follow-up (shared with lists): a collection *value/element* that is itself a

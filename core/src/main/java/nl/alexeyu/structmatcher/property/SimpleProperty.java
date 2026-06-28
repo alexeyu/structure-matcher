@@ -29,6 +29,11 @@ public final class SimpleProperty implements Property {
     }
 
     @Override
+    public boolean isSet() {
+        return false;
+    }
+
+    @Override
     public boolean isSimple() {
         return true;
     }

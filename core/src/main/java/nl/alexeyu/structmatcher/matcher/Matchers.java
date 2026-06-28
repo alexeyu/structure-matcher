@@ -118,6 +118,20 @@ public final class Matchers {
     }
 
     /**
+     * Produces a matcher which considers two sets matching if they contain the same
+     * elements, regardless of order. Elements present in only one of the sets are
+     * reported. Elements are compared by their own <code>equals</code>/
+     * <code>hashCode</code> (set membership), not field by field. Does not allow the
+     * sets themselves to be null.
+     *
+     * @return a matcher with the behavior specified above.
+     * @see {@link SetMatcher}
+     */
+    public static <V> SetMatcher<V> setsEqual() {
+        return new SetMatcher<>();
+    }
+
+    /**
      * Returns a matcher which matches two data structures. It considers
      * structures matching either if they both are <code>null</code> or if each
      * of their properties matches to a respective property of another
@@ -223,6 +237,7 @@ public final class Matchers {
      * @param property to receive a matcher for.
      * @return <code>listsEqual()</code> matcher for a list property,
      * <code>mapsEqual()</code> matcher for a map property,
+     * <code>setsEqual()</code> matcher for a set property,
      * <code>valuesEqual()</code> matcher for a simple property,
      * <code>structuresEqual()</code> for any other property.
      * @see {@link ClassProperty}
@@ -234,6 +249,9 @@ public final class Matchers {
         }
         if (property.isMap()) {
             return mapsEqual();
+        }
+        if (property.isSet()) {
+            return setsEqual();
         }
         if (property.isSimple()) {
             return valuesEqual();

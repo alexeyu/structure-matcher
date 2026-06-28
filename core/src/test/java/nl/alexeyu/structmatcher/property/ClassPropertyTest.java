@@ -16,6 +16,7 @@ import nl.alexeyu.structmatcher.matcher.Color;
 import nl.alexeyu.structmatcher.matcher.MapHolder;
 import nl.alexeyu.structmatcher.matcher.RecordStructure;
 import nl.alexeyu.structmatcher.matcher.RecordSubstructure;
+import nl.alexeyu.structmatcher.matcher.SetHolder;
 import nl.alexeyu.structmatcher.matcher.Structure;
 import nl.alexeyu.structmatcher.matcher.Substructure;
 
@@ -77,7 +78,18 @@ public class ClassPropertyTest {
         assertEquals("Sections", sections.getName());
         assertTrue(sections.isMap());
         assertFalse(sections.isList());
+        assertFalse(sections.isSet());
         assertFalse(sections.isSimple());
+    }
+
+    @Test
+    public void setPropertyIsSet() {
+        ClassProperty tags = ClassProperty.forClass(SetHolder.class).findFirst().get();
+        assertEquals("Tags", tags.getName());
+        assertTrue(tags.isSet());
+        assertFalse(tags.isList());
+        assertFalse(tags.isMap());
+        assertFalse(tags.isSimple());
     }
 
     @Test
