@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 
+import nl.alexeyu.structmatcher.matcher.ArrayHolder;
 import nl.alexeyu.structmatcher.matcher.Color;
 import nl.alexeyu.structmatcher.matcher.MapHolder;
 import nl.alexeyu.structmatcher.matcher.RecordStructure;
@@ -79,6 +80,7 @@ public class ClassPropertyTest {
         assertTrue(sections.isMap());
         assertFalse(sections.isList());
         assertFalse(sections.isSet());
+        assertFalse(sections.isArray());
         assertFalse(sections.isSimple());
     }
 
@@ -89,6 +91,18 @@ public class ClassPropertyTest {
         assertTrue(tags.isSet());
         assertFalse(tags.isList());
         assertFalse(tags.isMap());
+        assertFalse(tags.isArray());
+        assertFalse(tags.isSimple());
+    }
+
+    @Test
+    public void arrayPropertyIsArray() {
+        ClassProperty tags = ClassProperty.forClass(ArrayHolder.class).findFirst().get();
+        assertEquals("Tags", tags.getName());
+        assertTrue(tags.isArray());
+        assertFalse(tags.isList());
+        assertFalse(tags.isMap());
+        assertFalse(tags.isSet());
         assertFalse(tags.isSimple());
     }
 

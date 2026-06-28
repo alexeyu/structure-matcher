@@ -34,6 +34,11 @@ public final class SimpleProperty implements Property {
     }
 
     @Override
+    public boolean isArray() {
+        return false;
+    }
+
+    @Override
     public boolean isSimple() {
         return true;
     }

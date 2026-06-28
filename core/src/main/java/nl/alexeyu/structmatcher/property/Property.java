@@ -12,5 +12,7 @@ public interface Property {
 
     boolean isSet();
 
+    boolean isArray();
+
     boolean isSimple();
 }

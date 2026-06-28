@@ -87,11 +87,16 @@ all three constantly.
       `IgnoreOrderListMatcher` — it needs a `Comparator` (no default available) and a
       set's defining trait is membership, not sortable order. `IgnoreOrderListMatcher`
       stays as the comparator-based, field-aware option for *lists*.
-- [ ] Array matcher (delegate to list logic after `Arrays.asList`-style adaptation).
+- [x] Array matcher: `ArrayMatcher` adapts arrays to lists with reflection
+      (`java.lang.reflect.Array`, so object **and primitive** arrays work) and
+      delegates to `ListMatcher`. Wired via `Property.isArray()` /
+      `Matchers.arraysEqual()`. Tests: `ArrayMatcherTest` (incl. `int[]`) + `isArray`
+      coverage.
 
-  Known follow-up (shared with lists): a collection *value/element* that is itself a
-  collection isn't deeply matched — `Matchers.forObject` routes non-simple values to
-  `structuresEqual`, not to `listsEqual`/`mapsEqual`. Worth fixing once for both.
+  Known follow-up (shared across all collection matchers): a collection
+  *value/element* that is itself a collection (list-of-list, map-of-array, …) isn't
+  deeply matched — `Matchers.forObject` routes non-simple values to
+  `structuresEqual`, not to the collection matchers. Worth fixing once, centrally.
 
 ### 1c. `Optional` handling
 - [ ] Treat `Optional<T>` as nullable `T` (empty ≈ null) in the null-aware layer.

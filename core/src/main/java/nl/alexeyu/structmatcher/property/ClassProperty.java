@@ -144,6 +144,14 @@ public final class ClassProperty implements Property {
         return method.getReturnType().isAssignableFrom(Set.class);
     }
 
+    /**
+     * Tells if a property is an array (of objects or of primitives).
+     */
+    @Override
+    public boolean isArray() {
+        return method.getReturnType().isArray();
+    }
+
     public static boolean isSimple(Class<?> cl) {
         return String.class.isAssignableFrom(cl)
                 || Number.class.isAssignableFrom(cl)

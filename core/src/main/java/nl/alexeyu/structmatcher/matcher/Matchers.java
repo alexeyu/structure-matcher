@@ -132,6 +132,20 @@ public final class Matchers {
     }
 
     /**
+     * Produces a matcher which considers two arrays matching if they have the same
+     * length and matching elements at every index. Arrays of objects and of
+     * primitives are both supported. Elements are matched with the default logic
+     * (<code>valuesEqual</code> for simple values, <code>structuresEqual</code> for
+     * complex ones). Does not allow the arrays themselves to be null.
+     *
+     * @return a matcher with the behavior specified above.
+     * @see {@link ArrayMatcher}
+     */
+    public static ArrayMatcher arraysEqual() {
+        return new ArrayMatcher();
+    }
+
+    /**
      * Returns a matcher which matches two data structures. It considers
      * structures matching either if they both are <code>null</code> or if each
      * of their properties matches to a respective property of another
@@ -238,6 +252,7 @@ public final class Matchers {
      * @return <code>listsEqual()</code> matcher for a list property,
      * <code>mapsEqual()</code> matcher for a map property,
      * <code>setsEqual()</code> matcher for a set property,
+     * <code>arraysEqual()</code> matcher for an array property,
      * <code>valuesEqual()</code> matcher for a simple property,
      * <code>structuresEqual()</code> for any other property.
      * @see {@link ClassProperty}
@@ -252,6 +267,9 @@ public final class Matchers {
         }
         if (property.isSet()) {
             return setsEqual();
+        }
+        if (property.isArray()) {
+            return arraysEqual();
         }
         if (property.isSimple()) {
             return valuesEqual();
