@@ -11,11 +11,14 @@ A lightweight Java library for comparing two complex POJOs that lack (or cannot 
 Use the committed **Gradle wrapper** (`./gradlew`, Gradle 8.10.2). Java toolchain is **17**. The build uses `java-library` + `maven-publish` with `api`/`implementation`/`testImplementation` configurations.
 
 ```bash
-./gradlew build              # compile + test all three modules
+./gradlew build              # compile + test all three modules (also runs spotlessCheck)
 ./gradlew :core:test         # test a single module (core | json | examples)
 ./gradlew test --tests nl.alexeyu.structmatcher.matcher.ObjectMatcherTest          # single test class
 ./gradlew test --tests nl.alexeyu.structmatcher.matcher.ObjectMatcherTest.someMethod  # single test method
+./gradlew spotlessApply      # auto-fix formatting; spotlessCheck verifies (and runs in CI via build)
 ```
+
+**Formatting:** light-touch Spotless (configured in the root `build.gradle`) — it only orders imports (static, then `java`/third-party/`nl` groups), removes unused imports, trims trailing whitespace, and enforces a final newline. It deliberately does **not** reformat indentation or wrapping, so the existing 4-space style is preserved. Run `spotlessApply` before committing.
 
 Tests run on the **JUnit 5 Platform**, but the test sources are still JUnit 4 (`org.junit.Test`, one `@RunWith(Theories.class)`, Mockito's `MockitoJUnitRunner`) executed via the **JUnit Vintage engine**. Per-test migration to Jupiter is deferred (see ROADMAP Phase 0/1). Mockito is used in one test; `json-path` and (in `examples`) Jackson XML/JSON load fixtures.
 

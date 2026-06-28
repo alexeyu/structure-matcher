@@ -2,8 +2,8 @@ package nl.alexeyu.structmatcher.matcher;
 
 import java.util.function.BiPredicate;
 
-import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 import nl.alexeyu.structmatcher.property.PropertyPath;
+import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 
 /**
  * Check a path to a registered custom matcher against a stack of nested
@@ -71,7 +71,7 @@ final class WildcardPathChecker implements BiPredicate<PropertyPathPattern, Prop
         }
         return test(pattern, path.tail());
     }
-    
+
     private boolean maybeMatch(PropertyPathPattern pattern, PropertyPath path) {
         if (pattern.isEmpty()) {
             return false;

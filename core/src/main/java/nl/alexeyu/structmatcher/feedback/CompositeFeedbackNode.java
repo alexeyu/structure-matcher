@@ -47,7 +47,7 @@ public final class CompositeFeedbackNode implements FeedbackNode {
         }
         if (obj instanceof CompositeFeedbackNode) {
             CompositeFeedbackNode other = (CompositeFeedbackNode) obj;
-            return Objects.equals(this.property, other.property) && 
+            return Objects.equals(this.property, other.property) &&
                     Objects.equals(this.children, other.children);
         }
         return false;

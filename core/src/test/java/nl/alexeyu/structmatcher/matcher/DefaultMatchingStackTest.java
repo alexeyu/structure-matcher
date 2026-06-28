@@ -12,11 +12,11 @@ import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 public class DefaultMatchingStackTest {
 
     private MatchingStack<Object> context;
-    
+
     private Matcher<?> customMatcher = Matchers.valuesEqual();
 
     private Matcher<Object> fallbackMatcher = Matchers.anyValue();
-    
+
     @Before
     public void setUp() {
         context = new DefaultMatchingStack(new Object(), new Object(),

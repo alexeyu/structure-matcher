@@ -5,13 +5,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.feedback.ExpectationBroken;
+import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class IntegerMatcherTest {
-    
+
     private Matcher<Object> matcher = IntegerMatchers.any();
-    
+
     @Test(expected = BrokenSpecificationException.class)
     public void throwsExceptionIfExpectedIsNotAnInt() {
         matcher.match("test", "whatever", "whatever");

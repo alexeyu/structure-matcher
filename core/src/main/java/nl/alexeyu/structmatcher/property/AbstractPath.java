@@ -5,7 +5,7 @@ import java.util.List;
 abstract class AbstractPath {
 
     final List<String> list;
-    
+
     public AbstractPath(List<String> list) {
         this.list = list;
     }
@@ -13,7 +13,7 @@ abstract class AbstractPath {
     public final boolean isEmpty() {
         return list.isEmpty();
     }
-    
+
     protected final void checkNotEmpty() {
         if (isEmpty()) {
             throw new IllegalStateException("Cannot perform operation on an empty path");
@@ -24,7 +24,7 @@ abstract class AbstractPath {
         checkNotEmpty();
         return list.get(0);
     }
-    
+
     @Override
     public int hashCode() {
         return list.hashCode();

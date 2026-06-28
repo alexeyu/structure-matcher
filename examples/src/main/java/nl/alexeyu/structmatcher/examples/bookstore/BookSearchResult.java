@@ -3,11 +3,11 @@ package nl.alexeyu.structmatcher.examples.bookstore;
 import java.util.List;
 
 public final class BookSearchResult {
-    
+
     private SearchMetadata metadata;
-    
+
     private List<Book> books;
-    
+
     BookSearchResult() {
     }
 

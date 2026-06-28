@@ -12,7 +12,7 @@ public final class Feedback {
 
     /**
      * Produces an empty feedback about comparison two values of a property.
-     * 
+     *
      * @param property
      *            property name.
      * @return an empty feedback which means that values are considered
@@ -24,7 +24,7 @@ public final class Feedback {
 
     /**
      * Produces feedback telling that two values of a property are not equal.
-     * 
+     *
      * @param property
      *            name of a property which was verified.
      * @param expected
@@ -39,7 +39,7 @@ public final class Feedback {
     /**
      * Produces a non-empty feedback node which means that an expectation
      * regarding certain property value is not fulfilled.
-     * 
+     *
      * @param property
      *            property name.
      * @param value
@@ -57,7 +57,7 @@ public final class Feedback {
     /**
      * Produces a non-empty feedback node which means that a null value was
      * tested while a non-null value was expected.
-     * 
+     *
      * @param property
      *            property name.
      * @param expected
@@ -72,7 +72,7 @@ public final class Feedback {
     /**
      * Produces a non-empty feedback node which means that a non-null value was
      * tested while a null was expected.
-     * 
+     *
      * @param property
      *            property name.
      * @param actual
@@ -86,7 +86,7 @@ public final class Feedback {
 
     /**
      * Produces an composite feedback node for a property.
-     * 
+     *
      * @param property
      *            a property name.
      * @param children
@@ -104,7 +104,7 @@ public final class Feedback {
     /**
      * Produces a non-empty feedback node which means that the size of
      * collection is not as expected. Useful when comparing list properties.
-     * 
+     *
      * @param expectedSize
      *            an expected size of a collection.
      * @param actual

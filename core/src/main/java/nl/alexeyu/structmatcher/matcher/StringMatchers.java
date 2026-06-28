@@ -3,10 +3,10 @@ package nl.alexeyu.structmatcher.matcher;
 import java.util.regex.Pattern;
 
 /**
- * Factory of string-specific matchers. 
+ * Factory of string-specific matchers.
  */
 public class StringMatchers {
-    
+
     private StringMatchers() {
     }
 
@@ -16,7 +16,7 @@ public class StringMatchers {
      * <code>BrokenSpecificationException</code> will be thrown. The matcher
      * will return an empty feedback if an actual value is a non-empty string a
      * non-empty feedback otherwise.
-     * 
+     *
      * @return a matcher with the behavior specified above.
      */
     public static Matcher<String> nonEmpty() {
@@ -29,7 +29,7 @@ public class StringMatchers {
      * <code>BrokenSpecificationException</code> will be thrown. The matcher
      * will return an empty feedback if an actual value matches the regular
      * expression and a non-empty feedback otherwise.
-     * 
+     *
      * @param expr a regular expression to match values against.
      * @return a matcher with the behavior specified above.
      */

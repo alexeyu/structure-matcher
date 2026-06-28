@@ -15,14 +15,14 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class IgnoreOrderListMatcherTest {
-    
+
     private IgnoreOrderListMatcher<String> matcher;
-    
+
     @Before
     public void setUp() {
         matcher = new IgnoreOrderListMatcher<>(Comparator.comparing(String::toString));
     }
-    
+
     @Test
     public void emptyListsMatch() {
         assertTrue(matcher.match("empty", asList(), asList()).isEmpty());

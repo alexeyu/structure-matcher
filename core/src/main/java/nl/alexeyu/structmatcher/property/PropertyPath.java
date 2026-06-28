@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class PropertyPath extends AbstractPath {
-    
+
     public PropertyPath() {
         super(new ArrayList<>());
     }

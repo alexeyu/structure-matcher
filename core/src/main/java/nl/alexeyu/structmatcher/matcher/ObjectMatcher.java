@@ -9,7 +9,6 @@ import java.util.Map;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.property.Property;
 import nl.alexeyu.structmatcher.property.PropertyPathPattern;
-import nl.alexeyu.structmatcher.property.ClassProperty;
 import nl.alexeyu.structmatcher.property.SimpleProperty;
 
 /**

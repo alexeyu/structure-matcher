@@ -10,7 +10,7 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class StructureMatcherTest {
-    
+
     private Matcher<Structure> matcher = Matchers.structuresEqual();
 
     @Test
@@ -38,7 +38,7 @@ public class StructureMatcherTest {
                 Feedback.nonEqual("Color", Color.WHITE, Color.BLACK),
                 expCcolorListFeedback,
                 expSubstructureFeedback));
-        
+
         assertEquals(expectedFeedback, feedback);
     }
 

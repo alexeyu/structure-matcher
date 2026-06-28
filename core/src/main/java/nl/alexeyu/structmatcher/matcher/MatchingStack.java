@@ -19,7 +19,7 @@ interface MatchingStack<T> {
      * a verification algorithm should pick up a standard matcher according to a
      * type of data being verified. Must be called before verification to help
      * to select a proper matcher.
-     * 
+     *
      * @param property name of a current property to be pushed to the stack.
      * @param fallbackSupplier a supplier of a matcher it should return if no custom
      *                         matcher is defined for the property.

@@ -1,6 +1,5 @@
 package nl.alexeyu.structmatcher.matcher;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;

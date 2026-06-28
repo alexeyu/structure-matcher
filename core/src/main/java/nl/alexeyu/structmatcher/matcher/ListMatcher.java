@@ -8,7 +8,7 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public final class ListMatcher<V> implements Matcher<List<V>> {
-    
+
     @Override
     public FeedbackNode match(String property, List<V> expectedList, List<V> actualList) {
         if (expectedList.size() != actualList.size()) {

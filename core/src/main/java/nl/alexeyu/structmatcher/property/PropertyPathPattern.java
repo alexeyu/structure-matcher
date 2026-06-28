@@ -33,5 +33,5 @@ public final class PropertyPathPattern extends AbstractPath {
         checkNotEmpty();
         return new PropertyPathPattern(list.subList(1, list.size()));
     }
-    
+
 }

@@ -9,12 +9,12 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Factory of integer-specific matchers. 
+ * Factory of integer-specific matchers.
  */
 public final class IntegerMatchers {
-    
-    private static final ToInteger TO_INT = new ToInteger(); 
-    
+
+    private static final ToInteger TO_INT = new ToInteger();
+
     private IntegerMatchers() {
     }
 
@@ -23,7 +23,7 @@ public final class IntegerMatchers {
      * is any integer. Please note that the matcher will throw
      * <code>BrokenSpecificationException</code> if a base value is not an
      * integer.
-     * 
+     *
      * @return a matcher with the behavior specified above.
      * @see {@link MustConformMatcher}
      */
@@ -36,7 +36,7 @@ public final class IntegerMatchers {
      * is any non-negative integer. Please note that the matcher will throw
      * <code>BrokenSpecificationException</code> if a base value is not a
      * positive integer.
-     * 
+     *
      * @return a matcher with the behavior specified above.
      * @see {@link MustConformMatcher}
      */
@@ -49,7 +49,7 @@ public final class IntegerMatchers {
      * is any positive integer. Please note that the matcher will throw
      * <code>BrokenSpecificationException</code> if a base value is not a
      * positive integer.
-     * 
+     *
      * @return a matcher with the behavior specified above.
      * @see {@link MustConformMatcher}
      */
@@ -62,7 +62,7 @@ public final class IntegerMatchers {
      * is greater than a parameter value. Please note that the matcher will
      * throw <code>BrokenSpecificationException</code> if a base value is not a
      * positive integer.
-     * 
+     *
      * @return a matcher with the behavior specified above.
      * @see {@link MustConformMatcher}
      */
@@ -77,7 +77,7 @@ public final class IntegerMatchers {
      * is any negative integer. Please note that the matcher will throw
      * <code>BrokenSpecificationException</code> if a base value is not a
      * positive integer.
-     * 
+     *
      * @return a matcher with the behavior specified above.
      * @see {@link MustConformMatcher}
      */
@@ -90,7 +90,7 @@ public final class IntegerMatchers {
      * is less than a parameter value. Please note that the matcher will
      * throw <code>BrokenSpecificationException</code> if a base value is not a
      * positive integer.
-     * 
+     *
      * @return a matcher with the behavior specified above.
      * @see {@link MustConformMatcher}
      */
@@ -105,7 +105,7 @@ public final class IntegerMatchers {
      * belongs to a specified range. Please note that the matcher will throw
      * <code>BrokenSpecificationException</code> if a base value is not within a
      * given range.
-     * 
+     *
      * @param minExclusive
      *            a minimum of the range: a value being verified should be
      *            bigger than this parameter.
@@ -125,7 +125,7 @@ public final class IntegerMatchers {
      * belongs to a set of specified numbers. Please note that the matcher will
      * throw <code>BrokenSpecificationException</code> if it does not belong to
      * the argument list.
-     * 
+     *
      * @param possibleValues
      *            a list of values a value being verified should belong to.
      * @return a matcher with the behavior specified above.
@@ -138,7 +138,7 @@ public final class IntegerMatchers {
     }
 
     private static class Within implements Function<Optional<Integer>, Boolean> {
-        
+
         private final int minExclusive;
 
         private final int maxExclusive;
@@ -152,11 +152,11 @@ public final class IntegerMatchers {
         public Boolean apply(Optional<Integer> t) {
             return t.isPresent() && t.get() > minExclusive && t.get() < maxExclusive;
         }
-        
+
     }
 
     private static class OneOf implements Function<Optional<Integer>, Boolean> {
-        
+
         private final Set<Integer> possibleValues;
 
         public OneOf(Collection<Integer> possibleValues) {
@@ -167,9 +167,9 @@ public final class IntegerMatchers {
         public Boolean apply(Optional<Integer> t) {
             return t.isPresent() && possibleValues.contains(t.get());
         }
-        
+
     }
-    
+
     private static class ToInteger implements Function<Object, Optional<Integer>> {
 
         @Override
@@ -182,7 +182,7 @@ public final class IntegerMatchers {
                 return Optional.empty();
             }
         }
-        
+
     }
 
 }

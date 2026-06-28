@@ -23,7 +23,7 @@ import nl.alexeyu.structmatcher.matcher.Structure;
 import nl.alexeyu.structmatcher.matcher.Substructure;
 
 public class ClassPropertyTest {
-    
+
     private Structure testStructure = new Structure(Color.WHITE, new ArrayList<>(), new Substructure(true));
 
     @Test

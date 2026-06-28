@@ -13,7 +13,7 @@ import nl.alexeyu.structmatcher.property.ClassProperty;
  * considered matching.
  */
 final class StructureMatcher<V> implements Matcher<V> {
-    
+
     @Override
     public FeedbackNode match(String name, V expected, V actual) {
         Collection<FeedbackNode> feedbackSubnodes = ClassProperty.forClass(expected.getClass())
@@ -26,5 +26,5 @@ final class StructureMatcher<V> implements Matcher<V> {
     private FeedbackNode matchProperty(ClassProperty property, Object expected, Object actual) {
         return Matchers.contextAware(property, () -> Matchers.forProperty(property)).match(expected, actual);
     }
-    
+
 }

@@ -12,7 +12,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import org.junit.Before;
@@ -38,11 +37,11 @@ public class ResponseMatchingTest {
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
     private Matcher<String> ipMatcher = StringMatchers.regex(IPADDRESS_PATTERN);
-    
+
     private Path rootPath;
-    
+
     private BookSearchResult desktopTest, desktopProd, mobileTest;
-    
+
     @Before
     public void setUp() throws Exception {
         rootPath = Paths.get(ResponseMatchingTest.class.getResource("/").toURI()).resolve("../../../resources/test");
@@ -51,7 +50,7 @@ public class ResponseMatchingTest {
         mobileTest = fromFile(jsonMapper, "response-on-smoke-for-mobile-test.json");
         desktopProd = fromFile(new XmlMapper(), "response-on-smoke-for-desktop-prod.xml");
     }
-    
+
     private BookSearchResult fromFile(ObjectMapper mapper, String fileName) throws Exception {
         return mapper.readValue(rootPath.resolve(fileName).toFile(), BookSearchResult.class);
     }
@@ -76,14 +75,14 @@ public class ResponseMatchingTest {
                 .with(oneOf(8080, 8081, 8090, 8091), "Metadata.Server.Port")
                 .with(inRange(2, 5000), "Metadata.ProcessingTimeMs");
     }
-    
+
     @Test
     public void prodAndTestConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
         FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
                 .match(desktopTest, desktopProd);
         assertTrue(feedback.isEmpty());
     }
-    
+
     @Test
     public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
         UnaryOperator<String> nameToInitial = name -> name.substring(0, 1) + ".";

@@ -17,10 +17,10 @@ import nl.alexeyu.structmatcher.matcher.Matchers;
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 
 public class BookMatchingTest {
-    
+
     private final Author francoiseSagan = new Author("Françoise", "Sagan");
     private final Author francoiseSaganNormalized = new Author("Francoise", "Sagan");
-    
+
     @Test
     public void notNormalizedStringsDoNotMatchByDefault() {
         FeedbackNode feedback = ObjectMatcher.forClass(Author.class)
@@ -31,7 +31,7 @@ public class BookMatchingTest {
     @Test
     public void notNormalizedStringsDoMatchWithNormalizationAwareMatcher() {
         FeedbackNode feedback = ObjectMatcher.forClass(Author.class)
-                .with(Matchers.<String>normalizing(name -> stripAccents(name), 
+                .with(Matchers.<String>normalizing(name -> stripAccents(name),
                         valuesEqual()), "FirstName")
                 .match(francoiseSaganNormalized, francoiseSagan);
         assertTrue(feedback.isEmpty());

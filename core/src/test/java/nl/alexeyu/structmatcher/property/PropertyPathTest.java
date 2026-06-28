@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class PropertyPathTest {
-    
+
     @Test
     public void isEmptyByDefault() {
         assertTrue(new PropertyPath().isEmpty());

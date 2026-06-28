@@ -7,7 +7,7 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 final class AndMatcher<V> implements Matcher<V> {
-    
+
     private final List<Matcher<V>> matchers;
 
     @SafeVarargs

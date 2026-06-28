@@ -9,12 +9,12 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
  * to use this matcher with the {@link NullAwareMatcher}.
  */
 final class ValuesEqualMatcher<V> implements Matcher<V> {
-    
+
     @Override
     public FeedbackNode match(String property, V expected, V actual) {
         return expected.equals(actual)
                 ? Feedback.empty(property)
                 : Feedback.nonEqual(property, expected, actual);
     }
-    
+
 }

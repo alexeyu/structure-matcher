@@ -12,11 +12,11 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
  * matching, so needs to be initialized with a comparator.
  */
 final class IgnoreOrderListMatcher<V> implements Matcher<List<V>> {
-    
+
     private final Comparator<V> comparator;
-    
+
     private final Matcher<List<V>> listMatcher = new ListMatcher<>();
-    
+
     public IgnoreOrderListMatcher(Comparator<V> comparator) {
         this.comparator = comparator;
     }

@@ -11,7 +11,7 @@ public class ValuesEqualMatcherTest {
 
     @Test
     public void emptyFeedbackWhenPropertiesAreEqual() {
-        FeedbackNode feedback = new ValuesEqualMatcher<>().match("test", 100500, 100500); 
+        FeedbackNode feedback = new ValuesEqualMatcher<>().match("test", 100500, 100500);
         assertEquals(Feedback.empty("test"), feedback);
     }
 

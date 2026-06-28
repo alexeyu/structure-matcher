@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 import nl.alexeyu.structmatcher.property.PropertyPath;
+import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 
 final class DefaultMatchingStack<T> implements MatchingStack<T> {
 

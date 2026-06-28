@@ -10,7 +10,7 @@ import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 final class CompositeNodeSerializer extends StdSerializer<CompositeFeedbackNode> {
-    
+
     public CompositeNodeSerializer() {
         super(CompositeFeedbackNode.class, false);
     }
@@ -24,5 +24,5 @@ final class CompositeNodeSerializer extends StdSerializer<CompositeFeedbackNode>
         }
         gen.writeEndObject();
     }
-    
+
 }

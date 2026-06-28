@@ -11,5 +11,5 @@ public class Substructure {
     public boolean isBool() {
         return bool;
     }
-    
+
 }
