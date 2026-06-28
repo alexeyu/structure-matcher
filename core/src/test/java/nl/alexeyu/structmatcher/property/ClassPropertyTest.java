@@ -15,6 +15,7 @@ import org.junit.Test;
 import nl.alexeyu.structmatcher.matcher.ArrayHolder;
 import nl.alexeyu.structmatcher.matcher.Color;
 import nl.alexeyu.structmatcher.matcher.MapHolder;
+import nl.alexeyu.structmatcher.matcher.OptionalHolder;
 import nl.alexeyu.structmatcher.matcher.RecordStructure;
 import nl.alexeyu.structmatcher.matcher.RecordSubstructure;
 import nl.alexeyu.structmatcher.matcher.SetHolder;
@@ -103,7 +104,20 @@ public class ClassPropertyTest {
         assertFalse(tags.isList());
         assertFalse(tags.isMap());
         assertFalse(tags.isSet());
+        assertFalse(tags.isOptional());
         assertFalse(tags.isSimple());
+    }
+
+    @Test
+    public void optionalPropertyIsOptional() {
+        ClassProperty nickname = ClassProperty.forClass(OptionalHolder.class).findFirst().get();
+        assertEquals("Nickname", nickname.getName());
+        assertTrue(nickname.isOptional());
+        assertFalse(nickname.isList());
+        assertFalse(nickname.isMap());
+        assertFalse(nickname.isSet());
+        assertFalse(nickname.isArray());
+        assertFalse(nickname.isSimple());
     }
 
     @Test

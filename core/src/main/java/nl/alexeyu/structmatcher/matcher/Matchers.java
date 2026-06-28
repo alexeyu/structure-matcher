@@ -146,6 +146,19 @@ public final class Matchers {
     }
 
     /**
+     * Produces a matcher for {@link java.util.Optional} properties which treats an
+     * empty optional as a <code>null</code> value: it unwraps both values and matches
+     * their contents with the default logic. Two empty optionals match; a present and
+     * an empty one do not.
+     *
+     * @return a matcher with the behavior specified above.
+     * @see {@link OptionalMatcher}
+     */
+    public static OptionalMatcher optional() {
+        return new OptionalMatcher();
+    }
+
+    /**
      * Returns a matcher which matches two data structures. It considers
      * structures matching either if they both are <code>null</code> or if each
      * of their properties matches to a respective property of another
@@ -253,6 +266,7 @@ public final class Matchers {
      * <code>mapsEqual()</code> matcher for a map property,
      * <code>setsEqual()</code> matcher for a set property,
      * <code>arraysEqual()</code> matcher for an array property,
+     * <code>optional()</code> matcher for an Optional property,
      * <code>valuesEqual()</code> matcher for a simple property,
      * <code>structuresEqual()</code> for any other property.
      * @see {@link ClassProperty}
@@ -270,6 +284,9 @@ public final class Matchers {
         }
         if (property.isArray()) {
             return arraysEqual();
+        }
+        if (property.isOptional()) {
+            return optional();
         }
         if (property.isSimple()) {
             return valuesEqual();

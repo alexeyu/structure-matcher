@@ -14,5 +14,7 @@ public interface Property {
 
     boolean isArray();
 
+    boolean isOptional();
+
     boolean isSimple();
 }

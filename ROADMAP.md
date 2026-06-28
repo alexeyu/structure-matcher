@@ -50,7 +50,7 @@ failures.
 
 ---
 
-## Phase 1 — Close the capability gaps (high impact)
+## Phase 1 — Close the capability gaps (high impact) — DONE
 
 These are the "a 2026 developer bounces off it" issues. Each makes the library
 viable for code people actually write today.
@@ -98,11 +98,16 @@ all three constantly.
   deeply matched — `Matchers.forObject` routes non-simple values to
   `structuresEqual`, not to the collection matchers. Worth fixing once, centrally.
 
-### 1c. `Optional` handling
-- [ ] Treat `Optional<T>` as nullable `T` (empty ≈ null) in the null-aware layer.
+### 1c. `Optional` handling — DONE
+- [x] `OptionalMatcher` treats `Optional<T>` as nullable `T` (empty ≈ null): it
+      unwraps both sides and matches the contents with the default logic (two empties
+      match; present-vs-empty does not). Wired via `Property.isOptional()` (an exact
+      type check — `Optional` is final) / `Matchers.optional()`. Tests:
+      `OptionalMatcherTest` + `isOptional` coverage.
 
-**Done when:** records, maps, sets, arrays, and `Optional` fields all match without
-custom code.
+**Done:** records, maps, sets, arrays, and `Optional` fields all match without
+custom code. (Remaining cross-cutting follow-up: deep matching of *nested*
+collections — list-of-list, map-of-array, etc. — tracked under 1b.)
 
 ---
 

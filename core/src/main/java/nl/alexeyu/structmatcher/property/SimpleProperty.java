@@ -39,6 +39,11 @@ public final class SimpleProperty implements Property {
     }
 
     @Override
+    public boolean isOptional() {
+        return false;
+    }
+
+    @Override
     public boolean isSimple() {
         return true;
     }

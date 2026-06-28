@@ -152,6 +152,15 @@ public final class ClassProperty implements Property {
         return method.getReturnType().isArray();
     }
 
+    /**
+     * Tells if a property is an {@link Optional}. <code>Optional</code> is final, so
+     * this is an exact type check rather than an "is-assignable" one.
+     */
+    @Override
+    public boolean isOptional() {
+        return method.getReturnType().equals(Optional.class);
+    }
+
     public static boolean isSimple(Class<?> cl) {
         return String.class.isAssignableFrom(cl)
                 || Number.class.isAssignableFrom(cl)
