@@ -24,6 +24,11 @@ public final class SimpleProperty implements Property {
     }
 
     @Override
+    public boolean isMap() {
+        return false;
+    }
+
+    @Override
     public boolean isSimple() {
         return true;
     }

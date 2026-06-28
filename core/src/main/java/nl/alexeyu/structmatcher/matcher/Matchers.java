@@ -104,6 +104,20 @@ public final class Matchers {
     }
 
     /**
+     * Produces a matcher which considers two maps matching if they have the same
+     * keys and matching values for every key. Keys present in only one of the maps
+     * are reported, as are value mismatches. Values are matched with the default
+     * logic (<code>valuesEqual</code> for simple values, <code>structuresEqual</code>
+     * for complex ones). Does not allow the maps themselves to be null.
+     *
+     * @return a matcher with the behavior specified above.
+     * @see {@link MapMatcher}
+     */
+    public static <K, V> MapMatcher<K, V> mapsEqual() {
+        return new MapMatcher<>();
+    }
+
+    /**
      * Returns a matcher which matches two data structures. It considers
      * structures matching either if they both are <code>null</code> or if each
      * of their properties matches to a respective property of another
@@ -207,15 +221,19 @@ public final class Matchers {
      * Returns a default matcher for a given property.
      *
      * @param property to receive a matcher for.
-     * @return <code>listEqual()</code> matcher for a list property,
+     * @return <code>listsEqual()</code> matcher for a list property,
+     * <code>mapsEqual()</code> matcher for a map property,
      * <code>valuesEqual()</code> matcher for a simple property,
-     * <code>structureMatcher()</code> for any other property.
+     * <code>structuresEqual()</code> for any other property.
      * @see {@link ClassProperty}
      */
     @SuppressWarnings("rawtypes")
     public static Matcher forProperty(Property property) {
         if (property.isList()) {
             return listsEqual();
+        }
+        if (property.isMap()) {
+            return mapsEqual();
         }
         if (property.isSimple()) {
             return valuesEqual();

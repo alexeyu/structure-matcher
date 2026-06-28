@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -122,6 +123,15 @@ public final class ClassProperty implements Property {
     @Override
     public boolean isList() {
         return method.getReturnType().isAssignableFrom(List.class);
+    }
+
+    /**
+     * Tells if a property is a map (implements the
+     * <code>java.util.Map</code> interface).
+     */
+    @Override
+    public boolean isMap() {
+        return method.getReturnType().isAssignableFrom(Map.class);
     }
 
     public static boolean isSimple(Class<?> cl) {

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 
 import nl.alexeyu.structmatcher.matcher.Color;
+import nl.alexeyu.structmatcher.matcher.MapHolder;
 import nl.alexeyu.structmatcher.matcher.RecordStructure;
 import nl.alexeyu.structmatcher.matcher.RecordSubstructure;
 import nl.alexeyu.structmatcher.matcher.Structure;
@@ -68,6 +69,15 @@ public class ClassPropertyTest {
         assertTrue(property.isPresent());
         assertFalse(property.get().isSimple());
         assertTrue(property.get().isList());
+    }
+
+    @Test
+    public void mapPropertyIsMap() {
+        ClassProperty sections = ClassProperty.forClass(MapHolder.class).findFirst().get();
+        assertEquals("Sections", sections.getName());
+        assertTrue(sections.isMap());
+        assertFalse(sections.isList());
+        assertFalse(sections.isSimple());
     }
 
     @Test

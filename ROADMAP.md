@@ -72,12 +72,20 @@ to have no properties and any two records silently "matched".
       `ClassPropertyTest` covers record discovery/naming/values. 92 tests green.
 
 ### 1b. `Map`, `Set`, array support
-Currently only simple values, `List`, and structures are handled. Modern models use
+Originally only simple values, `List`, and structures were handled. Modern models use
 all three constantly.
-- [ ] `Map` matcher: compare by key, recurse into values, report missing/extra keys.
+- [x] `Map` matcher: `MapMatcher` compares by key, matches values with the default
+      logic (recursing into structures), and reports missing/extra keys plus value
+      mismatches under `property[key]`. Wired via `Property.isMap()` /
+      `Matchers.forProperty` / `Matchers.mapsEqual()`. Tests: `MapMatcherTest` +
+      `isMap` coverage in `ClassPropertyTest`.
 - [ ] `Set` / unordered collections: generalize the existing
       `IgnoreOrderListMatcher` logic.
 - [ ] Array matcher (delegate to list logic after `Arrays.asList`-style adaptation).
+
+  Known follow-up (shared with lists): a collection *value/element* that is itself a
+  collection isn't deeply matched — `Matchers.forObject` routes non-simple values to
+  `structuresEqual`, not to `listsEqual`/`mapsEqual`. Worth fixing once for both.
 
 ### 1c. `Optional` handling
 - [ ] Treat `Optional<T>` as nullable `T` (empty ≈ null) in the null-aware layer.

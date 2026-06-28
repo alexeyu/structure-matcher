@@ -8,5 +8,7 @@ public interface Property {
 
     boolean isList();
 
+    boolean isMap();
+
     boolean isSimple();
 }
