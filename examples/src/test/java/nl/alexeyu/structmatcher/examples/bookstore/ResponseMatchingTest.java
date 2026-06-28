@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.jayway.jsonpath.JsonPath;
 
-import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.json.Json;
 import nl.alexeyu.structmatcher.matcher.Matcher;
 import nl.alexeyu.structmatcher.matcher.Matchers;
@@ -45,7 +44,7 @@ public class ResponseMatchingTest {
     @Before
     public void setUp() throws Exception {
         rootPath = Paths.get(ResponseMatchingTest.class.getResource("/").toURI()).resolve("../../../resources/test");
-        ObjectMapper jsonMapper = new ObjectMapper();
+        var jsonMapper = new ObjectMapper();
         desktopTest = fromFile(jsonMapper, "response-on-smoke-for-desktop-test.json");
         mobileTest = fromFile(jsonMapper, "response-on-smoke-for-mobile-test.json");
         desktopProd = fromFile(new XmlMapper(), "response-on-smoke-for-desktop-prod.xml");
@@ -57,10 +56,10 @@ public class ResponseMatchingTest {
 
     @Test
     public void feedbackShowsAllTheDifferences() throws Exception {
-        FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
+        var feedback = ObjectMatcher.forClass(BookSearchResult.class)
                 .match(desktopTest, desktopProd);
         assertFalse(feedback.isEmpty());
-        String json = Json.mapper().writeValueAsString(feedback);
+        var json = Json.mapper().writeValueAsString(feedback);
         assertThat(12, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.expectation"))));
         assertThat(14, is(equalTo(JsonPath.read(json, "$.Metadata.ProcessingTimeMs.value"))));
         assertThat("192.168.10.10", is(equalTo(JsonPath.read(json, "$.Metadata.Server.Ip.expectation"))));
@@ -78,7 +77,7 @@ public class ResponseMatchingTest {
 
     @Test
     public void prodAndTestConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
-        FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
+        var feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
                 .match(desktopTest, desktopProd);
         assertTrue(feedback.isEmpty());
     }
@@ -86,7 +85,7 @@ public class ResponseMatchingTest {
     @Test
     public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
         UnaryOperator<String> nameToInitial = name -> name.substring(0, 1) + ".";
-        FeedbackNode feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
+        var feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
                 .with(constant(Platform.MOBILE), "Metadata.Platform")
                 .with(Matchers.and(
                         Matchers.nonNull(),

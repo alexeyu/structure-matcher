@@ -27,7 +27,7 @@ public class PropertyPathPatternTest {
 
     @Test
     public void fedFromList() {
-        PropertyPathPattern path = new PropertyPathPattern("a");
+        var path = new PropertyPathPattern("a");
         assertFalse(path.isEmpty());
         assertEquals("a", path.head());
         assertTrue(path.tail().isEmpty());
@@ -35,29 +35,29 @@ public class PropertyPathPatternTest {
 
     @Test
     public void headAlwaysPointsToFirstElement() {
-        PropertyPathPattern path = new PropertyPathPattern("a", "b");
+        var path = new PropertyPathPattern("a", "b");
         assertEquals("a", path.head());
     }
 
     @Test
     public void tailAlwaysReturnsAllElementsButFirst() {
-        PropertyPathPattern path = new PropertyPathPattern("a", "b", "c");
+        var path = new PropertyPathPattern("a", "b", "c");
         assertEquals("b", path.tail().head());
         assertEquals("c", path.tail().tail().head());
     }
 
     @Test
     public void equalsHashCodeContractMetForEqualObjects() {
-        PropertyPathPattern path1 = new PropertyPathPattern("a", "b");
-        PropertyPathPattern path2 = new PropertyPathPattern("a", "b");
+        var path1 = new PropertyPathPattern("a", "b");
+        var path2 = new PropertyPathPattern("a", "b");
         assertEquals(path1, path2);
         assertTrue(path1.hashCode() == path2.hashCode());
     }
 
     @Test
     public void equalsHashCodeContractMetForNonEqualObjects() {
-        PropertyPathPattern path1 = new PropertyPathPattern("a", "b");
-        PropertyPathPattern path2 = new PropertyPathPattern("a", "b", "c");
+        var path1 = new PropertyPathPattern("a", "b");
+        var path2 = new PropertyPathPattern("a", "b", "c");
         assertNotEquals(path1, path2);
     }
 

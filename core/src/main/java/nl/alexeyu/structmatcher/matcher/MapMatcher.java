@@ -1,7 +1,6 @@
 package nl.alexeyu.structmatcher.matcher;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,11 +21,11 @@ public final class MapMatcher<K, V> implements Matcher<Map<K, V>> {
 
     @Override
     public FeedbackNode match(String property, Map<K, V> expected, Map<K, V> actual) {
-        Collection<FeedbackNode> feedbackSubnodes = new ArrayList<>();
-        for (Map.Entry<K, V> entry : expected.entrySet()) {
+        var feedbackSubnodes = new ArrayList<FeedbackNode>();
+        for (var entry : expected.entrySet()) {
             matchExpectedEntry(property, entry.getKey(), entry.getValue(), actual).ifPresent(feedbackSubnodes::add);
         }
-        for (Map.Entry<K, V> entry : actual.entrySet()) {
+        for (var entry : actual.entrySet()) {
             if (!expected.containsKey(entry.getKey())) {
                 feedbackSubnodes.add(Feedback.gotNonNull(entryProperty(property, entry.getKey()), entry.getValue()));
             }
@@ -40,12 +39,12 @@ public final class MapMatcher<K, V> implements Matcher<Map<K, V>> {
      * or an empty optional if the values match.
      */
     private Optional<FeedbackNode> matchExpectedEntry(String property, K key, V expectedValue, Map<K, V> actual) {
-        String entryProperty = entryProperty(property, key);
+        var entryProperty = entryProperty(property, key);
         if (!actual.containsKey(key)) {
             return Optional.of(Feedback.gotNull(entryProperty, expectedValue));
         }
-        V actualValue = actual.get(key);
-        FeedbackNode feedback = Matchers.getNullAwareMatcher(actualValue).match(entryProperty, expectedValue, actualValue);
+        var actualValue = actual.get(key);
+        var feedback = Matchers.getNullAwareMatcher(actualValue).match(entryProperty, expectedValue, actualValue);
         return feedback.isEmpty() ? Optional.empty() : Optional.of(feedback);
     }
 

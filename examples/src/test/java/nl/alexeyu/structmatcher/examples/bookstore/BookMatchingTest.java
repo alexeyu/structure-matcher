@@ -11,7 +11,6 @@ import java.util.function.Function;
 import org.junit.Test;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
-import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.matcher.IndirectMatcher;
 import nl.alexeyu.structmatcher.matcher.Matchers;
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
@@ -23,14 +22,14 @@ public class BookMatchingTest {
 
     @Test
     public void notNormalizedStringsDoNotMatchByDefault() {
-        FeedbackNode feedback = ObjectMatcher.forClass(Author.class)
+        var feedback = ObjectMatcher.forClass(Author.class)
                 .match(francoiseSaganNormalized, francoiseSagan);
         assertFalse(feedback.isEmpty());
     }
 
     @Test
     public void notNormalizedStringsDoMatchWithNormalizationAwareMatcher() {
-        FeedbackNode feedback = ObjectMatcher.forClass(Author.class)
+        var feedback = ObjectMatcher.forClass(Author.class)
                 .with(Matchers.<String>normalizing(name -> stripAccents(name),
                         valuesEqual()), "FirstName")
                 .match(francoiseSaganNormalized, francoiseSagan);
@@ -39,25 +38,25 @@ public class BookMatchingTest {
 
     @Test
     public void structuralDifferencesCanBeMatchedByIndirectMatcher() {
-        Book oldVersion = new Book(
+        var oldVersion = new Book(
             "Summer and Smoke",
             Arrays.asList(new Author("Tenessee", "Williams")),
             "Signet, 1961, Paperback, 127 pages"
         );
-        Book newVersion = new Book(
+        var newVersion = new Book(
             "Summer and Smoke",
              Arrays.asList(new Author("Tenessee", "Williams")),
              "Paperback"
         );
         newVersion.setPublishingInfo(new PublishingInfo("Signet", 1961, 127));
 
-        IndirectMatcher<Book, PublishingInfo> publishingMatcher = new IndirectMatcher<Book, PublishingInfo>(
+        var publishingMatcher = new IndirectMatcher<Book, PublishingInfo>(
                 "Old, unstructured metadata to new, structured one",
                 valuesEqual(),
                 new V1MetadataExtractor(),
                 Book::getPublishingInfo);
 
-        FeedbackNode feedback = ObjectMatcher.forClass(Book.class)
+        var feedback = ObjectMatcher.forClass(Book.class)
                 .withMatcher((p, e, a) -> Feedback.empty("PublishingInfo"), "PublishingInfo")
                 .withMatcher(publishingMatcher, "Meta")
                 .match(oldVersion, newVersion);
@@ -68,9 +67,9 @@ public class BookMatchingTest {
     private static class V1MetadataExtractor implements Function<Book, PublishingInfo> {
         @Override
         public PublishingInfo apply(Book book) {
-            String[] meta = book.getMeta().split(",");
-            String pages = meta[3].trim();
-            Integer numPages = Integer.valueOf(pages.split(" ")[0]);
+            var meta = book.getMeta().split(",");
+            var pages = meta[3].trim();
+            var numPages = Integer.valueOf(pages.split(" ")[0]);
             return new PublishingInfo(meta[0].trim(),
                     Integer.valueOf(meta[1].trim()),
                     numPages);

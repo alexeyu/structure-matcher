@@ -10,8 +10,8 @@ public class IndirectMatcherTest {
 
     @Test
     public void comparesAccordingToFunctionsResults() {
-        Structure oldStructure = new Structure(null, Arrays.asList("black"), null);
-        Structure newStructure = new Structure(Color.BLACK, Arrays.asList(), null);
+        var oldStructure = new Structure(null, Arrays.asList("black"), null);
+        var newStructure = new Structure(Color.BLACK, Arrays.asList(), null);
         IndirectMatcher<Structure, String> matcher = new IndirectMatcher<>(
                 "string representation of color vs color object",
                 new ValuesEqualMatcher<>(),

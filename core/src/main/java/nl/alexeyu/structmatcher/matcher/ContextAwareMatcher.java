@@ -36,9 +36,9 @@ final class ContextAwareMatcher<T> {
 
     FeedbackNode match(Object expected, Object actual) {
         try {
-            Matcher<Object> matcher = matchingStack.push(property.getName(), defaultMatcherSupplier);
+            var matcher = matchingStack.push(property.getName(), defaultMatcherSupplier);
             if (matcher instanceof IndirectMatcher) {
-                IndirectMatcher indirectMatcher = (IndirectMatcher) matcher;
+                var indirectMatcher = (IndirectMatcher) matcher;
                 return indirectMatcher.match(indirectMatcher.getDescription(),
                         matchingStack.getBaseStructure(),
                         matchingStack.getActualStructure());

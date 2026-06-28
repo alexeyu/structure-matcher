@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
-import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 final class CompositeNodeSerializer extends StdSerializer<CompositeFeedbackNode> {
 
@@ -19,7 +18,7 @@ final class CompositeNodeSerializer extends StdSerializer<CompositeFeedbackNode>
     public void serialize(CompositeFeedbackNode node, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
         gen.writeStartObject();
-        for (FeedbackNode child : node.getChildren()) {
+        for (var child : node.getChildren()) {
             gen.writeObjectField(child.getProperty(), child);
         }
         gen.writeEndObject();

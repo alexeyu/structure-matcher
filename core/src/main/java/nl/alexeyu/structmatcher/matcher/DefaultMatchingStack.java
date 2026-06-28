@@ -2,7 +2,6 @@ package nl.alexeyu.structmatcher.matcher;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import nl.alexeyu.structmatcher.property.PropertyPath;
@@ -30,7 +29,7 @@ final class DefaultMatchingStack<T> implements MatchingStack<T> {
     @Override
     public Matcher<Object> push(String property, Supplier<Matcher<Object>> fallbackSupplier) {
         path.push(property);
-        Optional<Matcher<Object>> maybeMatcher = customMatcherResolver.forPath(path);
+        var maybeMatcher = customMatcherResolver.forPath(path);
         return maybeMatcher.orElseGet(fallbackSupplier);
     }
 

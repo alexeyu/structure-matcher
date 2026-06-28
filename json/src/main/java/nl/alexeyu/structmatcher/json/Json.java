@@ -17,11 +17,11 @@ public final class Json {
      * Produces a convenient mapper to convert feedback into JSON.
      */
     public static ObjectMapper mapper() {
-        ObjectMapper mapper  = new ObjectMapper();
+        var mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
         mapper.addMixIn(FeedbackNode.class, IgnoreFeedbackNodePropertiesMixin.class);
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        SimpleModule module = new SimpleModule();
+        var module = new SimpleModule();
         module.addSerializer(new CompositeNodeSerializer());
         mapper.registerModule(module);
         return mapper;

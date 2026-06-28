@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class ObjectMatcherTest {
 
@@ -17,7 +16,7 @@ public class ObjectMatcherTest {
 
     @Test
     public void ignoreAllPropertiesOnTheHighestLevel() {
-        FeedbackNode feedback = ObjectMatcher.forClass(Structure.class)
+        var feedback = ObjectMatcher.forClass(Structure.class)
                 .withMatcher(ignore, "Color")
                 .withMatcher(ignore, "Strings")
                 .withMatcher(ignore, "Sub")
@@ -27,7 +26,7 @@ public class ObjectMatcherTest {
 
     @Test
     public void ignoreAllPropertiesOnTheLowestLevel() {
-        FeedbackNode feedback = ObjectMatcher.forClass(Structure.class)
+        var feedback = ObjectMatcher.forClass(Structure.class)
                 .withMatcher(ignore, "Color")
                 .withMatcher(ignore, "Strings")
                 .withMatcher(ignore, "Sub", "Bool")

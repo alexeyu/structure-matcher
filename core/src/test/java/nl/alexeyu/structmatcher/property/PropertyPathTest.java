@@ -27,7 +27,7 @@ public class PropertyPathTest {
 
     @Test
     public void fedFromList() {
-        PropertyPath path = new PropertyPath(asList("a"));
+        var path = new PropertyPath(asList("a"));
         assertFalse(path.isEmpty());
         assertEquals("a", path.head());
         assertTrue(path.tail().isEmpty());
@@ -35,7 +35,7 @@ public class PropertyPathTest {
 
     @Test
     public void pushAddsElementToTail() {
-        PropertyPath path = new PropertyPath();
+        var path = new PropertyPath();
         path.push("a");
         assertFalse(path.isEmpty());
         assertEquals("a", path.head());
@@ -44,7 +44,7 @@ public class PropertyPathTest {
 
     @Test
     public void popSafelyRemovesElementFromTail() {
-        PropertyPath path = new PropertyPath();
+        var path = new PropertyPath();
         path.push("a");
         assertFalse(path.isEmpty());
         path.pop();
@@ -55,7 +55,7 @@ public class PropertyPathTest {
 
     @Test
     public void headAlwaysPointsToFirstElement() {
-        PropertyPath path = new PropertyPath();
+        var path = new PropertyPath();
         path.push("a");
         assertEquals("a", path.head());
         path.push("b");
@@ -64,15 +64,15 @@ public class PropertyPathTest {
 
     @Test
     public void tailAlwaysReturnsAllElementsButFirst() {
-        PropertyPath path = new PropertyPath(asList("a", "b", "c"));
+        var path = new PropertyPath(asList("a", "b", "c"));
         assertEquals("b", path.tail().head());
         assertEquals("c", path.tail().tail().head());
     }
 
     @Test
     public void equalsHashCodeContractMetForEqualObjects() {
-        PropertyPath path1 = new PropertyPath(asList("a", "b"));
-        PropertyPath path2 = new PropertyPath(asList("a"));
+        var path1 = new PropertyPath(asList("a", "b"));
+        var path2 = new PropertyPath(asList("a"));
         path2.push("b");
         assertEquals(path1, path2);
         assertTrue(path1.hashCode() == path2.hashCode());
@@ -80,8 +80,8 @@ public class PropertyPathTest {
 
     @Test
     public void equalsHashCodeContractMetForNonEqualObjects() {
-        PropertyPath path1 = new PropertyPath(asList("a", "b"));
-        PropertyPath path2 = new PropertyPath(asList("a", "b", "c"));
+        var path1 = new PropertyPath(asList("a", "b"));
+        var path2 = new PropertyPath(asList("a", "b", "c"));
         assertNotEquals(path1, path2);
     }
 

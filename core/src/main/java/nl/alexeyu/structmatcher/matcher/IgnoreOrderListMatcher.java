@@ -23,9 +23,9 @@ final class IgnoreOrderListMatcher<V> implements Matcher<List<V>> {
 
     @Override
     public FeedbackNode match(String property, List<V> expectedList, List<V> actualList) {
-        List<V> expectedSorted = new ArrayList<>(expectedList);
+        var expectedSorted = new ArrayList<V>(expectedList);
         expectedSorted.sort(comparator);
-        List<V> actualSorted = new ArrayList<>(actualList);
+        var actualSorted = new ArrayList<V>(actualList);
         actualSorted.sort(comparator);
         return listMatcher.match(property, expectedSorted, actualSorted);
     }

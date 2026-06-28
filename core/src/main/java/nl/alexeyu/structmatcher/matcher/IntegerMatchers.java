@@ -3,7 +3,6 @@ package nl.alexeyu.structmatcher.matcher;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -131,7 +130,7 @@ public final class IntegerMatchers {
      * @return a matcher with the behavior specified above.
      */
     public static Matcher<Object> oneOf(Integer... possibleValues) {
-        List<Integer> possibleValuesList = Arrays.asList(possibleValues);
+        var possibleValuesList = Arrays.asList(possibleValues);
         return new MustConformMatcher<>(
                 v -> TO_INT.andThen(new OneOf(possibleValuesList)).apply(v),
                 String.format("One of the following values: %s", possibleValuesList));

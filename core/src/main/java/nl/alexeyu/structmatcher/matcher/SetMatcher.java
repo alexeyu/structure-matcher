@@ -1,7 +1,6 @@
 package nl.alexeyu.structmatcher.matcher;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Set;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
@@ -23,13 +22,13 @@ public final class SetMatcher<V> implements Matcher<Set<V>> {
 
     @Override
     public FeedbackNode match(String property, Set<V> expected, Set<V> actual) {
-        Collection<FeedbackNode> feedbackSubnodes = new ArrayList<>();
-        for (V element : expected) {
+        var feedbackSubnodes = new ArrayList<FeedbackNode>();
+        for (var element : expected) {
             if (!actual.contains(element)) {
                 feedbackSubnodes.add(Feedback.gotNull(elementProperty(property, element), element));
             }
         }
-        for (V element : actual) {
+        for (var element : actual) {
             if (!expected.contains(element)) {
                 feedbackSubnodes.add(Feedback.gotNonNull(elementProperty(property, element), element));
             }

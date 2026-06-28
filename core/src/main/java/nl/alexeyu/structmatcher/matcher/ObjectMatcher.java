@@ -3,12 +3,10 @@ package nl.alexeyu.structmatcher.matcher;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.property.ClassProperty;
-import nl.alexeyu.structmatcher.property.Property;
 import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 import nl.alexeyu.structmatcher.property.SimpleProperty;
 
@@ -86,7 +84,7 @@ public class ObjectMatcher<T> {
      * @see ClassProperty
      */
     public ObjectMatcher<T> withMatcher(Matcher<?> matcher, String... propertyPath) {
-        List<String> fullPath = new ArrayList<>(Arrays.asList(propertyPath));
+        var fullPath = new ArrayList<String>(Arrays.asList(propertyPath));
         fullPath.add(0, clazz.getName());
         propertyToMatcher.put(new PropertyPathPattern(fullPath), matcher);
         return this;
@@ -125,7 +123,7 @@ public class ObjectMatcher<T> {
     public FeedbackNode match(T expected, T actual) {
         try {
             MatchingStackHolder.set(new DefaultMatchingStack(expected, actual, propertyToMatcher));
-            Property property = new SimpleProperty(clazz.getName());
+            var property = new SimpleProperty(clazz.getName());
             return Matchers.contextAware(property, () -> Matchers.structuresEqual()).match(expected, actual);
         } finally {
             MatchingStackHolder.clear();

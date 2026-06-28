@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
-import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
  * Mirrors {@link StructureMatcherTest} but with {@code record} models. The
@@ -25,21 +24,21 @@ public class RecordMatcherTest {
 
     @Test
     public void allMatch() {
-        RecordStructure actual = new RecordStructure(Color.WHITE, asList("white color"), new RecordSubstructure(false));
-        RecordStructure expected = new RecordStructure(Color.WHITE, asList("white color"), new RecordSubstructure(false));
+        var actual = new RecordStructure(Color.WHITE, asList("white color"), new RecordSubstructure(false));
+        var expected = new RecordStructure(Color.WHITE, asList("white color"), new RecordSubstructure(false));
         assertTrue(matcher.match("struct", actual, expected).isEmpty());
     }
 
     @Test
     public void allDontMatch() {
-        RecordStructure expected = new RecordStructure(Color.WHITE, asList("white color"), new RecordSubstructure(true));
-        RecordStructure actual = new RecordStructure(Color.BLACK, asList("black color"), new RecordSubstructure(false));
-        FeedbackNode feedback = matcher.match("struct", expected, actual);
+        var expected = new RecordStructure(Color.WHITE, asList("white color"), new RecordSubstructure(true));
+        var actual = new RecordStructure(Color.BLACK, asList("black color"), new RecordSubstructure(false));
+        var feedback = matcher.match("struct", expected, actual);
 
-        FeedbackNode expSubstructureFeedback = Feedback.composite("Sub", asList(Feedback.nonEqual("Bool", true, false)));
-        FeedbackNode expColorListFeedback = Feedback.composite("Strings",
+        var expSubstructureFeedback = Feedback.composite("Sub", asList(Feedback.nonEqual("Bool", true, false)));
+        var expColorListFeedback = Feedback.composite("Strings",
                 asList(Feedback.nonEqual("Strings[0]", "white color", "black color")));
-        FeedbackNode expectedFeedback = Feedback.composite("struct", asList(
+        var expectedFeedback = Feedback.composite("struct", asList(
                 Feedback.nonEqual("Color", Color.WHITE, Color.BLACK),
                 expColorListFeedback,
                 expSubstructureFeedback));
@@ -49,9 +48,9 @@ public class RecordMatcherTest {
 
     @Test
     public void customMatcherAppliesToNestedRecordComponentByPath() {
-        RecordStructure expected = new RecordStructure(Color.WHITE, asList("white color"), new RecordSubstructure(true));
-        RecordStructure actual = new RecordStructure(Color.WHITE, asList("white color"), new RecordSubstructure(false));
-        FeedbackNode feedback = ObjectMatcher.forClass(RecordStructure.class)
+        var expected = new RecordStructure(Color.WHITE, asList("white color"), new RecordSubstructure(true));
+        var actual = new RecordStructure(Color.WHITE, asList("white color"), new RecordSubstructure(false));
+        var feedback = ObjectMatcher.forClass(RecordStructure.class)
                 .with(Matchers.anyValue(), "Sub.Bool")
                 .match(expected, actual);
         assertTrue(feedback.isEmpty());

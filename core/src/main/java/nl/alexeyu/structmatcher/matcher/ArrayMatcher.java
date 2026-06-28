@@ -25,8 +25,8 @@ public final class ArrayMatcher implements Matcher<Object> {
     }
 
     private List<Object> toList(Object array) {
-        int length = Array.getLength(array);
-        List<Object> list = new ArrayList<>(length);
+        var length = Array.getLength(array);
+        var list = new ArrayList<Object>(length);
         for (int i = 0; i < length; i++) {
             list.add(Array.get(array, i));
         }

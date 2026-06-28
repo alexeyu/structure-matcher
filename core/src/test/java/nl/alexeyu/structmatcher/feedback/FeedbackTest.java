@@ -26,15 +26,15 @@ public class FeedbackTest {
 
     @Test
     public void emptyFeedbackContainsOnlyPropertyName() throws Exception {
-        FeedbackNode feedback = Feedback.empty("test");
-        String json = mapper.writeValueAsString(feedback);
+        var feedback = Feedback.empty("test");
+        var json = mapper.writeValueAsString(feedback);
         assertEquals("test", JsonPath.read(json, "$.property"));
     }
 
     @Test
     public void gotNullContainsExpectedValueAndNullAsActualValue() throws Exception {
-        FeedbackNode feedback = Feedback.gotNull("color", "white");
-        String json = mapper.writeValueAsString(feedback);
+        var feedback = Feedback.gotNull("color", "white");
+        var json = mapper.writeValueAsString(feedback);
         assertEquals("color", JsonPath.read(json, "$.property"));
         assertNull("null", JsonPath.read(json, "$.value"));
         assertEquals("white", JsonPath.read(json, "$.expectation"));
@@ -42,8 +42,8 @@ public class FeedbackTest {
 
     @Test
     public void gotNonNullContainsExpectedValueAndNullAsActualValue() throws Exception {
-        FeedbackNode feedback = Feedback.gotNonNull("color", "black");
-        String json = mapper.writeValueAsString(feedback);
+        var feedback = Feedback.gotNonNull("color", "black");
+        var json = mapper.writeValueAsString(feedback);
         assertEquals("color", JsonPath.read(json, "$.property"));
         assertEquals("null", JsonPath.read(json, "$.expectation"));
         assertEquals("black", JsonPath.read(json, "$.value"));
@@ -51,8 +51,8 @@ public class FeedbackTest {
 
     @Test
     public void nonEqualPropertyFeedbackContainsPropertyInfo() throws Exception {
-        FeedbackNode feedback = Feedback.nonEqual("color", "white", "black");
-        String json = mapper.writeValueAsString(feedback);
+        var feedback = Feedback.nonEqual("color", "white", "black");
+        var json = mapper.writeValueAsString(feedback);
         assertEquals("color", JsonPath.read(json, "$.property"));
         assertEquals("white", JsonPath.read(json, "$.expectation"));
         assertEquals("black", JsonPath.read(json, "$.value"));
@@ -60,23 +60,23 @@ public class FeedbackTest {
 
     @Test
     public void compositeFeedbackRemainsEmptyWhileAllItsChildrenAreEmpty() {
-        CompositeFeedbackNode feedback = Feedback.composite("primary",
+        var feedback = Feedback.composite("primary",
                 asList(Feedback.empty("color"), Feedback.composite("", asList())));
         assertTrue(feedback.isEmpty());
     }
 
     @Test
     public void compositeFeedbackIsNoLongerEmptyWhenOneChildIsNotEmpty() {
-        CompositeFeedbackNode feedback = Feedback.composite("primary", asList(Feedback.empty("color"),
+        var feedback = Feedback.composite("primary", asList(Feedback.empty("color"),
                 Feedback.composite("secondary", asList(Feedback.nonEqual("letter", "a", "b")))));
         assertFalse(feedback.isEmpty());
     }
 
     @Test
     public void compositeFeedbackAccumulatesOthers() throws Exception {
-        CompositeFeedbackNode feedback = Feedback.composite("primary",
+        var feedback = Feedback.composite("primary",
                 asList(Feedback.nonEqual("color", "white", "black"), Feedback.nonEqual("qty", 15, 17)));
-        String json = mapper.writeValueAsString(feedback);
+        var json = mapper.writeValueAsString(feedback);
         assertEquals(2, getChildrenLength(json));
         assertEquals("color", JsonPath.read(json, "$.children[0].property"));
         assertEquals("qty", JsonPath.read(json, "$.children[1].property"));
@@ -84,10 +84,10 @@ public class FeedbackTest {
 
     @Test
     public void feedbackCanBeNested() throws Exception {
-        FeedbackNode feedback = Feedback.composite("primary", asList(
+        var feedback = Feedback.composite("primary", asList(
                 Feedback.nonEqual("color", "white", "black"),
                 Feedback.composite("secondary", asList(Feedback.nonEqual("shade", "ivory", "noir")))));
-        String json = mapper.writeValueAsString(feedback);
+        var json = mapper.writeValueAsString(feedback);
         assertEquals(2, getChildrenLength(json));
         assertEquals("color", JsonPath.read(json, "$.children[0].property"));
         assertEquals("shade", JsonPath.read(json, "$.children[1].children[0].property"));

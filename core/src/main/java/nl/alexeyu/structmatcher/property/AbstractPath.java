@@ -36,7 +36,7 @@ abstract class AbstractPath {
             return true;
         }
         if (obj != null && obj.getClass() == this.getClass()) {
-            AbstractPath other = (AbstractPath) obj;
+            var other = (AbstractPath) obj;
             return this.list.equals(other.list);
         }
         return false;

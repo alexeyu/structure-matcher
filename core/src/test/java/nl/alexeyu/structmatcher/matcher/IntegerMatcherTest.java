@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import nl.alexeyu.structmatcher.feedback.ExpectationBroken;
-import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class IntegerMatcherTest {
 
@@ -24,7 +23,7 @@ public class IntegerMatcherTest {
 
     @Test
     public void wrongTypeFeedbackIfActualIsNotAnInteger() {
-        FeedbackNode feedback = matcher.match("test", -1, 1.2f);
+        var feedback = matcher.match("test", -1, 1.2f);
         assertEquals(new ExpectationBroken("test", "An integer", 1.2f), feedback);
     }
 

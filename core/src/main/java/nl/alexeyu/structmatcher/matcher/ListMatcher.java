@@ -1,7 +1,6 @@
 package nl.alexeyu.structmatcher.matcher;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
@@ -14,13 +13,13 @@ public final class ListMatcher<V> implements Matcher<List<V>> {
         if (expectedList.size() != actualList.size()) {
             return Feedback.differentCollectionSizes(property, expectedList.size(), actualList.size());
         }
-        Collection<FeedbackNode> feedbackSubnodes = new ArrayList<>();
+        var feedbackSubnodes = new ArrayList<FeedbackNode>();
         for (int i = 0; i < actualList.size(); i++) {
-            Object actualElement = actualList.get(i);
-            Object expectedElement = expectedList.get(i);
-            String elementProperty = String.format("%s[%s]", property, i);
-            Matcher<Object> elementMatcher = Matchers.getNullAwareMatcher(actualElement);
-            FeedbackNode elementFeedback = elementMatcher.match(elementProperty, expectedElement, actualElement);
+            var actualElement = actualList.get(i);
+            var expectedElement = expectedList.get(i);
+            var elementProperty = String.format("%s[%s]", property, i);
+            var elementMatcher = Matchers.getNullAwareMatcher(actualElement);
+            var elementFeedback = elementMatcher.match(elementProperty, expectedElement, actualElement);
             if (!elementFeedback.isEmpty()) {
                 feedbackSubnodes.add(elementFeedback);
             }

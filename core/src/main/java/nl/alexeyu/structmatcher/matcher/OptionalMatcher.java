@@ -16,8 +16,8 @@ public final class OptionalMatcher implements Matcher<Object> {
 
     @Override
     public FeedbackNode match(String property, Object expected, Object actual) {
-        Object expectedValue = unwrap(expected);
-        Object actualValue = unwrap(actual);
+        var expectedValue = unwrap(expected);
+        var actualValue = unwrap(actual);
         return Matchers.getNullAwareMatcher(actualValue).match(property, expectedValue, actualValue);
     }
 

@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
@@ -28,7 +27,7 @@ public class FeedbackJsonTest {
 
     @Test
     public void brokenLeafOmitsPropertyAndKeepsExpectationAndValue() {
-        String expected = """
+        var expected = """
                 {
                   "expectation" : "white",
                   "value" : "black"
@@ -38,7 +37,7 @@ public class FeedbackJsonTest {
 
     @Test
     public void brokenLeafRendersNullValue() {
-        String expected = """
+        var expected = """
                 {
                   "expectation" : "white",
                   "value" : null
@@ -48,7 +47,7 @@ public class FeedbackJsonTest {
 
     @Test
     public void brokenLeafRendersNumbersAsNumbers() {
-        String expected = """
+        var expected = """
                 {
                   "expectation" : 15,
                   "value" : 17
@@ -58,7 +57,7 @@ public class FeedbackJsonTest {
 
     @Test
     public void compositeIsKeyedByChildPropertyNamesAndDropsItsOwnName() {
-        String expected = """
+        var expected = """
                 {
                   "color" : {
                     "expectation" : "white",
@@ -69,7 +68,7 @@ public class FeedbackJsonTest {
                     "value" : 17
                   }
                 }""";
-        FeedbackNode composite = Feedback.composite("primary", asList(
+        var composite = Feedback.composite("primary", asList(
                 Feedback.nonEqual("color", "white", "black"),
                 Feedback.nonEqual("qty", 15, 17)));
         assertEquals(expected, json(composite));
@@ -77,7 +76,7 @@ public class FeedbackJsonTest {
 
     @Test
     public void nestedCompositesNestAsNestedObjects() {
-        String expected = """
+        var expected = """
                 {
                   "color" : {
                     "expectation" : "white",
@@ -90,7 +89,7 @@ public class FeedbackJsonTest {
                     }
                   }
                 }""";
-        FeedbackNode nested = Feedback.composite("primary", asList(
+        var nested = Feedback.composite("primary", asList(
                 Feedback.nonEqual("color", "white", "black"),
                 Feedback.composite("secondary", asList(
                         Feedback.nonEqual("shade", "ivory", "noir")))));
@@ -101,7 +100,7 @@ public class FeedbackJsonTest {
 
     @Test
     public void brokenLeafHasNoPropertyField() throws Exception {
-        JsonNode node = mapper.readTree(json(Feedback.nonEqual("color", "white", "black")));
+        var node = mapper.readTree(json(Feedback.nonEqual("color", "white", "black")));
         assertFalse("the 'property' name is carried by the composite key, not the leaf", node.has("property"));
         assertTrue(node.has("expectation"));
         assertTrue(node.has("value"));
@@ -109,7 +108,7 @@ public class FeedbackJsonTest {
 
     @Test
     public void compositeUsesChildPropertyAsKeyNotAChildrenArray() throws Exception {
-        JsonNode node = mapper.readTree(json(Feedback.composite("primary", asList(
+        var node = mapper.readTree(json(Feedback.composite("primary", asList(
                 Feedback.nonEqual("color", "white", "black")))));
         assertFalse(node.has("children"));
         assertFalse(node.has("primary"));
@@ -127,7 +126,7 @@ public class FeedbackJsonTest {
 
     @Test
     public void compositeWithAMetChildRendersThatChildAsEmptyObject() {
-        String expected = """
+        var expected = """
                 {
                   "color" : { },
                   "qty" : {
@@ -135,7 +134,7 @@ public class FeedbackJsonTest {
                     "value" : 17
                   }
                 }""";
-        FeedbackNode composite = Feedback.composite("primary", asList(
+        var composite = Feedback.composite("primary", asList(
                 Feedback.empty("color"),
                 Feedback.nonEqual("qty", 15, 17)));
         assertEquals(expected, json(composite));
