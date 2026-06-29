@@ -111,19 +111,39 @@ collections — list-of-list, map-of-array, etc. — tracked under 1b.)
 
 ---
 
-## Phase 2 — API ergonomics (high impact, medium effort)
+## Phase 2 — API ergonomics (high impact, medium effort) — IN PROGRESS
 
 The stringly-typed, capitalized paths (`"Server.Ip"`) have no compile-time safety
 and break silently on rename. This is a real adoption friction and a place to beat
 the competition.
 
-- [ ] Typed/lambda path API, e.g. `.with(matcher, BookSearchResult::getMetadata,
+- [x] Typed/lambda path API, e.g. `.with(matcher, BookSearchResult::getMetadata,
       SearchMetadata::getServer, Server::getIp)` — refactor-safe, IDE-completable.
-- [ ] Keep string paths (incl. wildcards) as the dynamic/loosely-typed escape hatch.
-- [ ] Reconsider the capitalized-path convention now that records are in play.
+      Implemented as **fixed-arity generic overloads** of `ObjectMatcher.with`
+      (1–4 hops), so the whole chain is type-checked: each reference's return type
+      must be the receiver of the next. A reference is a serializable
+      `PropertyRef<T,R>` (`Function` + `Serializable`); `PropertyRefs.nameOf`
+      recovers the accessor from the lambda's `SerializedLambda` and runs it through
+      `ClassProperty.forMethod` — so a method reference produces *exactly* the same
+      capitalized name a string path would (getter prefix stripped, record component
+      capitalized). Zero new runtime deps. Tests: `PropertyRefsTest`,
+      `TypedPathObjectMatcherTest`.
+- [x] Keep string paths (incl. wildcards) as the dynamic/loosely-typed escape hatch.
+      Untouched; typed and string registrations are interchangeable (same path
+      strings) and a typed registration still honours wildcard string paths.
+- [x] Reconsider the capitalized-path convention now that records are in play.
+      **Decision: keep capitalization unified.** Because record components are
+      already capitalized to match bean getters (Phase 1a), the typed API can reuse
+      the identical naming rule and stay interchangeable with string paths — changing
+      the convention now would split the two APIs for no gain.
 
-**Risk:** typed method-reference chains across nested generics get verbose; prototype
-before committing. May land as an *additional* API rather than a replacement.
+**Open follow-ups:** chains deeper than 4 hops (add more overloads or a fluent
+builder if real models need it); typed paths can't yet express the `*` wildcard or
+collection-index segments (`[key]`) — those remain string-only.
+
+**Risk (resolved):** typed method-reference chains across nested generics get
+verbose; prototyped via bounded arity overloads — landed as an *additional* API
+alongside the string paths, not a replacement.
 
 ---
 

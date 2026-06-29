@@ -8,6 +8,8 @@ import java.util.Map;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.property.ClassProperty;
 import nl.alexeyu.structmatcher.property.PropertyPathPattern;
+import nl.alexeyu.structmatcher.property.PropertyRef;
+import nl.alexeyu.structmatcher.property.PropertyRefs;
 import nl.alexeyu.structmatcher.property.SimpleProperty;
 
 /**
@@ -113,6 +115,52 @@ public class ObjectMatcher<T> {
      */
     public ObjectMatcher<T> with(Matcher<?> matcher, String propertyPath) {
         return withMatcher(matcher, propertyPath.split("\\."));
+    }
+
+    /**
+     * Type-safe counterpart of {@link #withMatcher}: the property path is given as a chain of
+     * accessor references ({@code Server::getIp}, or {@code Server::ip} for a record) instead of
+     * strings, so renames are caught by the compiler and the IDE can complete each step. Each
+     * reference's return type must be the receiver type of the next, e.g.
+     *
+     * <pre>
+     * ObjectMatcher.forClass(BookSearchResult.class)
+     *     .with(urlMatcher, BookSearchResult::getMetadata, SearchMetadata::getServer, Server::getIp);
+     * </pre>
+     *
+     * The resulting path is identical to the equivalent string path (property names are capitalized
+     * the same way), so typed and {@code "Dot.Separated"} registrations are interchangeable and both
+     * honour wildcard string paths registered elsewhere.
+     *
+     * @return the same instance of the <code>ObjectMatcher</code>, ready to be set up further and/or
+     *         executed.
+     */
+    public <A> ObjectMatcher<T> with(Matcher<?> matcher, PropertyRef<? super T, A> p1) {
+        return withRefs(matcher, p1);
+    }
+
+    /** Two-step typed path. @see #with(Matcher, PropertyRef) */
+    public <A, B> ObjectMatcher<T> with(Matcher<?> matcher, PropertyRef<? super T, A> p1,
+            PropertyRef<? super A, B> p2) {
+        return withRefs(matcher, p1, p2);
+    }
+
+    /** Three-step typed path. @see #with(Matcher, PropertyRef) */
+    public <A, B, C> ObjectMatcher<T> with(Matcher<?> matcher, PropertyRef<? super T, A> p1,
+            PropertyRef<? super A, B> p2, PropertyRef<? super B, C> p3) {
+        return withRefs(matcher, p1, p2, p3);
+    }
+
+    /** Four-step typed path. @see #with(Matcher, PropertyRef) */
+    public <A, B, C, D> ObjectMatcher<T> with(Matcher<?> matcher, PropertyRef<? super T, A> p1,
+            PropertyRef<? super A, B> p2, PropertyRef<? super B, C> p3, PropertyRef<? super C, D> p4) {
+        return withRefs(matcher, p1, p2, p3, p4);
+    }
+
+    @SafeVarargs
+    private ObjectMatcher<T> withRefs(Matcher<?> matcher, PropertyRef<?, ?>... refs) {
+        var path = Arrays.stream(refs).map(PropertyRefs::nameOf).toArray(String[]::new);
+        return withMatcher(matcher, path);
     }
 
     /**

@@ -29,9 +29,11 @@ public class BookMatchingTest {
 
     @Test
     public void notNormalizedStringsDoMatchWithNormalizationAwareMatcher() {
+        // Typed path: Author is a record, so the accessor is Author::firstName. A rename
+        // of the component is now a compile error instead of a silently stale "FirstName".
         var feedback = ObjectMatcher.forClass(Author.class)
                 .with(Matchers.<String>normalizing(name -> stripAccents(name), valuesEqual()),
-                        "FirstName")
+                        Author::firstName)
                 .match(francoiseSaganNormalized, francoiseSagan);
         assertTrue(feedback.isEmpty());
     }

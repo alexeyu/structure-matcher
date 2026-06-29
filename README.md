@@ -97,6 +97,9 @@ public class Book {
     // Constructors and getters
 }
 
+// A record works just as well as a classic bean — its components are discovered as properties.
+public record Server(String ip, int port) {}
+
 public class SearchMetadata {
     private List<String> keywords;
     private int booksFound;
@@ -115,13 +118,29 @@ public class BookSearchResult {
 ```
 Second, we can make the Structmatcher library aware of all the logical differences between the responses and ask to compare them.
 
+A custom matcher is attached to a property by **path**. There are two ways to write a path:
+
+* **Typed accessor chains** (preferred) — a sequence of method references such as
+  `BookSearchResult::getMetadata, SearchMetadata::getServer, Server::ip`. They are checked by the
+  compiler, completed by the IDE, and survive renames; a chain mixes bean getters and record
+  accessors freely.
+* **Dot-separated strings** — `"Metadata.Server.Ip"`. Loosely typed, but the only way to express
+  paths that descend *into* collection elements (`"Books.Authors.FirstName"`) or that use the `*`
+  wildcard. The two styles produce identical paths and can be mixed in one set-up.
+
 ```java
 BookSearchResult desktopResponse = // read XML response
 BookSearchResult mobileResponse = // read JSON response
-FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class) 
-        .with(Matchers.regex(IPADDRESS_PATTERN), "Metadata.Server.Ip")  // verifies that both properties are valid IP addresses
-        .with(IntegerMatchers.oneOf(8080, 8081, 8090, 8091), "Metadata.Server.Port") // verifies that the port in the response is one of the values from the list
-        .with(IntegerMatchers.inRange(2, 5000), "Metadata.ProcessingTimeMs") // verifies that the processing time is a reasonable number
+FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
+        // Typed accessor chains — refactor-safe; the chain descends a bean (SearchMetadata)
+        // into a record (Server) transparently.
+        .with(StringMatchers.regex(IPADDRESS_PATTERN),
+                BookSearchResult::getMetadata, SearchMetadata::getServer, Server::ip) // both properties are valid IP addresses
+        .with(IntegerMatchers.oneOf(8080, 8081, 8090, 8091),
+                BookSearchResult::getMetadata, SearchMetadata::getServer, Server::port) // the port is one of the listed values
+        .with(IntegerMatchers.inRange(2, 5000),
+                BookSearchResult::getMetadata, SearchMetadata::getProcessingTimeMs) // the processing time is a reasonable number
+        // String path — needed here because it traverses *into* each element of the Books list.
         .with(Matchers.and(  // verifies that all the suppositions below are correct
         	    Matchers.nonNull(), // verifies that the property is present...
                 StringMatchers.nonEmpty(), // ... and is a non-empty string
@@ -138,9 +157,12 @@ Please note that only exceptions are defined. All the other properties are compa
 The library is: 
 * lightweight - no dependencies at all for the core module; json and examples modules depend on Jackson library.
 * flexible - you can assign any matcher to any property of a composite object;
+* refactor-safe - matchers can be attached with typed accessor chains (`Server::ip`) checked by the compiler, not just dot-separated strings;
 * extensible - you can write your matchers, however two dozen of them are already available,
 covering many use cases.
 
 The result can be converted to JSON and stored to a file which will make comparison of thousands of objects easy to read or parse.
 
-Known limitations: only primitive objects, structures and lists are currently supported. Respectively, other collections (arrays, sets, enumerations, maps) cannot be used in a response model.
+Supported property shapes: primitive and other simple values, nested structures, Java `record`s, `List`, `Set`, `Map`, arrays (object and primitive), and `Optional`.
+
+Known limitation: a collection whose *elements/values are themselves collections* (a list of lists, a map of arrays, ...) is not matched deeply.

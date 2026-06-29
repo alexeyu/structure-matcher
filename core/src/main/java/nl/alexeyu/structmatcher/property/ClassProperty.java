@@ -52,6 +52,16 @@ public final class ClassProperty implements Property {
     }
 
     /**
+     * Wraps an accessor {@link Method} as a property, inferring the {@link #recordComponent} flag
+     * from the declaring class. Use this when the accessor is known directly (e.g. resolved from a
+     * method reference) rather than discovered by scanning a class, so that {@link #getName()}
+     * applies the same naming rules as {@link #forClass}.
+     */
+    public static ClassProperty forMethod(Method method) {
+        return new ClassProperty(method, method.getDeclaringClass().isRecord());
+    }
+
+    /**
      * Returns the name of a property. For a bean getter the prefix is stripped: <code>getFoo</code>
      * and <code>isFoo</code> both yield 'Foo'. For a record component the accessor name is used
      * as-is: <code>foo()</code> yields 'Foo'.<br/>
