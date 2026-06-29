@@ -11,8 +11,8 @@ A lightweight Java library for comparing two complex POJOs that lack (or cannot 
 Use the committed **Gradle wrapper** (`./gradlew`, Gradle 8.10.2). Java toolchain is **17**. The build uses `java-library` + `maven-publish` with `api`/`implementation`/`testImplementation` configurations.
 
 ```bash
-./gradlew build              # compile + test all three modules (also runs spotlessCheck)
-./gradlew :core:test         # test a single module (core | json | examples)
+./gradlew build              # compile + test all modules (also runs spotlessCheck)
+./gradlew :core:test         # test a single module (core | json | report | examples)
 ./gradlew test --tests nl.alexeyu.structmatcher.matcher.ObjectMatcherTest          # single test class
 ./gradlew test --tests nl.alexeyu.structmatcher.matcher.ObjectMatcherTest.someMethod  # single test method
 ./gradlew spotlessApply      # auto-fix formatting; spotlessCheck verifies (and runs in CI via build)
@@ -26,6 +26,7 @@ Tests run on the **JUnit 5 Platform**, but the test sources are still JUnit 4 (`
 
 - **core** — the library. Zero runtime dependencies. All matching logic lives here.
 - **json** — depends on `core` + Jackson. `Json.mapper()` returns a configured `ObjectMapper` that serializes a `FeedbackNode` tree to JSON (custom serializer for composite nodes; a mixin hides internal fields).
+- **report** — depends on `core` (zero extra runtime deps). Consumes the `FeedbackNode` tree to produce corpus-level insight: flatten broken paths and aggregate N comparisons into a `FeedbackSummary`. Kept separate from core (like `json`) so the matching core stays a pure "produce feedback" library and the analysis surface can grow.
 - **examples** — runnable end-to-end usage (the bookstore XML-vs-JSON scenario from the README). Model POJOs and integration tests live together under `examples/.../bookstore`.
 
 ## Architecture
@@ -55,3 +56,6 @@ Matchers are a `@FunctionalInterface` (`FeedbackNode match(String, V, V)`). The 
 
 ### Feedback tree
 Matchers return `FeedbackNode`s built by the `feedback/Feedback` factory: `ExpectationMet` (empty/leaf-OK), `ExpectationBroken` (leaf mismatch with expected/actual/spec), and `CompositeFeedbackNode` (a structure's children — empty only if all children empty). A `BrokenSpecificationException` is thrown when a *base* value violates a strict matcher's precondition (e.g. base is null under `nonNull()`), signaling a bad spec rather than a data mismatch.
+
+## Reporting / aggregation (the `report` module)
+The `report` module (`nl.alexeyu.structmatcher.report`, depends on `core` only) turns feedback into corpus-level insight (Phase 3). `FeedbackPaths.brokenPaths(node)` flattens a tree into registration-style paths (drops the root class name, joins structure children with `.`, keeps collection brackets without repeating the parent name: `Sub.Bool`, `Strings[0]`, `Books[0].Authors[0].FirstName`); `FeedbackPaths.toFieldPath` collapses `[index]`/`[key]`/`[element]` to `[]`. `FeedbackAggregator` (`add`/`addAll`/`summary`, or one-shot static `summarize`) accumulates many comparisons into a `FeedbackSummary`: total / matched / mismatched, `mismatchRate`, per-field failure counts and rates (a field is counted at most once per comparison, ordered most-failing first), and `topMismatchingFields`. Zero extra runtime deps; not thread-safe (aggregate from one thread). Its end-to-end test uses a small local model (`SampleStructure`) because core's test fixtures aren't visible across the module boundary.

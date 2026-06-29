@@ -1,0 +1,5 @@
+dependencies {
+    // core types (FeedbackNode and the matcher entry point) appear in the public API of the
+    // report classes, so they are exposed transitively.
+    api project(':core')
+}

@@ -5,20 +5,42 @@ about, not a contract — phases are independent enough to reorder.
 
 ## Positioning (the north star)
 
-Do **not** compete head-on as a general "compare two POJOs" library — AssertJ's
-`usingRecursiveComparison()` and json-unit already own that. Lean into the two
-things that are genuinely differentiated here:
+Be honest about the competitive map — over-claiming loses the first knowledgeable
+reader:
 
-1. A **structured, persistable diff** (`FeedbackNode` tree) instead of a thrown
-   `AssertionError` — data you can store, aggregate, and diff across thousands of
-   comparisons.
-2. **Cross-field / indirect** matching (`IndirectMatcher`) — "field B should equal
-   a transformation of a *different* field in A", which recursive-comparison
-   comparators can't express.
+- A **structured, persistable POJO diff** on its own is **not** differentiated.
+  JaVers and java-object-diff already produce serializable diff trees of arbitrary
+  objects (and JaVers persists/queries them); jsondiffpatch/JSON Patch do it for
+  JSON. Do not pitch "diff tree instead of a boolean" as the selling point.
+- A general **"compare two POJOs"** library is owned by AssertJ's
+  `usingRecursiveComparison()` and json-unit. Don't compete head-on there either.
 
-Target use case: **validating structural equivalence at scale** — API migrations,
-v1-vs-v2 contract checks, data-pipeline regression — where you want a *report*, not
-a pass/fail.
+The defensible niche is the **intersection** that none of those combine, for
+arbitrary **nested** objects:
+
+1. **Field-level tolerant / semantic rules** — not "are these equal" but "is this a
+   valid IP", "within 2–5000ms", "equal after normalization", "order-insensitive".
+   Equality-diff tools (JaVers, java-object-diff) can't express these as first-class
+   rules.
+2. **Cross-field / indirect** matching (`IndirectMatcher`) — "field B should equal a
+   transformation of a *different* field in A". This is the rarest feature; no
+   library surveyed (JVM, TS, Python, .NET) makes it first-class.
+3. **A corpus-level report** — per-field failure rates across thousands of
+   comparisons, localizing *which* fields systematically diverge. `datacompy` proves
+   the demand but only for flat DataFrames; `deepdiff` does tolerant nested diffs but
+   no corpus rollup.
+
+One-line positioning that survives scrutiny: **"validate that two object streams are
+*equivalent enough* under per-field rules, and get a report saying which fields
+diverge and how often — across thousands of comparisons."** The report is the
+product, not a debugging nicety.
+
+Target use case: **equivalence validation at scale** — API v1-vs-v2 contract checks,
+data-pipeline regression, cross-system reconciliation — where you want a *localized
+report*, not a pass/fail. (Closest cousins by ecosystem: Python `deepdiff` for
+tolerant nested diffing, `datacompy` for the per-field rate report, Jest asymmetric
+matchers / `dirty-equals` for inline tolerant matchers — but none combine all three
+for nested POJOs.)
 
 ---
 
@@ -147,17 +169,35 @@ alongside the string paths, not a replacement.
 
 ---
 
-## Phase 3 — Make the feedback tree first-class (the actual moat)
+## Phase 3 — Make the feedback tree first-class (the actual moat) — IN PROGRESS
 
 This is what the library should be *known* for. Today `FeedbackNode` + `Json.mapper()`
 exist but the story stops at "serialize one comparison."
 
-- [ ] Aggregation: combine N comparison results into a summary (counts, top
-      mismatching paths, per-field failure rates).
+- [x] Aggregation: combine N comparison results into a summary (counts, top
+      mismatching paths, per-field failure rates). New **`report` module**
+      (`nl.alexeyu.structmatcher.report`, `api project(':core')`) — kept out of core
+      so the matching core stays a pure, zero-dep "produce feedback" library and the
+      analysis surface (this, plus the renderer/query work below) can grow
+      independently, mirroring how `json` is a separate consumer of the tree.
+      `FeedbackAggregator` (incremental
+      `add`/`addAll`/`summary`, plus a one-shot static `summarize`) produces a
+      `FeedbackSummary` — total / matched / mismatched, `mismatchRate`, per-field
+      failure counts and rates (ordered most-failing first), `topMismatchingFields`,
+      and a readable `toString`. Built on `FeedbackPaths.brokenPaths`, which flattens
+      a tree into registration-style paths (`Sub.Bool`, `Strings[0]`,
+      `Books[0].Authors[0].FirstName`); `FeedbackPaths.toFieldPath` collapses
+      `[index]`/`[key]`/`[element]` to `[]` so a field is counted once per comparison
+      regardless of how many elements broke. Tests: `FeedbackPathsTest`,
+      `FeedbackAggregatorTest`, `FeedbackReportEndToEndTest` (against a live
+      `ObjectMatcher` run). Zero new deps.
 - [ ] A stable, documented JSON schema for the tree (it's the persistence format —
       treat it as an API with versioning).
-- [ ] Human-readable report renderer (text/HTML), not just JSON.
+- [ ] Human-readable report renderer (text/HTML), not just JSON. (`FeedbackSummary`
+      and `FeedbackPaths` are the groundwork; `toString` is a placeholder.)
 - [ ] Query helpers: "all broken nodes", "mismatches under path X", filter/walk API.
+      (`FeedbackPaths.brokenPaths` is the first walk primitive; extend toward a
+      broken-leaf/predicate API.)
 
 **Done when:** comparing a corpus and getting an actionable summary report is a
 one-liner.
@@ -173,8 +213,12 @@ Meet people where they already are.
       structured diff).
 - [ ] JUnit 5 extension / assertion helpers.
 - [ ] Publish to Maven Central (the `nl.alexeyu.structmatcher` group is already set).
-- [ ] README rewrite around the new positioning; runnable `examples` updated to
-      records + a batch/corpus scenario, not just the single bookstore compare.
+- [ ] README rewrite around the **corrected** positioning (see "Positioning" above):
+      claim the *narrow, true* niche — "equivalence validation at scale with a
+      per-field report" — not the broad, false "structured POJO diff" (which JaVers /
+      java-object-diff already own). Runnable `examples` updated to records + a
+      batch/corpus scenario (feed N comparisons through `FeedbackAggregator`), not
+      just the single bookstore compare.
 
 ---
 

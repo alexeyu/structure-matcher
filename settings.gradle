@@ -1,1 +1,1 @@
-include "core","json","examples"
+include "core","json","report","examples"
