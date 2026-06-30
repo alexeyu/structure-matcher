@@ -71,15 +71,14 @@ public class ResponseMatchingTest {
     private ObjectMatcher<BookSearchResult> withMetadataMatchers(
             ObjectMatcher<BookSearchResult> matcher) {
         // Type-safe accessor chains instead of "Metadata.Server.Ip": each hop is checked by
-        // the compiler and completed by the IDE, and the chain crosses into the Server record
-        // (Server::ip / Server::port) exactly like it crosses the SearchMetadata bean.
+        // the compiler and completed by the IDE. Every model class here is a record, so the hops
+        // are component accessors (BookSearchResult::metadata, SearchMetadata::server, Server::ip).
         return matcher
-                .with(ipMatcher, BookSearchResult::getMetadata, SearchMetadata::getServer,
-                        Server::ip)
-                .with(oneOf(8080, 8081, 8090, 8091), BookSearchResult::getMetadata,
-                        SearchMetadata::getServer, Server::port)
-                .with(inRange(2, 5000), BookSearchResult::getMetadata,
-                        SearchMetadata::getProcessingTimeMs);
+                .with(ipMatcher, BookSearchResult::metadata, SearchMetadata::server, Server::ip)
+                .with(oneOf(8080, 8081, 8090, 8091), BookSearchResult::metadata,
+                        SearchMetadata::server, Server::port)
+                .with(inRange(2, 5000), BookSearchResult::metadata,
+                        SearchMetadata::processingTimeMs);
     }
 
     @Test
@@ -93,8 +92,8 @@ public class ResponseMatchingTest {
     public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
         UnaryOperator<String> nameToInitial = name -> name.substring(0, 1) + ".";
         var feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
-                .with(constant(Platform.MOBILE), BookSearchResult::getMetadata,
-                        SearchMetadata::getPlatform)
+                .with(constant(Platform.MOBILE), BookSearchResult::metadata,
+                        SearchMetadata::platform)
                 // Paths that traverse *into* list elements (Books -> each Author -> FirstName)
                 // can't be expressed as an accessor chain, so the string path stays as the
                 // escape hatch — typed and string registrations mix freely.
@@ -110,8 +109,7 @@ public class ResponseMatchingTest {
         // The typed accessor chain and the dotted string resolve to the identical path, so the
         // serialized feedback is byte-for-byte the same regardless of how the matcher is registered.
         var viaTyped = ObjectMatcher.forClass(BookSearchResult.class)
-                .with(ipMatcher, BookSearchResult::getMetadata, SearchMetadata::getServer,
-                        Server::ip)
+                .with(ipMatcher, BookSearchResult::metadata, SearchMetadata::server, Server::ip)
                 .match(desktopTest, desktopProd);
         var viaString = ObjectMatcher.forClass(BookSearchResult.class)
                 .with(ipMatcher, "Metadata.Server.Ip").match(desktopTest, desktopProd);

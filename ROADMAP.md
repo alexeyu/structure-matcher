@@ -25,10 +25,10 @@ arbitrary **nested** objects:
 2. **Cross-field / indirect** matching (`IndirectMatcher`) — "field B should equal a
    transformation of a *different* field in A". This is the rarest feature; no
    library surveyed (JVM, TS, Python, .NET) makes it first-class.
-3. **A corpus-level report** — per-field failure rates across thousands of
+3. **A batch-level report** — per-field failure rates across thousands of
    comparisons, localizing *which* fields systematically diverge. `datacompy` proves
    the demand but only for flat DataFrames; `deepdiff` does tolerant nested diffs but
-   no corpus rollup.
+   no batch rollup.
 
 One-line positioning that survives scrutiny: **"validate that two object streams are
 *equivalent enough* under per-field rules, and get a report saying which fields
@@ -191,15 +191,57 @@ exist but the story stops at "serialize one comparison."
       regardless of how many elements broke. Tests: `FeedbackPathsTest`,
       `FeedbackAggregatorTest`, `FeedbackReportEndToEndTest` (against a live
       `ObjectMatcher` run). Zero new deps.
-- [ ] A stable, documented JSON schema for the tree (it's the persistence format —
-      treat it as an API with versioning).
-- [ ] Human-readable report renderer (text/HTML), not just JSON. (`FeedbackSummary`
-      and `FeedbackPaths` are the groundwork; `toString` is a placeholder.)
-- [ ] Query helpers: "all broken nodes", "mismatches under path X", filter/walk API.
-      (`FeedbackPaths.brokenPaths` is the first walk primitive; extend toward a
-      broken-leaf/predicate API.)
+- [x] A stable, documented JSON schema for the tree (it's the persistence format —
+      treat it as an API with versioning). **Deviation from the literal item:** the
+      existing `Json.mapper()` output is a nested, property-keyed *pretty rendering* —
+      lossy (no node-type tag; `{}` is both a matched leaf and an empty composite; a
+      model field named `expectation`/`value` collides with the leaf shape),
+      write-only (no reader), and unversioned. Rather than freeze that as an API, the
+      persistence format is a **separate, flat, versioned, round-trippable** shape in
+      the `json` module: `FeedbackArchive` `{schemaVersion, matched, brokenLeaves:
+      [{path, expectation, value}]}`, built on report's canonical paths
+      (`FeedbackQuery.brokenLeaves`). `FeedbackArchives` reads/writes it: `toJson` /
+      `archive` / `fromJson`, with `CURRENT_SCHEMA_VERSION = 1`; the reader rejects an
+      unknown `schemaVersion` and ignores unknown fields (additive forward-compat).
+      `json` now `implementation`-depends on `report` (no report type leaks into its
+      public API). The nested `Json.mapper()` stays as the human-readable rendering
+      (and groundwork for the text/HTML renderer below). Documented via javadoc on
+      `FeedbackArchive` / `ArchivedLeaf` / `FeedbackArchives`. Tests: `FeedbackArchivesTest`
+      (round-trip, version present, unsupported-version rejected, unknown-field
+      tolerance, malformed-input rejection, one live `ObjectMatcher` run).
+      Reload→aggregate is wired: `FeedbackAggregator.addBrokenPaths(Collection<String>)`
+      (report) aggregates a comparison straight from its stored canonical paths — no
+      `FeedbackNode` rebuild — and `FeedbackArchive.brokenPaths()` (json) supplies them.
+      `add(FeedbackNode)` now delegates to `addBrokenPaths`, so live and reloaded
+      corpora aggregate through one code path. report stays core-only (the bridge is
+      plain strings, no json dependency). Tests: `FeedbackAggregatorTest`
+      (`addBrokenPaths`), `ArchiveReloadAggregateTest` (json — persist → reload →
+      aggregate yields the same summary as the live trees).
+      **Follow-ups:** (a) no batch/JSONL helper yet — callers serialize one
+      `FeedbackArchive` per comparison; (b) a user-facing `SCHEMA.md` can fold into the
+      Phase 4 README rewrite.
+- [deferred] Human-readable report renderer (text/HTML), not just JSON. **Descoped for
+      now** — JSON covers both jobs (the nested `Json.mapper()` rendering for reading one
+      comparison, the flat versioned `FeedbackArchives` for persistence), and
+      `FeedbackSummary.toString()` already gives a readable batch digest. A dedicated
+      text/HTML renderer can be added on request; `FeedbackSummary`, `FeedbackPaths` and
+      `FeedbackQuery` are the groundwork if/when it is.
+- [x] Query helpers: "all broken nodes", "mismatches under path X", filter/walk API.
+      New `FeedbackQuery` (report module, zero deps) returns `BrokenLeaf` records —
+      each pairing a canonical path with the `ExpectationBroken` leaf, so callers get
+      both *where* and *why* without re-walking: `brokenLeaves(tree)` (all broken
+      nodes), `find(tree, Predicate<BrokenLeaf>)` (generic filter), and
+      `mismatchesUnder(tree, "Books")` (segment-aware prefix — `Books` matches
+      `Books[0].Title` but not `BooksCount`, and an exact leaf path fetches just that
+      leaf). The tree traversal is now centralized in `FeedbackPaths.brokenLeaves`
+      (package-private); `brokenPaths` maps over it, so path semantics stay in one
+      place. `BrokenLeaf` also exposes `fieldPath()` / `expectation()` / `value()`.
+      Tests: `FeedbackQueryTest` (hand-built trees + one live `ObjectMatcher` run).
+      **Follow-up:** still returns flat lists, not a lazy walker over the *whole*
+      tree (matched leaves and composites aren't surfaced); fine for the renderer
+      below, revisit if a structural-walk use case appears.
 
-**Done when:** comparing a corpus and getting an actionable summary report is a
+**Done when:** comparing a batch and getting an actionable summary report is a
 one-liner.
 
 ---
@@ -213,12 +255,21 @@ Meet people where they already are.
       structured diff).
 - [ ] JUnit 5 extension / assertion helpers.
 - [ ] Publish to Maven Central (the `nl.alexeyu.structmatcher` group is already set).
-- [ ] README rewrite around the **corrected** positioning (see "Positioning" above):
+- [~] README rewrite around the **corrected** positioning (see "Positioning" above):
       claim the *narrow, true* niche — "equivalence validation at scale with a
       per-field report" — not the broad, false "structured POJO diff" (which JaVers /
-      java-object-diff already own). Runnable `examples` updated to records + a
-      batch/corpus scenario (feed N comparisons through `FeedbackAggregator`), not
-      just the single bookstore compare.
+      java-object-diff already own). **Done so far:** the README gained "Beyond a single
+      comparison: the batch report" and "Serializing and persisting feedback" sections
+      documenting the `report` module (`FeedbackAggregator`/`FeedbackSummary`/
+      `FeedbackQuery`) and the two `json` shapes (`Json.mapper()` rendering vs the
+      versioned `FeedbackArchives` persistence + reload→aggregate), framed around
+      equivalence-at-scale; a runnable batch example landed as
+      `BatchReportTest` in `examples` (aggregate → query → persist+reload, asserting
+      per-field rates and `topMismatchingFields`). **Still open:** a top-to-bottom
+      rewrite of the *opening* pitch around the narrow niche (the intro still leads with
+      the single-compare framing), and example *model* classes converted to `record`s
+      (the bookstore POJOs are still classic beans; record discovery is covered by
+      core's `RecordMatcherTest`, just not showcased in `examples`).
 
 ---
 

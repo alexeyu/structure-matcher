@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * An aggregate view over a corpus of comparisons: how many were run, how many matched, and — per
+ * An aggregate view over a batch of comparisons: how many were run, how many matched, and — per
  * field — how often that field broke. A "field" is a {@link FeedbackPaths#toFieldPath normalized}
  * path, so mismatches that differ only by collection index, map key or set element are grouped
  * together. Each field is counted at most once per comparison, so {@link #failureRate} reads as

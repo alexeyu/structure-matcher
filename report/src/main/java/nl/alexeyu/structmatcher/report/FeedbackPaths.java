@@ -2,8 +2,10 @@ package nl.alexeyu.structmatcher.report;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
+import nl.alexeyu.structmatcher.feedback.ExpectationBroken;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
@@ -29,18 +31,27 @@ public final class FeedbackPaths {
      * An empty (fully matching) tree yields an empty list.
      */
     public static List<String> brokenPaths(FeedbackNode root) {
-        var paths = new ArrayList<String>();
+        return brokenLeaves(root).stream().map(BrokenLeaf::path).collect(Collectors.toList());
+    }
+
+    /**
+     * Returns every broken leaf in the tree paired with its canonical path, in depth-first
+     * encounter order. Shared traversal behind {@link #brokenPaths} and {@link FeedbackQuery}; an
+     * empty (fully matching) tree yields an empty list.
+     */
+    static List<BrokenLeaf> brokenLeaves(FeedbackNode root) {
+        var leaves = new ArrayList<BrokenLeaf>();
         if (root.isEmpty()) {
-            return paths;
+            return leaves;
         }
         if (root instanceof CompositeFeedbackNode composite) {
             for (var child : composite.getChildren()) {
-                collect(child, "", composite.getProperty(), paths);
+                collect(child, "", composite.getProperty(), leaves);
             }
         } else {
-            paths.add(root.getProperty());
+            leaves.add(leaf(root.getProperty(), root));
         }
-        return paths;
+        return leaves;
     }
 
     /**
@@ -53,7 +64,7 @@ public final class FeedbackPaths {
     }
 
     private static void collect(FeedbackNode node, String parentPath, String parentName,
-            List<String> out) {
+            List<BrokenLeaf> out) {
         if (node.isEmpty()) {
             return;
         }
@@ -63,8 +74,13 @@ public final class FeedbackPaths {
                 collect(child, path, node.getProperty(), out);
             }
         } else {
-            out.add(path);
+            out.add(leaf(path, node));
         }
+    }
+
+    private static BrokenLeaf leaf(String path, FeedbackNode node) {
+        // A non-empty, non-composite node is always an ExpectationBroken (the only broken leaf).
+        return new BrokenLeaf(path, (ExpectationBroken) node);
     }
 
     private static String childPath(String parentPath, String parentName, String childProperty) {
