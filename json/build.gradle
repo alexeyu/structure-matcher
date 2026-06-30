@@ -1,5 +1,8 @@
 dependencies {
     api project(':core')
+    // The persistence/archive format reuses report's canonical-path extraction (BrokenLeaf /
+    // FeedbackQuery) internally; no report type appears in this module's public API.
+    implementation project(':report')
     api "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
     api "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
     api "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"

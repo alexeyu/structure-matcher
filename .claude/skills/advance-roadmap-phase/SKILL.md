@@ -36,5 +36,5 @@ individually-verified steps — never a big-bang change.
 - Update CLAUDE.md if architecture/module layout changed.
 - **Positioning honesty:** don't claim differentiation the library doesn't have
   (a structured POJO diff alone is commodity — JaVers/java-object-diff). The real
-  niche is tolerant + cross-field matching with a corpus report. See ROADMAP
+  niche is tolerant + cross-field matching with a batch report. See ROADMAP
   "Positioning".

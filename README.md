@@ -152,16 +152,84 @@ assertTrue(feedback.isEmpty()); // Correct for the given example
 ```
 Please note that only exceptions are defined. All the other properties are compared automatically, in a standard way. 
 
+### Beyond a single comparison: the batch report
+
+`match` returns a `FeedbackNode` tree, not a boolean — so a *batch* of comparisons can be rolled up
+to show **which fields systematically diverge**. That is the point when you validate two object
+streams for *equivalence at scale*: API v1-vs-v2 contract checks, data-pipeline regression,
+cross-system reconciliation — where you want a localized report, not a pass/fail.
+
+The `report` module (depends only on `core`, no extra runtime deps) aggregates many results into a
+`FeedbackSummary`:
+
+```java
+import nl.alexeyu.structmatcher.report.FeedbackAggregator;
+import nl.alexeyu.structmatcher.report.FeedbackSummary;
+
+var matcher = ObjectMatcher.forClass(BookSearchResult.class);
+FeedbackSummary summary = FeedbackAggregator.summarize(List.of(
+        matcher.match(baseline, mobileResponse),
+        matcher.match(baseline, productionResponse),
+        matcher.match(baseline, baseline)));
+
+summary.total();                              // 3
+summary.matched();                            // 1
+summary.mismatchRate();                       // 0.666…
+summary.failureCount("Metadata.Server.Ip");   // 2  (broke in 2 of the 3 comparisons)
+summary.failureRate("Metadata.Server.Ip");    // 0.666…
+summary.topMismatchingFields(2);              // [Metadata.ProcessingTimeMs, Metadata.Server.Ip]
+```
+
+A field is counted at most once per comparison, and collection indices collapse to a single field
+(`Books[0].Meta` and `Books[1].Meta` → `Books[].Meta`), so a rate reads as "the fraction of
+comparisons in which this field broke."
+
+To inspect one comparison, `FeedbackQuery` walks the tree down to its broken leaves — each carrying
+its path plus the expected and actual values:
+
+```java
+import nl.alexeyu.structmatcher.report.FeedbackQuery;
+
+var feedback = matcher.match(baseline, mobileResponse);
+FeedbackQuery.brokenLeaves(feedback);                       // every broken (path, expectation, value)
+FeedbackQuery.mismatchesUnder(feedback, "Metadata.Server"); // only the leaves under a given path
+```
+
+### Serializing and persisting feedback
+
+Two JSON shapes for two jobs, both in the `json` module (which adds Jackson):
+
+* **Human-readable rendering** — `Json.mapper()` serializes a `FeedbackNode` tree to nested,
+  property-keyed JSON, for reading or diffing a single comparison.
+* **Stable persistence format** — `FeedbackArchives` writes a flat, **versioned** archive
+  (`{schemaVersion, matched, brokenLeaves:[{path, expectation, value}]}`): the format to store and
+  reload. The reader rejects an unknown `schemaVersion` and ignores unknown fields (so additive
+  changes stay forward-compatible).
+
+Because the archive keeps each broken path, a persisted batch can be reloaded and aggregated
+**without re-running the comparisons** — feed the stored paths back through
+`FeedbackAggregator.addBrokenPaths`:
+
+```java
+String stored = FeedbackArchives.toJson(matcher.match(baseline, mobileResponse));
+// … later, in another process, after loading many such documents …
+var aggregator = new FeedbackAggregator();
+aggregator.addBrokenPaths(FeedbackArchives.fromJson(stored).brokenPaths());
+FeedbackSummary summary = aggregator.summary();
+```
+
+The full runnable scenario (aggregate, query, persist + reload) is `BatchReportTest` in the
+`examples` module.
+
 ### Pros and cons
 
 The library is: 
-* lightweight - no dependencies at all for the core module; json and examples modules depend on Jackson library.
+* lightweight - the `core` and `report` modules have no runtime dependencies at all; only `json` (and `examples`) depend on Jackson.
 * flexible - you can assign any matcher to any property of a composite object;
 * refactor-safe - matchers can be attached with typed accessor chains (`Server::ip`) checked by the compiler, not just dot-separated strings;
 * extensible - you can write your matchers, however two dozen of them are already available,
 covering many use cases.
-
-The result can be converted to JSON and stored to a file which will make comparison of thousands of objects easy to read or parse.
+* scalable - results aggregate into a batch report (`report` module) and persist to a stable, versioned JSON format (`json` module), so a stored batch reloads and rolls up without re-running the comparisons.
 
 Supported property shapes: primitive and other simple values, nested structures, Java `record`s, `List`, `Set`, `Map`, arrays (object and primitive), and `Optional`.
 

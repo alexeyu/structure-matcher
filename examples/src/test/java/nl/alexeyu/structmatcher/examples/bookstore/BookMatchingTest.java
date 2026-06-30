@@ -42,14 +42,14 @@ public class BookMatchingTest {
     public void structuralDifferencesCanBeMatchedByIndirectMatcher() {
         var oldVersion = new Book("Summer and Smoke",
                 Arrays.asList(new Author("Tenessee", "Williams")),
-                "Signet, 1961, Paperback, 127 pages");
+                "Signet, 1961, Paperback, 127 pages", null);
         var newVersion = new Book("Summer and Smoke",
-                Arrays.asList(new Author("Tenessee", "Williams")), "Paperback");
-        newVersion.setPublishingInfo(new PublishingInfo("Signet", 1961, 127));
+                Arrays.asList(new Author("Tenessee", "Williams")), "Paperback",
+                new PublishingInfo("Signet", 1961, 127));
 
         var publishingMatcher = new IndirectMatcher<Book, PublishingInfo>(
                 "Old, unstructured metadata to new, structured one", valuesEqual(),
-                new V1MetadataExtractor(), Book::getPublishingInfo);
+                new V1MetadataExtractor(), Book::publishingInfo);
 
         var feedback = ObjectMatcher.forClass(Book.class)
                 .withMatcher((p, e, a) -> Feedback.empty("PublishingInfo"), "PublishingInfo")
@@ -61,7 +61,7 @@ public class BookMatchingTest {
     private static class V1MetadataExtractor implements Function<Book, PublishingInfo> {
         @Override
         public PublishingInfo apply(Book book) {
-            var meta = book.getMeta().split(",");
+            var meta = book.meta().split(",");
             var pages = meta[3].trim();
             var numPages = Integer.valueOf(pages.split(" ")[0]);
             return new PublishingInfo(meta[0].trim(), Integer.valueOf(meta[1].trim()), numPages);

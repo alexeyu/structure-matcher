@@ -79,7 +79,31 @@ public class FeedbackAggregatorTest {
     }
 
     @Test
-    public void emptyCorpusYieldsZeroesAndNoDivisionByZero() {
+    public void aggregatesFromBrokenPathsLikeFromLiveTrees() {
+        // The reload path: same batch described by stored canonical paths instead of FeedbackNodes.
+        var summary = new FeedbackAggregator()
+                .addBrokenPaths(emptyList())
+                .addBrokenPaths(singletonList("Color"))
+                .addBrokenPaths(asList("Color", "Sub.Bool"))
+                .summary();
+        assertEquals(3, summary.total());
+        assertEquals(1, summary.matched());
+        assertEquals(2, summary.failureCount("Color"));
+        assertEquals(1, summary.failureCount("Sub.Bool"));
+    }
+
+    @Test
+    public void brokenPathsCollapseCollectionIndicesToOneFieldPerComparison() {
+        var summary = new FeedbackAggregator()
+                .addBrokenPaths(asList("Strings[0]", "Strings[1]"))
+                .summary();
+        assertEquals(1, summary.total());
+        assertEquals(1, summary.failureCount("Strings[]"));
+        assertEquals(1, summary.failuresByField().size());
+    }
+
+    @Test
+    public void emptyCollectionYieldsZeroesAndNoDivisionByZero() {
         var summary = FeedbackAggregator.summarize(emptyList());
         assertEquals(0, summary.total());
         assertEquals(0.0, summary.mismatchRate(), 1e-9);
