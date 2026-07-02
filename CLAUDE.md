@@ -20,7 +20,7 @@ Use the committed **Gradle wrapper** (`./gradlew`, Gradle 8.10.2). Java toolchai
 
 **Formatting:** light-touch Spotless (configured in the root `build.gradle`) — it orders imports (static, then `java`/third-party/`nl` groups), removes unused imports, trims trailing whitespace, and enforces a final newline. It does **not** reformat indentation or wrapping, so the existing 4-space style is preserved. (The source is currently wrapped at ~100 columns, but that is not enforced.) Run `./gradlew spotlessApply` before committing; `spotlessCheck` runs as part of `build` (so CI enforces it).
 
-Tests run on the **JUnit 5 Platform**, but the test sources are still JUnit 4 (`org.junit.Test`, one `@RunWith(Theories.class)`, Mockito's `MockitoJUnitRunner`) executed via the **JUnit Vintage engine**. Per-test migration to Jupiter is deferred (see ROADMAP Phase 0/1). Mockito is used in one test; `json-path` and (in `examples`) Jackson XML/JSON load fixtures.
+Tests are **JUnit 5 (Jupiter)** — `org.junit.jupiter.api.Test`/`Assertions`, `@BeforeEach`, `assertThrows` for expected exceptions. The suite was fully migrated off JUnit 4, so there is **no Vintage engine** (nor a `junit:junit` dependency). Special cases: `ContextAwareMatcherTest` uses `@ExtendWith(MockitoExtension.class)` (`mockito-junit-jupiter`); `WildcardPathCheckerTest` is a `@ParameterizedTest` with `@MethodSource`; `ResponseMatchingTest` uses Hamcrest's `MatcherAssert.assertThat`. `json-path` and (in `examples`) Jackson XML/JSON load fixtures. When adding a test, write Jupiter (`assertEquals`, `assertTrue`, `assertThrows`), not JUnit 4.
 
 ## Module layout
 

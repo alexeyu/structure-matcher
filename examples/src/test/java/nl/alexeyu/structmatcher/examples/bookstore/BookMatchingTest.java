@@ -2,13 +2,13 @@ package nl.alexeyu.structmatcher.examples.bookstore;
 
 import static nl.alexeyu.structmatcher.matcher.Matchers.valuesEqual;
 import static org.apache.commons.lang3.StringUtils.stripAccents;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.matcher.IndirectMatcher;

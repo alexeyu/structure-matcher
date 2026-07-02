@@ -1,13 +1,13 @@
 package nl.alexeyu.structmatcher.feedback;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -18,7 +18,7 @@ public class FeedbackTest {
 
     private ObjectMapper mapper;
 
-    @Before
+    @BeforeEach
     public void init() {
         mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
@@ -36,7 +36,7 @@ public class FeedbackTest {
         var feedback = Feedback.gotNull("color", "white");
         var json = mapper.writeValueAsString(feedback);
         assertEquals("color", JsonPath.read(json, "$.property"));
-        assertNull("null", JsonPath.read(json, "$.value"));
+        assertNull(JsonPath.read(json, "$.value"));
         assertEquals("white", JsonPath.read(json, "$.expectation"));
     }
 

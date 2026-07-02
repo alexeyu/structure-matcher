@@ -1,11 +1,11 @@
 package nl.alexeyu.structmatcher.report;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashSet;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 

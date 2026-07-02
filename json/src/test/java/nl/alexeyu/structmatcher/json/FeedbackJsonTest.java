@@ -1,11 +1,11 @@
 package nl.alexeyu.structmatcher.json;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -99,8 +99,8 @@ public class FeedbackJsonTest {
     @Test
     public void brokenLeafHasNoPropertyField() throws Exception {
         var node = mapper.readTree(json(Feedback.nonEqual("color", "white", "black")));
-        assertFalse("the 'property' name is carried by the composite key, not the leaf",
-                node.has("property"));
+        assertFalse(node.has("property"),
+                "the 'property' name is carried by the composite key, not the leaf");
         assertTrue(node.has("expectation"));
         assertTrue(node.has("value"));
     }

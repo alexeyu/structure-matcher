@@ -1,14 +1,14 @@
 package nl.alexeyu.structmatcher.examples.bookstore;
 
 import static nl.alexeyu.structmatcher.junit5.StructAssertions.assertMatches;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +28,7 @@ public class JUnitAssertionExampleTest {
 
     private BookSearchResult desktopTest, desktopProd, mobileTest;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         rootPath = Paths.get(JUnitAssertionExampleTest.class.getResource("/").toURI())
                 .resolve("../../../resources/test");
@@ -55,9 +55,9 @@ public class JUnitAssertionExampleTest {
 
         // The metadata is tolerated; only the genuine book-payload changes are reported.
         var message = error.getMessage();
-        assertTrue(message, message.contains("Books[0].Authors[0].FirstName"));
-        assertTrue(message, message.contains("Books[0].Meta"));
-        assertTrue(message, !message.contains("[Metadata")); // no tolerated metadata path
+        assertTrue(message.contains("Books[0].Authors[0].FirstName"), message);
+        assertTrue(message.contains("Books[0].Meta"), message);
+        assertTrue(!message.contains("[Metadata"), message); // no tolerated metadata path
 
         // Both responses ride along so a JUnit 5 IDE can render a comparison view.
         assertTrue(error.getExpected().getEphemeralValue() == desktopTest);

@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -26,7 +26,7 @@ public class AssertJExampleTest {
 
     private BookSearchResult desktopTest, desktopProd, mobileTest;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         rootPath = Paths.get(AssertJExampleTest.class.getResource("/").toURI())
                 .resolve("../../../resources/test");

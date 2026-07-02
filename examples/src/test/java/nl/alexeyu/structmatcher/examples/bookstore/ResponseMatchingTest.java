@@ -1,18 +1,18 @@
 package nl.alexeyu.structmatcher.examples.bookstore;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -40,7 +40,7 @@ public class ResponseMatchingTest {
 
     private BookSearchResult desktopTest, desktopProd, mobileTest;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         rootPath = Paths.get(ResponseMatchingTest.class.getResource("/").toURI())
                 .resolve("../../../resources/test");

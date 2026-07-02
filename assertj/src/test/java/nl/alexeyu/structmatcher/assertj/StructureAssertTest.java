@@ -5,7 +5,7 @@ import static nl.alexeyu.structmatcher.assertj.StructMatcherAssertions.assertTha
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import nl.alexeyu.structmatcher.matcher.Matchers;
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;

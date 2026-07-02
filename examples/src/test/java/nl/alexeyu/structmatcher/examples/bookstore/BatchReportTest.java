@@ -1,15 +1,15 @@
 package nl.alexeyu.structmatcher.examples.bookstore;
 
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -38,7 +38,7 @@ public class BatchReportTest {
 
     private BookSearchResult desktopTest, desktopProd, mobileTest;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         rootPath = Paths.get(BatchReportTest.class.getResource("/").toURI())
                 .resolve("../../../resources/test");

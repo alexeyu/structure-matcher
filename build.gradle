@@ -77,11 +77,9 @@ subprojects {
     }
 
     dependencies {
-        // JUnit 5 platform; the existing JUnit 4 tests run via the Vintage engine.
-        testImplementation 'junit:junit:4.13.2'
+        // JUnit 5 (Jupiter). The suite was fully migrated off JUnit 4, so no Vintage engine.
         testImplementation platform('org.junit:junit-bom:5.11.3')
         testImplementation 'org.junit.jupiter:junit-jupiter'
-        testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 

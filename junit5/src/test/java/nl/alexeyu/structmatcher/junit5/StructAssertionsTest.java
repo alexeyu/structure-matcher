@@ -2,11 +2,11 @@ package nl.alexeyu.structmatcher.junit5;
 
 import static java.util.Arrays.asList;
 import static nl.alexeyu.structmatcher.junit5.StructAssertions.assertMatches;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 import nl.alexeyu.structmatcher.matcher.Matchers;
@@ -39,10 +39,10 @@ public class StructAssertionsTest {
         assertEquals(actual, error.getActual().getEphemeralValue());
 
         var message = error.getMessage();
-        assertTrue(message, message.contains("3 field(s) did not match"));
-        assertTrue(message, message.contains("[Color] expected: <black> but was: <white>"));
-        assertTrue(message, message.contains("[Tags[0]] expected: <a> but was: <b>"));
-        assertTrue(message, message.contains("[Sub.Flag]"));
+        assertTrue(message.contains("3 field(s) did not match"), message);
+        assertTrue(message.contains("[Color] expected: <black> but was: <white>"), message);
+        assertTrue(message.contains("[Tags[0]] expected: <a> but was: <b>"), message);
+        assertTrue(message.contains("[Sub.Flag]"), message);
     }
 
     @Test

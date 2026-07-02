@@ -23,8 +23,9 @@ individually-verified steps — never a big-bang change.
 3. `./gradlew spotlessApply` before finishing.
 
 ## Tests
-- JUnit 4 sources run via the JUnit 5 Vintage engine; mirror existing style
-  (org.junit.Test, assertEquals/assertTrue).
+- Tests are JUnit 5 (Jupiter): `org.junit.jupiter.api.Test`/`Assertions`,
+  `@BeforeEach`, `assertThrows` for expected exceptions, `@ParameterizedTest` +
+  `@MethodSource` for data-driven; Mockito via `@ExtendWith(MockitoExtension.class)`.
 - Unit-test tree logic with hand-built `Feedback.*` trees; add **one** live
   `ObjectMatcher.forClass(...).match(...)` end-to-end test to pin real naming.
 - A module's tests can't see another module's test fixtures — add a small local

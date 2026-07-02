@@ -1,12 +1,13 @@
 package nl.alexeyu.structmatcher.property;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PropertyPathPatternTest {
 
@@ -15,14 +16,14 @@ public class PropertyPathPatternTest {
         assertTrue(new PropertyPathPattern().isEmpty());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void cannotGetHeadOfEmptyPath() {
-        new PropertyPathPattern().head();
+        assertThrows(IllegalStateException.class, () -> new PropertyPathPattern().head());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void cannotGetTailOfEmptyPath() {
-        new PropertyPathPattern().tail();
+        assertThrows(IllegalStateException.class, () -> new PropertyPathPattern().tail());
     }
 
     @Test

@@ -1,9 +1,10 @@
 package nl.alexeyu.structmatcher.matcher;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import nl.alexeyu.structmatcher.feedback.ExpectationBroken;
 
@@ -11,9 +12,10 @@ public class IntegerMatcherTest {
 
     private Matcher<Object> matcher = IntegerMatchers.any();
 
-    @Test(expected = BrokenSpecificationException.class)
+    @Test
     public void throwsExceptionIfExpectedIsNotAnInt() {
-        matcher.match("test", "whatever", "whatever");
+        assertThrows(BrokenSpecificationException.class,
+                () -> matcher.match("test", "whatever", "whatever"));
     }
 
     @Test

@@ -2,10 +2,10 @@ package nl.alexeyu.structmatcher.matcher;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 
@@ -17,7 +17,7 @@ public class DefaultMatchingStackTest {
 
     private Matcher<Object> fallbackMatcher = Matchers.anyValue();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         context = new DefaultMatchingStack(new Object(), new Object(),
                 singletonMap(new PropertyPathPattern(asList("a", "b")), customMatcher));

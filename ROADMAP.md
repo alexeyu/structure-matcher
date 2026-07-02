@@ -57,10 +57,10 @@ toolchain. Cosmetic for users, but a hard prerequisite.
       incompatible sonarqube 2.5 plugin.
 - [x] Bump Jackson (2.10.1 → 2.18.1) and Mockito (`mockito-all:1.10.19` →
       `mockito-core:5.14.2`, runner import updated).
-- [~] JUnit: now runs on the **JUnit 5 Platform via the Vintage engine** (test
-      sources are still JUnit 4). Full per-test migration to Jupiter is deferred —
-      it's test-quality cleanup, not a build blocker. The one `@RunWith(Theories)`
-      test needs conversion to `@ParameterizedTest` when migrated.
+- [x] JUnit: runs on the **JUnit 5 Platform**. Initially via the Vintage engine
+      (test sources were still JUnit 4); the full per-test migration to Jupiter (incl.
+      the `@RunWith(Theories)` → `@ParameterizedTest` conversion) landed later under the
+      Phase 4 pre-publish release gate, and the Vintage engine was then dropped.
 - [x] Java baseline set to **17 LTS** (toolchain). Bumping to 21 is a one-line
       change if/when desired.
 - [x] CI: GitHub Actions workflow (`.github/workflows/build.yml`) runs
@@ -315,17 +315,23 @@ permanent once on Central, so tighten the surface first.
       Wired `testImplementation project(':assertj' / ':junit5')` (AssertJ / opentest4j arrive
       transitively as their `api` deps). **Note:** the example models were *already* records,
       so the record-showcase follow-up under the README item is effectively done.
-- [ ] **Migrate the test suite from JUnit 4 to JUnit 5 (Jupiter).** Confirmed: *all* 34
-      test classes are still JUnit 4 run via the Vintage engine — zero Jupiter tests.
-      Convert `org.junit.Test`→`org.junit.jupiter.api.Test`,
-      `org.junit.Assert.*`→`org.junit.jupiter.api.Assertions.*` (arg order flips on the
-      message overload), and handle the two special runners: `ContextAwareMatcherTest`
-      uses `@RunWith(MockitoJUnitRunner.class)` → `@ExtendWith(MockitoExtension.class)`
-      (add `mockito-junit-jupiter`), and `WildcardPathCheckerTest` uses
-      `@RunWith(Theories.class)` → `@ParameterizedTest` (the Phase 0 note flagged this
-      one). Do it module-by-module (verify each with `:module:test`), then drop the
-      `junit-vintage-engine` runtime dependency once nothing needs it. This is the
-      long-deferred cleanup from Phase 0 / Phase 5.
+- [x] **Migrate the test suite from JUnit 4 to JUnit 5 (Jupiter).** Done — all test
+      classes across all six modules now run on Jupiter; the `junit-vintage-engine` and
+      `junit:junit:4.13.2` dependencies are dropped from the root `build.gradle`. Bulk
+      conversions: `org.junit.Test`→`org.junit.jupiter.api.Test`,
+      `@Before`→`@BeforeEach`, `org.junit.Assert.*`→`org.junit.jupiter.api.Assertions.*`
+      (with the message-argument flip on the ~6 message-carrying asserts, e.g.
+      `assertTrue(msg, cond)`→`assertTrue(cond, msg)`), and `org.junit.Assert.assertThat`
+      (deprecated) → `org.hamcrest.MatcherAssert.assertThat` in `ResponseMatchingTest`.
+      Special cases: five `@Test(expected = X.class)` → `assertThrows` (IntegerMatcherTest,
+      PropertyPathTest ×2, PropertyPathPatternTest ×2); `ContextAwareMatcherTest`
+      `@RunWith(MockitoJUnitRunner.class)` → `@ExtendWith(MockitoExtension.class)` (added
+      `mockito-junit-jupiter:5.14.2`, strict stubs pass unchanged); `WildcardPathCheckerTest`
+      `@RunWith(Theories.class)` / `@Theory` / `@DataPoints` → `@ParameterizedTest` +
+      `@MethodSource` (the data-point arrays become method sources — now 15 individually
+      reported cases). Migrated module-by-module (both engines coexisted during the pass),
+      each verified with `:<module>:test`; final `clean build` green: **218 tests, 0
+      failures**. This closes the long-deferred Phase 0 `[~]` JUnit item.
 - [ ] **Critical code & comment polish pass.** Re-read the whole surface with fresh
       eyes now that six modules exist: public-API javadoc completeness and honesty,
       dead/duplicated code (e.g. the near-identical broken-leaf message formatting now
