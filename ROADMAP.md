@@ -277,7 +277,26 @@ Meet people where they already are.
       null rejection) against a local record model. **Follow-up:** no soft-assertion
       / `assertSoftly` integration yet, and no navigation back into AssertJ (returns
       `this` for chaining but doesn't expose sub-field asserts).
-- [ ] JUnit 5 extension / assertion helpers.
+- [x] JUnit 5 assertion helpers. New **`junit5` module**
+      (`nl.alexeyu.structmatcher.junit5`, `api project(':core')` + `api opentest4j` +
+      `implementation project(':report')`) — a sibling consumer of the tree, no AssertJ
+      dependency, for the audience on plain JUnit assertions. `StructAssertions`
+      (static): `assertMatches(expected, actual)` (default per-field equality — infers
+      the class from the first non-null of the two; two nulls are trivially equivalent)
+      and `assertMatches(expected, actual, spec)` (a caller-configured `ObjectMatcher`).
+      On mismatch it throws opentest4j's `AssertionFailedError` carrying the two objects
+      as expected/actual (so a JUnit 5 IDE offers its comparison view) and a message
+      listing each broken `FeedbackQuery.brokenLeaves` path with its expected/actual
+      value. `AssertionFailedError` is JUnit 5's assertion foundation but engine-agnostic,
+      so the helpers work under JUnit 5 or 4 (the module's own tests are JUnit 4 via
+      Vintage, per repo convention). Tests: `StructAssertionsTest` (pass, throw-with-
+      expected/actual-and-diff, spec loosening, two-nulls) against a local record model.
+      **Deviations/notes:** descoped a Jupiter `@ExtendWith` *extension* (parameter
+      resolver / lifecycle hook) — the static helpers cover the assertion use case with
+      no engine coupling; add an extension on demand. opentest4j's `ValueWrapper.getValue()`
+      only retains `Serializable` values, so for non-serializable models the objects ride
+      on `getEphemeralValue()` + a string representation (what the IDE renders) — the
+      test asserts via `getEphemeralValue()`.
 - [ ] Publish to Maven Central (the `nl.alexeyu.structmatcher` group is already set).
 - [~] README rewrite around the **corrected** positioning (see "Positioning" above):
       claim the *narrow, true* niche — "equivalence validation at scale with a

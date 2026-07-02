@@ -1,0 +1,12 @@
+dependencies {
+    // core's ObjectMatcher/FeedbackNode appear in this module's public API (the assertion takes a
+    // spec and matches with it), so they are exposed transitively.
+    api project(':core')
+    // opentest4j's AssertionFailedError is thrown by the helpers (carrying expected/actual so the
+    // IDE shows a comparison view), so it is part of the API. It is JUnit 5's assertion foundation
+    // but engine-agnostic — the helpers work under JUnit 5 or 4.
+    api 'org.opentest4j:opentest4j:1.3.0'
+    // The failure message reuses report's canonical-path extraction (FeedbackQuery/BrokenLeaf)
+    // internally; no report type appears in this module's public API.
+    implementation project(':report')
+}

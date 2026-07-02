@@ -1,1 +1,1 @@
-include "core","json","report","assertj","examples"
+include "core","json","report","assertj","junit5","examples"
