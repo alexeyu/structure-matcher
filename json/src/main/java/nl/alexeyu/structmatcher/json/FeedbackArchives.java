@@ -10,15 +10,15 @@ import nl.alexeyu.structmatcher.report.FeedbackQuery;
 
 /**
  * Reads and writes the stable, versioned {@link FeedbackArchive persistence format} for a
- * comparison's feedback. This is the format to <em>store</em> (one comparison per document) and load
- * back to aggregate/query a batch — distinct from {@link Json#mapper()}, which renders the nested
- * tree for humans.
+ * comparison's feedback. This is the format to <em>store</em> (one comparison per document) and
+ * load back to aggregate/query a batch — distinct from {@link Json#mapper()}, which renders the
+ * nested tree for humans.
  *
  * <p>
  * The mapper is configured for forward compatibility: unknown JSON properties are ignored, so a
- * document written by a newer minor revision (extra fields, same {@link #CURRENT_SCHEMA_VERSION})
- * still parses. A document whose {@code schemaVersion} this build does not understand is rejected by
- * {@link #fromJson} rather than silently mis-read.
+ * document written by a newer minor revision (extra fields, same
+ * {@link #CURRENT_SCHEMA_VERSION}) still parses. A document whose {@code schemaVersion} this build
+ * does not understand is rejected by {@link #fromJson} rather than silently mis-read.
  */
 public final class FeedbackArchives {
 
@@ -28,13 +28,13 @@ public final class FeedbackArchives {
      * additive, backward-compatible changes do not require a bump.
      *
      * <p>
-     * <strong>Bumping is not free.</strong> {@link #fromJson} accepts only this exact version, so
-     * the moment this constant becomes {@code 2} every document already persisted at version 1 stops
-     * parsing. The version field marks <em>which</em> schema produced a document; it does not by
-     * itself teach the reader how to read an older one. So whoever raises this must, in the same
-     * change, add read support for the prior version(s) — branch in {@link #fromJson} on the parsed
-     * {@code schemaVersion}, or migrate the old shape forward before constructing the record —
-     * otherwise older corpora become unreadable.
+     * <strong>Bumping is not free.</strong> {@link #fromJson} accepts only this exact version,
+     * so the moment this constant becomes {@code 2} every document already persisted at version 1
+     * stops parsing. The version field marks <em>which</em> schema produced a document; it does
+     * not by itself teach the reader how to read an older one. So whoever raises this must, in the
+     * same change, add read support for the prior version(s) — branch in {@link #fromJson} on the
+     * parsed {@code schemaVersion}, or migrate the old shape forward before constructing the
+     * record — otherwise older corpora become unreadable.
      */
     public static final int CURRENT_SCHEMA_VERSION = 1;
 

@@ -7,8 +7,8 @@ import java.lang.reflect.Method;
  * Derives the property name a {@link PropertyRef} points at, so a method reference yields the same
  * name a string path would. The implementing accessor is recovered from the lambda's synthetic
  * {@code writeReplace} method (which returns a {@link SerializedLambda}), then the existing
- * {@link ClassProperty} naming rules are applied — getters get their {@code get}/{@code is} prefix
- * stripped, record components are capitalized as-is.
+ * {@link ClassProperty} naming rules are applied — getters get their {@code get}/{@code is}
+ * prefix stripped, record components are capitalized as-is.
  */
 public final class PropertyRefs {
 
@@ -20,8 +20,8 @@ public final class PropertyRefs {
      * {@code Server::ip} (a record accessor) both yield {@code "Ip"}.
      *
      * @throws IllegalArgumentException
-     *             if the reference is not a direct accessor reference (e.g. an inline lambda) or the
-     *             accessor cannot be resolved.
+     *             if the reference is not a direct accessor reference (e.g. an inline lambda) or
+     *             the accessor cannot be resolved.
      */
     public static <T, R> String nameOf(PropertyRef<T, R> ref) {
         var lambda = serializedLambda(ref);

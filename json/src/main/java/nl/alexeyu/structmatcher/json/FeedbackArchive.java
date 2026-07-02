@@ -3,9 +3,9 @@ package nl.alexeyu.structmatcher.json;
 import java.util.List;
 
 /**
- * The stable, versioned persistence shape of a single comparison's feedback — the format you store
- * to disk/DB and load back to aggregate or query across a batch. Treat it as an API: the field
- * names and {@code schemaVersion} are a contract.
+ * The stable, versioned persistence shape of a single comparison's feedback — the format you
+ * store to disk/DB and load back to aggregate or query across a batch. Treat it as an API: the
+ * field names and {@code schemaVersion} are a contract.
  *
  * <p>
  * It is deliberately <em>flat</em> rather than the nested tree of {@link Json#mapper()}: a
@@ -15,7 +15,8 @@ import java.util.List;
  * {@code brokenLeaves} list. Produced and parsed by {@link FeedbackArchives}.
  *
  * @param schemaVersion
- *            the format version this document conforms to; see {@link FeedbackArchives#CURRENT_SCHEMA_VERSION}.
+ *            the format version this document conforms to; see
+ *            {@link FeedbackArchives#CURRENT_SCHEMA_VERSION}.
  * @param matched
  *            {@code true} iff the comparison fully matched (equivalently, {@code brokenLeaves} is
  *            empty).

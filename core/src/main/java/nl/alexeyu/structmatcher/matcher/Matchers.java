@@ -197,7 +197,8 @@ public final class Matchers {
      * then delegates matching to a given matcher. <i>Example:</i>
      *
      * <pre>
-     * Matchers.<String>normalizing(name -> name.trim(), Matchers.valuesEqual()).match("name", "Alex", " Alex "));
+     * Matchers.<String>normalizing(name -> name.trim(), Matchers.valuesEqual())
+     *         .match("name", "Alex", " Alex "));
      * // Produces an empty feedback.
      * </pre>
      *

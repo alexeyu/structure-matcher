@@ -107,7 +107,8 @@ public class ResponseMatchingTest {
     @Test
     public void typedAndStringPathsRegisterTheSameMatcher() throws Exception {
         // The typed accessor chain and the dotted string resolve to the identical path, so the
-        // serialized feedback is byte-for-byte the same regardless of how the matcher is registered.
+        // serialized feedback is byte-for-byte the same regardless of how the matcher is
+        // registered.
         var viaTyped = ObjectMatcher.forClass(BookSearchResult.class)
                 .with(ipMatcher, BookSearchResult::metadata, SearchMetadata::server, Server::ip)
                 .match(desktopTest, desktopProd);

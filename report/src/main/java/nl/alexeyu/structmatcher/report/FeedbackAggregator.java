@@ -12,13 +12,15 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
  * Accumulates the results of many comparisons into a {@link FeedbackSummary}. Feed it the
  * {@link FeedbackNode} returned by each comparison via {@link #add} (or {@link #addAll}); call
  * {@link #summary()} for a snapshot at any point. For a one-shot summary of a collection use the
- * static {@link #summarize}. To aggregate a batch that was persisted and reloaded (where the live
- * tree is no longer in hand), feed each comparison's stored broken paths to {@link #addBrokenPaths}.
+ * static {@link #summarize}. To aggregate a batch that was persisted and reloaded (where the
+ * live tree is no longer in hand), feed each comparison's stored broken paths to
+ * {@link #addBrokenPaths}.
  *
  * <p>
- * Each comparison contributes at most one tally per {@link FeedbackPaths#toFieldPath field}, even if
- * that field broke at several collection indices, so the resulting rates are per-comparison. Not
- * thread-safe; aggregate from a single thread (or one aggregator per thread, then sum offline).
+ * Each comparison contributes at most one tally per {@link FeedbackPaths#toFieldPath field},
+ * even if that field broke at several collection indices, so the resulting rates are
+ * per-comparison. Not thread-safe; aggregate from a single thread (or one aggregator per thread,
+ * then sum offline).
  */
 public final class FeedbackAggregator {
 
@@ -34,10 +36,10 @@ public final class FeedbackAggregator {
     }
 
     /**
-     * Adds one comparison described directly by the canonical paths at which it broke, rather than a
-     * live {@link FeedbackNode}. This is the reload path: feed it the paths persisted in a report
-     * archive (e.g. {@code FeedbackArchive.brokenPaths()} from the {@code json} module) so a batch
-     * stored to disk can be aggregated without rebuilding the feedback tree. An empty collection
+     * Adds one comparison described directly by the canonical paths at which it broke, rather
+     * than a live {@link FeedbackNode}. This is the reload path: feed it the paths persisted in a
+     * report archive (e.g. {@code FeedbackArchive.brokenPaths()} from the {@code json} module) so
+     * a batch stored to disk can be aggregated without rebuilding the feedback tree. An empty
      * counts as a fully matched comparison; otherwise the paths are normalized to
      * {@link FeedbackPaths#toFieldPath fields} and each field is tallied at most once. Returns
      * {@code this} for chaining.

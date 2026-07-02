@@ -80,8 +80,8 @@ public class ObjectMatcher<T> {
      *            <code>TimeZone::getRawOffset</code>, the code would look like:
      *
      *            <pre>
-     *                                ObjectMapper.forClass(Calendar.class)
-     *                                      .withMatcher(<a custom matcher>, "TimeZone", "RawOffset");
+     * ObjectMapper.forClass(Calendar.class)
+     *         .withMatcher(<a custom matcher>, "TimeZone", "RawOffset");
      *            </pre>
      *
      * @return the same instance of the <code>ObjectMatcher</code>, ready to be set up further
@@ -125,15 +125,16 @@ public class ObjectMatcher<T> {
      *
      * <pre>
      * ObjectMatcher.forClass(BookSearchResult.class)
-     *     .with(urlMatcher, BookSearchResult::getMetadata, SearchMetadata::getServer, Server::getIp);
+     *     .with(urlMatcher, BookSearchResult::getMetadata,
+     *             SearchMetadata::getServer, Server::getIp);
      * </pre>
      *
-     * The resulting path is identical to the equivalent string path (property names are capitalized
-     * the same way), so typed and {@code "Dot.Separated"} registrations are interchangeable and both
-     * honour wildcard string paths registered elsewhere.
+     * The resulting path is identical to the equivalent string path (property names are
+     * capitalized the same way), so typed and {@code "Dot.Separated"} registrations are
+     * interchangeable and both honour wildcard string paths registered elsewhere.
      *
-     * @return the same instance of the <code>ObjectMatcher</code>, ready to be set up further and/or
-     *         executed.
+     * @return the same instance of the <code>ObjectMatcher</code>, ready to be set up further
+     *         and/or executed.
      */
     public <A> ObjectMatcher<T> with(Matcher<?> matcher, PropertyRef<? super T, A> p1) {
         return withRefs(matcher, p1);
@@ -153,7 +154,8 @@ public class ObjectMatcher<T> {
 
     /** Four-step typed path. @see #with(Matcher, PropertyRef) */
     public <A, B, C, D> ObjectMatcher<T> with(Matcher<?> matcher, PropertyRef<? super T, A> p1,
-            PropertyRef<? super A, B> p2, PropertyRef<? super B, C> p3, PropertyRef<? super C, D> p4) {
+            PropertyRef<? super A, B> p2, PropertyRef<? super B, C> p3,
+            PropertyRef<? super C, D> p4) {
         return withRefs(matcher, p1, p2, p3, p4);
     }
 

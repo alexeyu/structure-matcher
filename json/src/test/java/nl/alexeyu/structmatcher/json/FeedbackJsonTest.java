@@ -14,8 +14,9 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
  * Characterization tests pinning the exact JSON that {@link Json#mapper()} produces for feedback
- * trees. These exist to make any change to the serialized output a conscious decision — they guard
- * the shape across refactorings such as the move of the feedback value types to {@code record}s,
+ * trees. These exist to make any change to the serialized output a conscious decision — they
+ * guard the shape across refactorings such as the move of the feedback value types to
+ * {@code record}s,
  * which alters how Jackson discovers their properties.
  */
 public class FeedbackJsonTest {

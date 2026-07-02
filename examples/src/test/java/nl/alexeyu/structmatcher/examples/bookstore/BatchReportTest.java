@@ -25,8 +25,8 @@ import nl.alexeyu.structmatcher.report.FeedbackSummary;
 /**
  * The batch / "report is the product" scenario: instead of matching one pair, run many comparisons
  * against a baseline and roll the feedback up to see <em>which fields systematically diverge</em>.
- * Uses the same bookstore fixtures as {@link ResponseMatchingTest} — one v1 desktop baseline checked
- * against a v2 mobile response, the v1 production XML, and itself — with the default (raw
+ * Uses the same bookstore fixtures as {@link ResponseMatchingTest} — one v1 desktop baseline
+ * checked against a v2 mobile response, the v1 production XML, and itself — with the default (raw
  * equivalence) rules so real divergence surfaces. Demonstrates the {@code report} module
  * ({@link FeedbackAggregator}, {@link FeedbackQuery}) and the {@code json} persistence format
  * ({@link FeedbackArchives}).
@@ -51,7 +51,9 @@ public class BatchReportTest {
         return mapper.readValue(rootPath.resolve(fileName).toFile(), BookSearchResult.class);
     }
 
-    /** The baseline checked against each actual response in the batch (raw equivalence, no rules). */
+    /**
+     * The baseline checked against each actual response in the batch (raw equivalence, no rules).
+     */
     private List<FeedbackNode> batch() {
         var matcher = ObjectMatcher.forClass(BookSearchResult.class);
         return List.of(matcher.match(desktopTest, mobileTest),
@@ -80,7 +82,8 @@ public class BatchReportTest {
 
     @Test
     public void querySingleComparisonForTheLeavesUnderAPath() {
-        var feedback = ObjectMatcher.forClass(BookSearchResult.class).match(desktopTest, mobileTest);
+        var feedback =
+                ObjectMatcher.forClass(BookSearchResult.class).match(desktopTest, mobileTest);
 
         // "What broke under the server?" — the IP diverges, the port matches (both 8080).
         List<BrokenLeaf> underServer = FeedbackQuery.mismatchesUnder(feedback, "Metadata.Server");
@@ -97,7 +100,8 @@ public class BatchReportTest {
         var comparisons = batch();
 
         // Store each comparison as archive JSON (what you would write to disk / a DB).
-        List<String> persisted = comparisons.stream().map(FeedbackArchives::toJson).collect(toList());
+        List<String> persisted =
+                comparisons.stream().map(FeedbackArchives::toJson).collect(toList());
 
         // Later, in another process: reload and aggregate without the original feedback trees.
         var aggregator = new FeedbackAggregator();

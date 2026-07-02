@@ -18,9 +18,10 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 
 /**
- * Pins the stable persistence format produced by {@link FeedbackArchives}: that a comparison's feedback
- * survives a write/read round-trip, that the format carries a {@code schemaVersion}, and that the
- * reader is strict about versions it cannot understand yet tolerant of additive (unknown) fields.
+ * Pins the stable persistence format produced by {@link FeedbackArchives}: that a comparison's
+ * feedback survives a write/read round-trip, that the format carries a {@code schemaVersion}, and
+ * that the reader is strict about versions it cannot understand yet tolerant of additive (unknown)
+ * fields.
  */
 public class FeedbackArchivesTest {
 
@@ -56,7 +57,8 @@ public class FeedbackArchivesTest {
     @Test
     public void rejectsAnUnsupportedSchemaVersion() {
         var future = "{ \"schemaVersion\": 999, \"matched\": false, \"brokenLeaves\": [] }";
-        var ex = assertThrows(IllegalArgumentException.class, () -> FeedbackArchives.fromJson(future));
+        var ex = assertThrows(IllegalArgumentException.class,
+                () -> FeedbackArchives.fromJson(future));
         assertTrue(ex.getMessage().contains("999"));
     }
 

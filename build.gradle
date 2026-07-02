@@ -25,6 +25,35 @@ subprojects {
         }
     }
 
+    // Enforce a 100-character line limit. Spotless is intentionally light-touch and does not
+    // rewrap, so this is a check-only guard (it fails the build, it does not fix). Wired into
+    // `check`, so it runs as part of `build` / CI. Counts characters, not bytes.
+    def maxLineLength = 100
+    tasks.register('checkLineLength') {
+        group = 'verification'
+        description = "Fails if any Java source line exceeds ${maxLineLength} characters."
+        def javaSources = sourceSets.collect { it.allJava }
+        inputs.files(javaSources)
+        doLast {
+            def violations = []
+            javaSources.each { tree ->
+                tree.each { file ->
+                    file.eachLine('UTF-8') { line, number ->
+                        if (line.length() > maxLineLength) {
+                            violations << "${file}:${number}: ${line.length()} chars"
+                        }
+                    }
+                }
+            }
+            if (!violations.isEmpty()) {
+                throw new GradleException("Lines exceeding ${maxLineLength} characters:\n  "
+                        + violations.join('\n  '))
+            }
+        }
+    }
+    tasks.named('check').configure { dependsOn 'checkLineLength' }
+    tasks.named('test').configure { dependsOn 'checkLineLength' }
+
     group = 'nl.alexeyu.structmatcher'
     version = '1.1-SNAPSHOT'
 

@@ -42,7 +42,8 @@ public final class FeedbackQuery {
     }
 
     private static boolean isUnder(String path, String prefix) {
-        return path.equals(prefix) || path.startsWith(prefix + ".") || path.startsWith(prefix + "[");
+        return path.equals(prefix) || path.startsWith(prefix + ".")
+                || path.startsWith(prefix + "[");
     }
 
 }

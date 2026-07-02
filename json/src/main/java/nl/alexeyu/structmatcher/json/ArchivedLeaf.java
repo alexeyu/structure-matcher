@@ -9,7 +9,8 @@ package nl.alexeyu.structmatcher.json;
  * <p>
  * {@code expectation} and {@code value} are persisted as whatever JSON their runtime values map to;
  * on read-back they come back as their JSON-native form (string / number / boolean / null / list /
- * object), not necessarily the original Java types. The archive round-trips the JSON, not the types.
+ * object), not necessarily the original Java types. The archive round-trips the JSON, not the
+ * types.
  *
  * @param path
  *            the canonical, registration-style path to the broken leaf, e.g.
