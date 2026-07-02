@@ -2,7 +2,6 @@ package nl.alexeyu.structmatcher.report;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
@@ -28,7 +27,7 @@ public final class FeedbackQuery {
 
     /** The broken leaves matching the predicate, in depth-first order. */
     public static List<BrokenLeaf> find(FeedbackNode root, Predicate<BrokenLeaf> predicate) {
-        return brokenLeaves(root).stream().filter(predicate).collect(Collectors.toList());
+        return brokenLeaves(root).stream().filter(predicate).toList();
     }
 
     /**

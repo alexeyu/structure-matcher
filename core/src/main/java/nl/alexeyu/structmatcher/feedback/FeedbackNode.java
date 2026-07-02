@@ -5,7 +5,8 @@ package nl.alexeyu.structmatcher.feedback;
  * (e.g. it should be equal to some base value). A node is empty if this expectation was fulfilled
  * and is non-empty otherwise.
  */
-public interface FeedbackNode {
+public sealed interface FeedbackNode
+        permits CompositeFeedbackNode, ExpectationBroken, ExpectationMet {
 
     String getProperty();
 

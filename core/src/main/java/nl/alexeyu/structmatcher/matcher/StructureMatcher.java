@@ -1,7 +1,5 @@
 package nl.alexeyu.structmatcher.matcher;
 
-import java.util.stream.Collectors;
-
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.property.ClassProperty;
@@ -15,8 +13,7 @@ final class StructureMatcher<V> implements Matcher<V> {
     @Override
     public FeedbackNode match(String name, V expected, V actual) {
         var feedbackSubnodes = ClassProperty.forClass(expected.getClass())
-                .map(p -> matchProperty(p, expected, actual)).filter(f -> !f.isEmpty())
-                .collect(Collectors.toList());
+                .map(p -> matchProperty(p, expected, actual)).filter(f -> !f.isEmpty()).toList();
         return Feedback.composite(name, feedbackSubnodes);
     }
 

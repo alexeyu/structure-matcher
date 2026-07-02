@@ -80,7 +80,7 @@ public final class FeedbackSummary {
 
     /** The {@code limit} most frequently failing fields, most-failing first. */
     public List<String> topMismatchingFields(int limit) {
-        return failuresByField.keySet().stream().limit(limit).collect(Collectors.toList());
+        return failuresByField.keySet().stream().limit(limit).toList();
     }
 
     private double rate(int count) {

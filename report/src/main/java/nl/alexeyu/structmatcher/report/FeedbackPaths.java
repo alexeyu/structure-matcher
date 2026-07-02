@@ -2,7 +2,6 @@ package nl.alexeyu.structmatcher.report;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
 import nl.alexeyu.structmatcher.feedback.ExpectationBroken;
@@ -31,7 +30,7 @@ public final class FeedbackPaths {
      * An empty (fully matching) tree yields an empty list.
      */
     public static List<String> brokenPaths(FeedbackNode root) {
-        return brokenLeaves(root).stream().map(BrokenLeaf::path).collect(Collectors.toList());
+        return brokenLeaves(root).stream().map(BrokenLeaf::path).toList();
     }
 
     /**

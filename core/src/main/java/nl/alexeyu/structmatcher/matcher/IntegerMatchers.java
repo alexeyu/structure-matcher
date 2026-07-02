@@ -12,7 +12,7 @@ import java.util.function.Function;
  */
 public final class IntegerMatchers {
 
-    private static final ToInteger TO_INT = new ToInteger();
+    private static final Function<Object, Optional<Integer>> TO_INT = IntegerMatchers::toInt;
 
     private IntegerMatchers() {
     }
@@ -125,16 +125,8 @@ public final class IntegerMatchers {
                 String.format("One of the following values: %s", possibleValuesList));
     }
 
-    private static class Within implements Function<Optional<Integer>, Boolean> {
-
-        private final int minExclusive;
-
-        private final int maxExclusive;
-
-        public Within(int minExclusive, int maxExclusive) {
-            this.minExclusive = minExclusive;
-            this.maxExclusive = maxExclusive;
-        }
+    private record Within(int minExclusive, int maxExclusive)
+            implements Function<Optional<Integer>, Boolean> {
 
         @Override
         public Boolean apply(Optional<Integer> t) {
@@ -143,12 +135,11 @@ public final class IntegerMatchers {
 
     }
 
-    private static class OneOf implements Function<Optional<Integer>, Boolean> {
+    private record OneOf(Set<Integer> possibleValues)
+            implements Function<Optional<Integer>, Boolean> {
 
-        private final Set<Integer> possibleValues;
-
-        public OneOf(Collection<Integer> possibleValues) {
-            this.possibleValues = new HashSet<>(possibleValues);
+        OneOf(Collection<Integer> possibleValues) {
+            this(new HashSet<>(possibleValues));
         }
 
         @Override
@@ -158,17 +149,12 @@ public final class IntegerMatchers {
 
     }
 
-    private static class ToInteger implements Function<Object, Optional<Integer>> {
-
-        @Override
-        public Optional<Integer> apply(Object t) {
-            try {
-                return Optional.of(Integer.valueOf(String.valueOf(t)));
-            } catch (NumberFormatException ex) {
-                return Optional.empty();
-            }
+    private static Optional<Integer> toInt(Object t) {
+        try {
+            return Optional.of(Integer.valueOf(String.valueOf(t)));
+        } catch (NumberFormatException ex) {
+            return Optional.empty();
         }
-
     }
 
 }
