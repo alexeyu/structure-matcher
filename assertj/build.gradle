@@ -1,0 +1,10 @@
+dependencies {
+    // core's ObjectMatcher/FeedbackNode appear in this module's public API (the assertion takes a
+    // spec and matches with it), so they are exposed transitively.
+    api project(':core')
+    // AssertJ's AbstractAssert is the base class of StructureAssert, so it is part of the API.
+    api 'org.assertj:assertj-core:3.26.3'
+    // The failure message reuses report's canonical-path extraction (FeedbackQuery/BrokenLeaf)
+    // internally; no report type appears in this module's public API.
+    implementation project(':report')
+}

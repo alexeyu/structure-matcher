@@ -259,9 +259,24 @@ one-liner.
 
 Meet people where they already are.
 
-- [ ] AssertJ bridge: `assertThat(actual).matchesStructure(expected, spec)` so the
+- [x] AssertJ bridge: `assertThat(actual).matchesStructure(expected, spec)` so the
       tree can be used *inside* existing test suites (fail the test, but print the
-      structured diff).
+      structured diff). New **`assertj` module** (`nl.alexeyu.structmatcher.assertj`,
+      `api project(':core')` + `api assertj-core` + `implementation project(':report')`
+      for the message) — a sibling consumer of the tree, like `json`/`report`, so core
+      stays zero-dep. `StructMatcherAssertions.assertThat(actual)` returns a
+      `StructureAssert<T>` (extends AssertJ's `AbstractAssert`) with two overloads:
+      `matchesStructure(expected)` (default per-field equality — infers the class from
+      `actual.getClass()`) and `matchesStructure(expected, spec)` (a caller-configured
+      `ObjectMatcher` with tolerant / wildcard / typed-path rules). On mismatch it fails
+      via `failWithMessage` with the structured per-field diff built from
+      `FeedbackQuery.brokenLeaves` — every canonical path with its expected/actual value
+      (e.g. `[Sub.Flag] expected: <true> but was: <false>`), so the failure localizes
+      *which* fields diverged. `isNotNull()` guards a null actual. Tests:
+      `StructureAssertTest` (pass, structured-diff failure, spec loosening the compare,
+      null rejection) against a local record model. **Follow-up:** no soft-assertion
+      / `assertSoftly` integration yet, and no navigation back into AssertJ (returns
+      `this` for chaining but doesn't expose sub-field asserts).
 - [ ] JUnit 5 extension / assertion helpers.
 - [ ] Publish to Maven Central (the `nl.alexeyu.structmatcher` group is already set).
 - [~] README rewrite around the **corrected** positioning (see "Positioning" above):
