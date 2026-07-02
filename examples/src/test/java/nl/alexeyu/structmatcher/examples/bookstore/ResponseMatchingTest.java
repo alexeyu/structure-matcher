@@ -1,18 +1,15 @@
 package nl.alexeyu.structmatcher.examples.bookstore;
 
-import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.inRange;
-import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.oneOf;
-import static nl.alexeyu.structmatcher.matcher.Matchers.constant;
-import static nl.alexeyu.structmatcher.matcher.Matchers.valuesEqual;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.function.UnaryOperator;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,17 +20,21 @@ import com.jayway.jsonpath.JsonPath;
 
 import nl.alexeyu.structmatcher.json.Json;
 import nl.alexeyu.structmatcher.matcher.Matcher;
-import nl.alexeyu.structmatcher.matcher.Matchers;
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 import nl.alexeyu.structmatcher.matcher.StringMatchers;
+import nl.alexeyu.structmatcher.report.FeedbackPaths;
 
+/**
+ * The core single-comparison example. A {@code BookSearchResult} mixes two kinds of data:
+ * execution-context {@code metadata} (which server answered, how fast, from which platform) that
+ * legitimately varies, and the {@code books} payload that is the actual answer and must not. These
+ * tests show the raw comparison drowning in context noise, then the {@link ContextTolerantSpec}
+ * making two responses "equivalent enough", and finally that the same spec still catches a real
+ * change in the book payload — localized to {@code Books[...]}, never hidden by the metadata rules.
+ */
 public class ResponseMatchingTest {
 
-    private static final String IPADDRESS_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
-
-    private Matcher<String> ipMatcher = StringMatchers.regex(IPADDRESS_PATTERN);
+    private final Matcher<String> ipMatcher = StringMatchers.regex(ContextTolerantSpec.IP_PATTERN);
 
     private Path rootPath;
 
@@ -54,7 +55,9 @@ public class ResponseMatchingTest {
     }
 
     @Test
-    public void feedbackShowsAllTheDifferences() throws Exception {
+    public void rawComparisonDrownsInExecutionContextNoise() throws Exception {
+        // Without any rules, the identical book payloads are buried under metadata that simply
+        // reflects a different server and timing — the motivation for ContextTolerantSpec.
         var feedback = ObjectMatcher.forClass(BookSearchResult.class).match(desktopTest,
                 desktopProd);
         assertFalse(feedback.isEmpty());
@@ -68,40 +71,26 @@ public class ResponseMatchingTest {
         assertThat(8081, is(equalTo(JsonPath.read(json, "$.Metadata.Server.Port.value"))));
     }
 
-    private ObjectMatcher<BookSearchResult> withMetadataMatchers(
-            ObjectMatcher<BookSearchResult> matcher) {
-        // Type-safe accessor chains instead of "Metadata.Server.Ip": each hop is checked by
-        // the compiler and completed by the IDE. Every model class here is a record, so the hops
-        // are component accessors (BookSearchResult::metadata, SearchMetadata::server, Server::ip).
-        return matcher
-                .with(ipMatcher, BookSearchResult::metadata, SearchMetadata::server, Server::ip)
-                .with(oneOf(8080, 8081, 8090, 8091), BookSearchResult::metadata,
-                        SearchMetadata::server, Server::port)
-                .with(inRange(2, 5000), BookSearchResult::metadata,
-                        SearchMetadata::processingTimeMs);
-    }
-
     @Test
-    public void prodAndTestConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
-        var feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
-                .match(desktopTest, desktopProd);
+    public void prodMatchesTestBecauseOnlyExecutionContextDiffers() throws Exception {
+        // Same search, different environment: the server, port and timing differ, but the books
+        // are identical. Tolerating the metadata makes the two responses equivalent.
+        var feedback = ContextTolerantSpec.matcher().match(desktopTest, desktopProd);
         assertTrue(feedback.isEmpty());
     }
 
     @Test
-    public void desktopAndMobileConsideredMatchingProvidedSanityChecksAreOk() throws Exception {
-        UnaryOperator<String> nameToInitial = name -> name.substring(0, 1) + ".";
-        var feedback = withMetadataMatchers(ObjectMatcher.forClass(BookSearchResult.class))
-                .with(constant(Platform.MOBILE), BookSearchResult::metadata,
-                        SearchMetadata::platform)
-                // Paths that traverse *into* list elements (Books -> each Author -> FirstName)
-                // can't be expressed as an accessor chain, so the string path stays as the
-                // escape hatch — typed and string registrations mix freely.
-                .with(Matchers.and(Matchers.nonNull(), StringMatchers.nonEmpty(),
-                        Matchers.normalizingBase(nameToInitial, valuesEqual())),
-                        "Books.Authors.FirstName")
-                .with(Matchers.constant(null), "Books.Meta").match(desktopTest, mobileTest);
-        assertTrue(feedback.isEmpty());
+    public void mobileFailsOnTheBookPayloadEvenThoughMetadataIsTolerated() throws Exception {
+        // The mobile response ran on a different server/platform (all tolerated), but it also
+        // abbreviates the author first names and drops the per-book meta — a genuine change in the
+        // answer. Tolerance is scoped to the metadata, so every mismatch surfaces under Books.
+        var feedback = ContextTolerantSpec.matcher().match(desktopTest, mobileTest);
+
+        assertFalse(feedback.isEmpty());
+        assertEquals(
+                Set.of("Books[0].Authors[0].FirstName", "Books[0].Meta",
+                        "Books[1].Authors[0].FirstName", "Books[1].Meta"),
+                Set.copyOf(FeedbackPaths.brokenPaths(feedback)));
     }
 
     @Test

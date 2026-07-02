@@ -1,8 +1,6 @@
 package nl.alexeyu.structmatcher.examples.bookstore;
 
 import static nl.alexeyu.structmatcher.junit5.StructAssertions.assertMatches;
-import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.inRange;
-import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.oneOf;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -16,66 +14,54 @@ import org.opentest4j.AssertionFailedError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
-import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
-import nl.alexeyu.structmatcher.matcher.StringMatchers;
-
 /**
- * Shows the {@code junit5} assertion helpers in the bookstore scenario, without AssertJ: assert
- * that a v1 production response is <em>equivalent enough</em> to the v1 test baseline under
- * tolerant per-field rules, and that a raw comparison throws {@link AssertionFailedError} naming
- * each diverging field (and carrying both objects for the IDE's comparison view). Same fixtures as
- * {@link ResponseMatchingTest}.
+ * Shows the {@code junit5} assertion helpers in the bookstore scenario, without AssertJ. Using the
+ * shared {@link ContextTolerantSpec} (metadata tolerated, book payload strict): the prod response
+ * matches the baseline because only its execution context differs, while the mobile response throws
+ * {@link AssertionFailedError} — its book payload genuinely changed, so the message names the
+ * offending {@code Books[...]} fields (and carries both objects for the IDE's comparison view),
+ * with no tolerated metadata field in sight. Same fixtures as {@link ResponseMatchingTest}.
  */
 public class JUnitAssertionExampleTest {
 
-    private static final String IP_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+    private Path rootPath;
 
-    private BookSearchResult desktopTest, desktopProd;
+    private BookSearchResult desktopTest, desktopProd, mobileTest;
 
     @Before
     public void setUp() throws Exception {
-        Path rootPath = Paths.get(JUnitAssertionExampleTest.class.getResource("/").toURI())
+        rootPath = Paths.get(JUnitAssertionExampleTest.class.getResource("/").toURI())
                 .resolve("../../../resources/test");
-        desktopTest = new ObjectMapper().readValue(
-                rootPath.resolve("response-on-smoke-for-desktop-test.json").toFile(),
-                BookSearchResult.class);
-        desktopProd = new XmlMapper().readValue(
-                rootPath.resolve("response-on-smoke-for-desktop-prod.xml").toFile(),
-                BookSearchResult.class);
+        var jsonMapper = new ObjectMapper();
+        desktopTest = fromFile(jsonMapper, "response-on-smoke-for-desktop-test.json");
+        mobileTest = fromFile(jsonMapper, "response-on-smoke-for-mobile-test.json");
+        desktopProd = fromFile(new XmlMapper(), "response-on-smoke-for-desktop-prod.xml");
     }
 
-    /** A spec that tolerates the expected test-vs-prod drift (dynamic IP, port pool, timing). */
-    private ObjectMatcher<BookSearchResult> tolerantSpec() {
-        return ObjectMatcher.forClass(BookSearchResult.class)
-                .with(StringMatchers.regex(IP_PATTERN), BookSearchResult::metadata,
-                        SearchMetadata::server, Server::ip)
-                .with(oneOf(8080, 8081, 8090, 8091), BookSearchResult::metadata,
-                        SearchMetadata::server, Server::port)
-                .with(inRange(2, 5000), BookSearchResult::metadata,
-                        SearchMetadata::processingTimeMs);
+    private BookSearchResult fromFile(ObjectMapper mapper, String fileName) throws Exception {
+        return mapper.readValue(rootPath.resolve(fileName).toFile(), BookSearchResult.class);
     }
 
     @Test
-    public void prodIsEquivalentToTestUnderTolerantRules() {
-        assertMatches(desktopTest, desktopProd, tolerantSpec());
-    }
-
-    @Test
-    public void rawComparisonThrowsWithAStructuredPerFieldDiff() {
+    public void prodIsEquivalentToTestUnderTolerantMetadata() {
         // baseline (expected) first, actual second — the same order as JUnit's assertEquals.
+        assertMatches(desktopTest, desktopProd, ContextTolerantSpec.matcher());
+    }
+
+    @Test
+    public void mobileFailsOnTheBookPayloadDespiteTolerantMetadata() {
         var error = assertThrows(AssertionFailedError.class,
-                () -> assertMatches(desktopTest, desktopProd));
+                () -> assertMatches(desktopTest, mobileTest, ContextTolerantSpec.matcher()));
 
+        // The metadata is tolerated; only the genuine book-payload changes are reported.
         var message = error.getMessage();
-        assertTrue(message, message.contains("Metadata.ProcessingTimeMs"));
-        assertTrue(message, message.contains("Metadata.Server.Ip"));
-        assertTrue(message, message.contains("Metadata.Server.Port"));
+        assertTrue(message, message.contains("Books[0].Authors[0].FirstName"));
+        assertTrue(message, message.contains("Books[0].Meta"));
+        assertTrue(message, !message.contains("[Metadata")); // no tolerated metadata path
 
-        // The two responses ride along so a JUnit 5 IDE can render a comparison view.
+        // Both responses ride along so a JUnit 5 IDE can render a comparison view.
         assertTrue(error.getExpected().getEphemeralValue() == desktopTest);
-        assertTrue(error.getActual().getEphemeralValue() == desktopProd);
+        assertTrue(error.getActual().getEphemeralValue() == mobileTest);
     }
 
 }

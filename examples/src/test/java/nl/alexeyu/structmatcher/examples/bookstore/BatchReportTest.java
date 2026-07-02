@@ -23,11 +23,12 @@ import nl.alexeyu.structmatcher.report.FeedbackQuery;
 import nl.alexeyu.structmatcher.report.FeedbackSummary;
 
 /**
- * The batch / "report is the product" scenario: instead of matching one pair, run many comparisons
+ * The batch / "report is the product" scenario: instead of matching one pair, check many responses
  * against a baseline and roll the feedback up to see <em>which fields systematically diverge</em>.
- * Uses the same bookstore fixtures as {@link ResponseMatchingTest} — one v1 desktop baseline
- * checked against a v2 mobile response, the v1 production XML, and itself — with the default (raw
- * equivalence) rules so real divergence surfaces. Demonstrates the {@code report} module
+ * Every comparison uses the shared {@link ContextTolerantSpec}, so the execution-context metadata
+ * is filtered out and the report is about real book-payload divergence, not environment noise —
+ * one v1 desktop baseline checked against a v2 mobile response (books genuinely changed), the v1
+ * production XML (only context differs), and itself. Demonstrates the {@code report} module
  * ({@link FeedbackAggregator}, {@link FeedbackQuery}) and the {@code json} persistence format
  * ({@link FeedbackArchives}).
  */
@@ -51,11 +52,9 @@ public class BatchReportTest {
         return mapper.readValue(rootPath.resolve(fileName).toFile(), BookSearchResult.class);
     }
 
-    /**
-     * The baseline checked against each actual response in the batch (raw equivalence, no rules).
-     */
+    /** The baseline checked against each actual response, tolerating the context metadata. */
     private List<FeedbackNode> batch() {
-        var matcher = ObjectMatcher.forClass(BookSearchResult.class);
+        ObjectMatcher<BookSearchResult> matcher = ContextTolerantSpec.matcher();
         return List.of(matcher.match(desktopTest, mobileTest),
                 matcher.match(desktopTest, desktopProd), matcher.match(desktopTest, desktopTest));
     }
@@ -65,34 +64,33 @@ public class BatchReportTest {
         FeedbackSummary summary = FeedbackAggregator.summarize(batch());
 
         assertEquals(3, summary.total());
-        assertEquals(1, summary.matched());
-        assertEquals(2, summary.mismatched());
+        assertEquals(2, summary.matched());
+        assertEquals(1, summary.mismatched());
+        assertEquals(1.0 / 3.0, summary.mismatchRate(), 1e-9);
 
-        // ProcessingTimeMs and the server IP differ in both non-identical responses; the port only
-        // in the production XML; a field is counted at most once per comparison.
-        assertEquals(2, summary.failureCount("Metadata.ProcessingTimeMs"));
-        assertEquals(2, summary.failureCount("Metadata.Server.Ip"));
-        assertEquals(1, summary.failureCount("Metadata.Server.Port"));
-        assertEquals(2.0 / 3.0, summary.failureRate("Metadata.Server.Ip"), 1e-9);
+        // Only the mobile response diverges, and only in the book payload: abbreviated author
+        // first names and the dropped per-book meta. The tolerated metadata never shows up.
+        assertEquals(1, summary.failureCount("Books[].Authors[].FirstName"));
+        assertEquals(1, summary.failureCount("Books[].Meta"));
+        assertEquals(0, summary.failureCount("Metadata.Server.Ip"));
 
-        // Most-failing first, ties broken by path — the systematic divergences bubble to the top.
-        assertEquals(List.of("Metadata.ProcessingTimeMs", "Metadata.Server.Ip"),
+        // Most-failing first, ties broken by path — the real payload regressions bubble to the top.
+        assertEquals(List.of("Books[].Authors[].FirstName", "Books[].Meta"),
                 summary.topMismatchingFields(2));
     }
 
     @Test
     public void querySingleComparisonForTheLeavesUnderAPath() {
-        var feedback =
-                ObjectMatcher.forClass(BookSearchResult.class).match(desktopTest, mobileTest);
+        var feedback = ContextTolerantSpec.matcher().match(desktopTest, mobileTest);
 
-        // "What broke under the server?" — the IP diverges, the port matches (both 8080).
-        List<BrokenLeaf> underServer = FeedbackQuery.mismatchesUnder(feedback, "Metadata.Server");
-        assertEquals(List.of("Metadata.Server.Ip"),
-                underServer.stream().map(BrokenLeaf::path).collect(toList()));
+        // "What broke in the first book?" — the author's first name and the meta both changed.
+        List<BrokenLeaf> underFirstBook = FeedbackQuery.mismatchesUnder(feedback, "Books[0]");
+        assertEquals(List.of("Books[0].Authors[0].FirstName", "Books[0].Meta"),
+                underFirstBook.stream().map(BrokenLeaf::path).collect(toList()));
 
-        var ip = underServer.get(0);
-        assertEquals("192.168.10.10", ip.expectation()); // baseline (expected)
-        assertEquals("192.168.10.45", ip.value()); // mobile (actual)
+        var firstName = underFirstBook.get(0);
+        assertEquals("Stephen", firstName.expectation()); // baseline (expected)
+        assertEquals("S.", firstName.value()); // mobile (actual)
     }
 
     @Test
