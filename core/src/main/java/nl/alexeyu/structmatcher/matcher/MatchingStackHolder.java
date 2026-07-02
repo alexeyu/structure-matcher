@@ -2,7 +2,7 @@ package nl.alexeyu.structmatcher.matcher;
 
 final class MatchingStackHolder {
 
-    private static final ThreadLocal<MatchingStack> context = new ThreadLocal<>();
+    private static final ThreadLocal<MatchingStack<Object>> context = new ThreadLocal<>();
 
     static {
         clear();
@@ -11,7 +11,7 @@ final class MatchingStackHolder {
     private MatchingStackHolder() {
     }
 
-    static void set(MatchingStack stack) {
+    static void set(MatchingStack<Object> stack) {
         context.set(stack);
     }
 
@@ -19,7 +19,7 @@ final class MatchingStackHolder {
         context.set(DefaultMatchingStack.BARE);
     }
 
-    static MatchingStack get() {
+    static MatchingStack<Object> get() {
         return context.get();
     }
 

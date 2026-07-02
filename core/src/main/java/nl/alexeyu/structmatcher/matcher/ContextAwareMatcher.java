@@ -22,15 +22,15 @@ import nl.alexeyu.structmatcher.property.Property;
  * property for the base and target objects and passes them to an underlying matcher, along with the
  * property name.
  */
-final class ContextAwareMatcher<T> {
+final class ContextAwareMatcher {
 
     private final Supplier<Matcher<Object>> defaultMatcherSupplier;
 
-    private final MatchingStack<T> matchingStack;
+    private final MatchingStack<Object> matchingStack;
 
     private final Property property;
 
-    ContextAwareMatcher(Property property, MatchingStack<T> matchingStack,
+    ContextAwareMatcher(Property property, MatchingStack<Object> matchingStack,
             Supplier<Matcher<Object>> defaultMatcherSupplier) {
         this.matchingStack = matchingStack;
         this.defaultMatcherSupplier = defaultMatcherSupplier;
@@ -40,9 +40,9 @@ final class ContextAwareMatcher<T> {
     FeedbackNode match(Object expected, Object actual) {
         try {
             var matcher = matchingStack.push(property.getName(), defaultMatcherSupplier);
-            if (matcher instanceof IndirectMatcher indirectMatcher) {
-                return indirectMatcher.match(indirectMatcher.getDescription(),
-                        matchingStack.getBaseStructure(), matchingStack.getActualStructure());
+            if (matcher instanceof IndirectMatcher<?, ?> indirectMatcher) {
+                return indirectMatcher.matchStructures(matchingStack.getBaseStructure(),
+                        matchingStack.getActualStructure());
             }
             return matcher.match(property.getName(), property.getValue(expected),
                     property.getValue(actual));

@@ -265,8 +265,11 @@ public final class Matchers {
      *         property, <code>structuresEqual()</code> for any other property.
      * @see ClassProperty
      */
-    @SuppressWarnings("rawtypes")
-    public static Matcher forProperty(Property property) {
+    public static Matcher<Object> forProperty(Property property) {
+        return asObjectMatcher(defaultMatcherFor(property));
+    }
+
+    private static Matcher<?> defaultMatcherFor(Property property) {
         if (property.isList()) {
             return listsEqual();
         }
@@ -286,6 +289,18 @@ public final class Matchers {
             return valuesEqual();
         }
         return structuresEqual();
+    }
+
+    /**
+     * Adapts a matcher of any value type to {@code Matcher<Object>}, the single erased type the
+     * matching stack stores and invokes. The cast is safe because the stack only ever feeds a
+     * matcher the values of the property it was selected/registered for, whose runtime type is
+     * exactly the type the matcher expects. Used both for the default matchers picked by
+     * {@link #defaultMatcherFor} and for the custom matchers registered on {@link ObjectMatcher}.
+     */
+    @SuppressWarnings("unchecked")
+    static Matcher<Object> asObjectMatcher(Matcher<?> matcher) {
+        return (Matcher<Object>) matcher;
     }
 
     /**
@@ -330,10 +345,9 @@ public final class Matchers {
                 actualValueFetcher);
     }
 
-    static <T> ContextAwareMatcher<T> contextAware(Property property,
+    static ContextAwareMatcher contextAware(Property property,
             Supplier<Matcher<Object>> defaultMatcherSupplier) {
-        return new ContextAwareMatcher<>(property, MatchingStackHolder.get(),
-                defaultMatcherSupplier);
+        return new ContextAwareMatcher(property, MatchingStackHolder.get(), defaultMatcherSupplier);
     }
 
     static <V> Matcher<V> getNullAwareMatcher(V obj) {

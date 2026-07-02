@@ -33,6 +33,19 @@ public final class IndirectMatcher<T, V> implements Matcher<T> {
                 actualValueFetcher.apply(actual));
     }
 
+    /**
+     * Applies this matcher to the top-level base/actual structures, deriving the values to compare
+     * via the two fetchers. Called by {@link ContextAwareMatcher}, which sources the structures
+     * from the matching stack. The cast is safe by construction: an indirect matcher is registered
+     * for the structure type {@code T} it was built against, which is exactly the type the matching
+     * stack carries — so isolating the one unavoidable unchecked cast here keeps the caller (which
+     * only holds an {@code IndirectMatcher<?, ?>}) free of raw types and unchecked operations.
+     */
+    @SuppressWarnings("unchecked")
+    FeedbackNode matchStructures(Object baseStructure, Object actualStructure) {
+        return match(description, (T) baseStructure, (T) actualStructure);
+    }
+
     public String getDescription() {
         return description;
     }

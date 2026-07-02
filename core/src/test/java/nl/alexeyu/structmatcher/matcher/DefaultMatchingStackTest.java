@@ -13,13 +13,13 @@ public class DefaultMatchingStackTest {
 
     private MatchingStack<Object> context;
 
-    private Matcher<?> customMatcher = Matchers.valuesEqual();
+    private Matcher<Object> customMatcher = Matchers.valuesEqual();
 
     private Matcher<Object> fallbackMatcher = Matchers.anyValue();
 
     @BeforeEach
     public void setUp() {
-        context = new DefaultMatchingStack(new Object(), new Object(),
+        context = new DefaultMatchingStack<>(new Object(), new Object(),
                 singletonMap(new PropertyPathPattern(asList("a", "b")), customMatcher));
     }
 

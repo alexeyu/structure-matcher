@@ -47,7 +47,7 @@ public class ObjectMatcher<T> {
 
     private final Class<T> clazz;
 
-    private final Map<PropertyPathPattern, Matcher<?>> propertyToMatcher = new HashMap<>();
+    private final Map<PropertyPathPattern, Matcher<Object>> propertyToMatcher = new HashMap<>();
 
     private ObjectMatcher(Class<T> clazz) {
         this.clazz = clazz;
@@ -91,7 +91,7 @@ public class ObjectMatcher<T> {
     public ObjectMatcher<T> withMatcher(Matcher<?> matcher, String... propertyPath) {
         var fullPath = new ArrayList<String>(Arrays.asList(propertyPath));
         fullPath.add(0, clazz.getName());
-        propertyToMatcher.put(new PropertyPathPattern(fullPath), matcher);
+        propertyToMatcher.put(new PropertyPathPattern(fullPath), Matchers.asObjectMatcher(matcher));
         return this;
     }
 
@@ -179,7 +179,9 @@ public class ObjectMatcher<T> {
      */
     public FeedbackNode match(T expected, T actual) {
         try {
-            MatchingStackHolder.set(new DefaultMatchingStack(expected, actual, propertyToMatcher));
+            MatchingStack<Object> stack =
+                    new DefaultMatchingStack<>(expected, actual, propertyToMatcher);
+            MatchingStackHolder.set(stack);
             var property = new SimpleProperty(clazz.getName());
             return Matchers.contextAware(property, () -> Matchers.structuresEqual()).match(expected,
                     actual);
