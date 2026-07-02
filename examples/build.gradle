@@ -6,6 +6,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
+    testImplementation project(':assertj')
+    testImplementation project(':junit5')
     testImplementation 'org.apache.commons:commons-lang3:3.14.0'
     testImplementation 'com.jayway.jsonpath:json-path:2.9.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'

@@ -297,9 +297,58 @@ Meet people where they already are.
       only retains `Serializable` values, so for non-serializable models the objects ride
       on `getEphemeralValue()` + a string representation (what the IDE renders) — the
       test asserts via `getEphemeralValue()`.
-- [ ] Publish to Maven Central (the `nl.alexeyu.structmatcher` group is already set).
-- [~] README rewrite around the **corrected** positioning (see "Positioning" above):
-      claim the *narrow, true* niche — "equivalence validation at scale with a
+### Release gate: pre-publish polish (do these before Maven Central)
+
+A punch-list to finish before the first public `2.0` release — the artifacts are
+permanent once on Central, so tighten the surface first.
+
+- [x] **Showcase AssertJ & JUnit 5 in `examples`.** Added `AssertJExampleTest`
+      (`assertThat(actual).matchesStructure(expected, spec)`) and `JUnitAssertionExampleTest`
+      (`StructAssertions.assertMatches(expected, actual, spec)`) in the bookstore scenario
+      alongside `ResponseMatchingTest` / `BatchReportTest`, so `examples` now depends on
+      and demonstrates every consumer module (`json`, `report`, `assertj`, `junit5`). Each
+      shows the real value prop — a v1-prod response asserted *equivalent enough* to the v1
+      test baseline under a tolerant spec (dynamic IP regex, port pool, timing range) — plus
+      the structured per-field diff a raw comparison produces (AssertJ: `assertThatException…
+      withMessageContaining`; JUnit: `assertThrows(AssertionFailedError…)` asserting the
+      diverging paths and the expected/actual objects ride along via `getEphemeralValue()`).
+      Wired `testImplementation project(':assertj' / ':junit5')` (AssertJ / opentest4j arrive
+      transitively as their `api` deps). **Note:** the example models were *already* records,
+      so the record-showcase follow-up under the README item is effectively done.
+- [ ] **Migrate the test suite from JUnit 4 to JUnit 5 (Jupiter).** Confirmed: *all* 34
+      test classes are still JUnit 4 run via the Vintage engine — zero Jupiter tests.
+      Convert `org.junit.Test`→`org.junit.jupiter.api.Test`,
+      `org.junit.Assert.*`→`org.junit.jupiter.api.Assertions.*` (arg order flips on the
+      message overload), and handle the two special runners: `ContextAwareMatcherTest`
+      uses `@RunWith(MockitoJUnitRunner.class)` → `@ExtendWith(MockitoExtension.class)`
+      (add `mockito-junit-jupiter`), and `WildcardPathCheckerTest` uses
+      `@RunWith(Theories.class)` → `@ParameterizedTest` (the Phase 0 note flagged this
+      one). Do it module-by-module (verify each with `:module:test`), then drop the
+      `junit-vintage-engine` runtime dependency once nothing needs it. This is the
+      long-deferred cleanup from Phase 0 / Phase 5.
+- [ ] **Critical code & comment polish pass.** Re-read the whole surface with fresh
+      eyes now that six modules exist: public-API javadoc completeness and honesty,
+      dead/duplicated code (e.g. the near-identical broken-leaf message formatting now
+      living in both `assertj` and `junit5` — decide whether to hoist a shared renderer
+      into `report` or keep them intentionally distinct), naming consistency, and
+      comments that have drifted from the code. Tighten before the API is frozen by a
+      public release.
+- [ ] **Solid README.** Supersedes the `[~]` rewrite item below — a top-to-bottom
+      README that leads with the narrow, true positioning (equivalence validation at
+      scale with a per-field report), a quick-start, the module map (core + json +
+      report + assertj + junit5), and the batch-report story. Fold in the open
+      sub-items from that entry (opening-pitch rewrite, record-based example models).
+- [ ] **Bump version `1.1-SNAPSHOT` → `2.0`.** Single point of change in the root
+      `build.gradle` (`version = '1.1-SNAPSHOT'`). Do this last, as the release commit,
+      once the above land. (Major bump is justified: records/maps/sets/arrays/Optional,
+      typed paths, the report + json-archive + assertj + junit5 modules are all new
+      since the last line.)
+
+- [ ] Publish to Maven Central (the `nl.alexeyu.structmatcher` group is already set) —
+      **gated on the release-gate checklist above.**
+- [~] README rewrite around the **corrected** positioning — **superseded by the
+      "Solid README" release-gate item above**; kept here for the progress record.
+      Claim the *narrow, true* niche — "equivalence validation at scale with a
       per-field report" — not the broad, false "structured POJO diff" (which JaVers /
       java-object-diff already own). **Done so far:** the README gained "Beyond a single
       comparison: the batch report" and "Serializing and persisting feedback" sections
@@ -310,9 +359,9 @@ Meet people where they already are.
       `BatchReportTest` in `examples` (aggregate → query → persist+reload, asserting
       per-field rates and `topMismatchingFields`). **Still open:** a top-to-bottom
       rewrite of the *opening* pitch around the narrow niche (the intro still leads with
-      the single-compare framing), and example *model* classes converted to `record`s
-      (the bookstore POJOs are still classic beans; record discovery is covered by
-      core's `RecordMatcherTest`, just not showcased in `examples`).
+      the single-compare framing). (The "convert example models to records" sub-item is
+      **done** — the bookstore models are already records, now also showcased by the
+      AssertJ / JUnit-5 example tests.)
 
 ---
 
