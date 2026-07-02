@@ -1,8 +1,12 @@
 package nl.alexeyu.structmatcher.json;
 
+import java.util.Collection;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
@@ -41,6 +45,14 @@ public final class FeedbackArchives {
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+    /**
+     * A compact (single-line) writer for the JSON Lines batch format: each archive must occupy
+     * exactly one line, so indentation is disabled here even though single-document output is
+     * pretty-printed.
+     */
+    private static final ObjectWriter LINE_WRITER = MAPPER.writer()
+            .without(SerializationFeature.INDENT_OUTPUT);
 
     private FeedbackArchives() {
     }
@@ -90,6 +102,45 @@ public final class FeedbackArchives {
                     + CURRENT_SCHEMA_VERSION);
         }
         return archive;
+    }
+
+    /**
+     * Serializes a whole batch of comparisons to <a href="https://jsonlines.org">JSON Lines</a> —
+     * one compact {@link FeedbackArchive} per line. This is the format to persist a batch as a
+     * single document (or append to incrementally) and reload with {@link #fromJsonLines} to roll
+     * up into a report. The lines are in iteration order; an empty batch yields an empty string.
+     */
+    public static String toJsonLines(Collection<? extends FeedbackNode> feedbacks) {
+        return writeLines(feedbacks.stream().map(FeedbackArchives::archive).toList());
+    }
+
+    /** Serializes already-built archives to JSON Lines (one compact archive per line). */
+    public static String writeLines(Collection<FeedbackArchive> archives) {
+        var sb = new StringBuilder();
+        for (var archive : archives) {
+            sb.append(writeLine(archive)).append('\n');
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Parses a JSON Lines batch back into archives, one per non-blank line, each validated the
+     * same way as {@link #fromJson} (unsupported {@code schemaVersion} and malformed lines are
+     * rejected). Blank lines are skipped, so a trailing newline is fine.
+     */
+    public static List<FeedbackArchive> fromJsonLines(String jsonLines) {
+        return jsonLines.lines()
+                .filter(line -> !line.isBlank())
+                .map(FeedbackArchives::fromJson)
+                .toList();
+    }
+
+    private static String writeLine(FeedbackArchive archive) {
+        try {
+            return LINE_WRITER.writeValueAsString(archive);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Could not serialize feedback archive", e);
+        }
     }
 
 }

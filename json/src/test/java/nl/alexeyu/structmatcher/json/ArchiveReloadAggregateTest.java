@@ -53,4 +53,26 @@ public class ArchiveReloadAggregateTest {
         assertEquals("Color", summary.topMismatchingFields(1).get(0));
     }
 
+    @Test
+    public void aWholeBatchPersistsAsOneJsonLinesDocumentAndRollsUp() {
+        var batch = asList(
+                compare(new SampleStructure("white", asList("b"), new SampleSub(false))),
+                compare(new SampleStructure("white", asList("a"), new SampleSub(true))),
+                compare(expected));
+
+        // Persist the entire batch as a single JSON Lines document, then reload and aggregate.
+        var jsonl = FeedbackArchives.toJsonLines(batch);
+        var aggregator = new FeedbackAggregator();
+        FeedbackArchives.fromJsonLines(jsonl)
+                .forEach(archive -> aggregator.addBrokenPaths(archive.brokenPaths()));
+        var summary = aggregator.summary();
+
+        assertEquals(3, summary.total());
+        assertEquals(1, summary.matched());
+        assertEquals(2, summary.failureCount("Color"));
+        assertEquals(1, summary.failureCount("Tags[]"));
+        assertEquals(1, summary.failureCount("Sub.Flag"));
+        assertEquals("Color", summary.topMismatchingFields(1).get(0));
+    }
+
 }

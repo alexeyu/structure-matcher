@@ -9,6 +9,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
@@ -75,6 +76,45 @@ public class FeedbackArchivesTest {
     @Test
     public void malformedJsonIsRejected() {
         assertThrows(IllegalArgumentException.class, () -> FeedbackArchives.fromJson("not json"));
+    }
+
+    @Test
+    public void batchRoundTripsThroughJsonLines() {
+        var matched = Feedback.composite("com.X", singletonList(Feedback.empty("Color")));
+        var batch = asList(brokenTree(), matched);
+
+        var reloaded = FeedbackArchives.fromJsonLines(FeedbackArchives.toJsonLines(batch));
+
+        assertEquals(asList(FeedbackArchives.archive(brokenTree()),
+                FeedbackArchives.archive(matched)), reloaded);
+    }
+
+    @Test
+    public void eachArchiveOccupiesExactlyOneLine() {
+        var lines = FeedbackArchives.toJsonLines(asList(brokenTree(), brokenTree())).lines()
+                .collect(toList());
+        assertEquals(2, lines.size());
+        lines.forEach(line -> assertFalse(line.isBlank()));
+    }
+
+    @Test
+    public void emptyBatchYieldsNoLines() {
+        assertEquals("", FeedbackArchives.toJsonLines(List.of()));
+        assertTrue(FeedbackArchives.fromJsonLines("").isEmpty());
+    }
+
+    @Test
+    public void blankLinesAreSkippedOnRead() {
+        var jsonl = "\n" + FeedbackArchives.toJsonLines(singletonList(brokenTree())) + "\n\n";
+        assertEquals(1, FeedbackArchives.fromJsonLines(jsonl).size());
+    }
+
+    @Test
+    public void rejectsAnUnsupportedVersionInABatchLine() {
+        var good = FeedbackArchives.toJsonLines(singletonList(brokenTree())).strip();
+        var bad = "{ \"schemaVersion\": 999, \"matched\": true, \"brokenLeaves\": [] }";
+        assertThrows(IllegalArgumentException.class,
+                () -> FeedbackArchives.fromJsonLines(good + "\n" + bad));
     }
 
     @Test

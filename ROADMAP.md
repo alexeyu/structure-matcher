@@ -217,9 +217,18 @@ exist but the story stops at "serialize one comparison."
       plain strings, no json dependency). Tests: `FeedbackAggregatorTest`
       (`addBrokenPaths`), `ArchiveReloadAggregateTest` (json — persist → reload →
       aggregate yields the same summary as the live trees).
-      **Follow-ups:** (a) no batch/JSONL helper yet — callers serialize one
-      `FeedbackArchive` per comparison; (b) a user-facing `SCHEMA.md` can fold into the
-      Phase 4 README rewrite.
+      **Follow-ups:** (a) **DONE** — batch persistence via JSON Lines:
+      `FeedbackArchives.toJsonLines(feedbacks)` / `writeLines(archives)` write one
+      compact archive per line (single-document output stays indented; the batch
+      form uses a compact `ObjectWriter`), and `fromJsonLines(jsonl)` reads them
+      back, skipping blank lines and validating each line's `schemaVersion` exactly
+      as `fromJson`. So a whole batch persists to (or appends to) one document and
+      reloads to roll up via `addBrokenPaths` — no report type leaks into `json`'s
+      API (the bridge stays plain strings). Tests: `FeedbackArchivesTest` (round-trip,
+      one-line-per-archive, empty batch, blank-line tolerance, bad-version-in-a-line
+      rejection), `ArchiveReloadAggregateTest` (whole batch as one JSONL document →
+      reload → same summary). (b) a user-facing `SCHEMA.md` can fold into the Phase 4
+      README rewrite.
 - [deferred] Human-readable report renderer (text/HTML), not just JSON. **Descoped for
       now** — JSON covers both jobs (the nested `Json.mapper()` rendering for reading one
       comparison, the flat versioned `FeedbackArchives` for persistence), and
