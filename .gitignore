@@ -29,3 +29,8 @@ build/
 # Keep the committed Gradle wrapper (gradlew, gradlew.bat, gradle/wrapper/*),
 # but ignore downloaded distributions.
 gradle/wrapper/dists/
+
+# AI assistant files (kept local, not tracked)
+CLAUDE.md
+ROADMAP.md
+.claude/
