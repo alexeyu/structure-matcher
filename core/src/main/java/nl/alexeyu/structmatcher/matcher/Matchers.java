@@ -173,26 +173,6 @@ public final class Matchers {
     }
 
     /**
-     * Returns a matcher which executes all the matchers passed as parameters and returns an empty
-     * feedback only if all these matchers yielded an empty feedback. Otherwise returns the first
-     * non-empty feedback produced by them. It is a convenient method to test a few assumptions
-     * about a value at once. <i>Example:</i>
-     *
-     * <pre>
-     * FeedbackNode feedback = Matchers.and(Matchers.nonNull(), Matchers.nonEmptyString())
-     *         .match("Title", expected, actual);
-     * </pre>
-     *
-     * @param matchers
-     *            matchers to be executed on a given pair of values.
-     * @return a matcher with the behavior specified above.
-     */
-    @SafeVarargs
-    public static <V> Matcher<V> and(Matcher<V>... matchers) {
-        return new AndMatcher<>(matchers);
-    }
-
-    /**
      * Returns a matcher which apply a given function to the second (so-called actual) value and
      * then delegates matching to a given matcher. <i>Example:</i>
      *
