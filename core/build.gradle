@@ -6,3 +6,11 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:5.14.2'
     testImplementation 'com.jayway.jsonpath:json-path:2.9.0'
 }
+
+// Lock in the generics cleanup: the main sources must compile free of unchecked/rawtypes
+// warnings. Unavoidable erasure is confined to two documented @SuppressWarnings("unchecked")
+// casts (IndirectMatcher.matchStructures, Matchers.asObjectMatcher). Test sources are exempt
+// (e.g. Mockito generics), so this guards compileJava only.
+tasks.named('compileJava') {
+    options.compilerArgs << '-Xlint:unchecked' << '-Xlint:rawtypes' << '-Werror'
+}

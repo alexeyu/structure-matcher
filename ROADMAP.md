@@ -332,6 +332,29 @@ permanent once on Central, so tighten the surface first.
       reported cases). Migrated module-by-module (both engines coexisted during the pass),
       each verified with `:<module>:test`; final `clean build` green: **218 tests, 0
       failures**. This closes the long-deferred Phase 0 `[~]` JUnit item.
+- [x] **Generics cleanup** (moved up from Phase 5). Removed the
+      `@SuppressWarnings("rawtypes")` / raw-`IndirectMatcher` `instanceof` special-casing
+      from the hot matching code (`Matchers.forProperty`, `ContextAwareMatcher`) so the
+      main sources compile without unchecked/rawtypes warnings, localizing any truly
+      unavoidable erasure to a single documented spot. **Done:** `ContextAwareMatcher` now
+      uses a generic `instanceof IndirectMatcher<?, ?>` pattern; no `rawtypes` suppression
+      remains anywhere in `core/src/main`; the only two casts are documented
+      `@SuppressWarnings("unchecked")` boundaries (`IndirectMatcher.matchStructures`,
+      `Matchers.asObjectMatcher`), each javadoc'd with why the erasure is safe. A
+      `-Xlint:unchecked,rawtypes -Werror` guard on `:core:compileJava` locks it in so it
+      can't silently regress.
+- [x] **Randomized tests** (moved up from Phase 5) for `WildcardPathChecker` and the
+      list/order matchers (`ListMatcher`, `IgnoreOrderListMatcher`), complementing the
+      example-based tests with generated inputs (structural properties of wildcard
+      matching; list reflexivity/size-sensitivity; order-insensitive permutation
+      invariance). **Done:** covered by `WildcardPathCheckerRandomizedTest` and
+      `ListMatcherRandomizedTest` — JUnit 5 `@ParameterizedTest`/`@MethodSource` over
+      fixed-seed randomized inputs plus explicit edge cases (incl. the `["A", "A"]`
+      wildcard-backtracking regression, which is what first caught the greedy-match bug in
+      `WildcardPathChecker`, now fixed). Went with randomized JUnit tests rather than a
+      property-based framework: jqwik ≥1.10 ships an anti-AI `stdout` banner, so we dropped
+      it and forgo automatic shrinking — compensating with a fixed seed (reproducible
+      failures) and hardcoded edge cases.
 - [ ] **Critical code & comment polish pass.** Re-read the whole surface with fresh
       eyes now that six modules exist: public-API javadoc completeness and honesty,
       dead/duplicated code (e.g. the near-identical broken-leaf message formatting now
@@ -377,11 +400,9 @@ permanent once on Central, so tighten the surface first.
       state for the duration of a `match()`. Works, but it's fragile and blocks any
       future parallel matching. Consider threading an explicit context object through
       the matcher tree instead.
-- [ ] Generics cleanup: remove the `@SuppressWarnings("rawtypes")` /
-      `instanceof IndirectMatcher` special-casing in `ContextAwareMatcher` if the
-      type model can express it directly.
-- [ ] Property-based tests for the wildcard path matcher (`WildcardPathChecker`) and
-      list/order matchers.
+
+(Two former Phase 5 items — generics cleanup and randomized tests — were moved up
+into the Phase 4 pre-publish release gate.)
 
 ---
 
