@@ -158,6 +158,16 @@ the competition.
       already capitalized to match bean getters (Phase 1a), the typed API can reuse
       the identical naming rule and stay interchangeable with string paths — changing
       the convention now would split the two APIs for no gain.
+- [x] Fluent matcher composition. Added default methods to the `Matcher<V>` functional
+      interface (`and`, `normalizing`, `normalizingBase`, `normalizingBoth`) so matchers
+      compose left-to-right like `Predicate`/`Comparator`, instead of inside-out static
+      calls: `nonNull().and(nonEmpty()).and(valuesEqual().normalizingBase(...))`. The
+      `Matchers.normalizing*(op, delegate)` statics now delegate to the defaults (one
+      source of truth, back-compatible; the `and(...)` varargs factory stays). Made
+      `IgnoreOrderListMatcher` public (its siblings already were, and a public factory
+      returned it) so the fluent methods are reachable on its result. Tests:
+      `MatcherCompositionTest`; adopted in the README, the `ObjectMatcher` javadoc, and
+      the `ContextTolerantSpec` example.
 
 **Open follow-ups:** chains deeper than 4 hops (add more overloads or a fluent
 builder if real models need it); typed paths can't yet express the `*` wildcard or
@@ -388,9 +398,6 @@ permanent once on Central, so tighten the surface first.
       state for the duration of a `match()`. Works, but it's fragile and blocks any
       future parallel matching. Consider threading an explicit context object through
       the matcher tree instead.
-
-(Two former Phase 5 items — generics cleanup and randomized tests — were moved up
-into the Phase 4 pre-publish release gate.)
 
 ---
 

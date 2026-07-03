@@ -11,7 +11,7 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
  * duplicate elements. It simply sorts given lists before matching, so needs to be initialized with
  * a comparator.
  */
-final class IgnoreOrderListMatcher<V> implements Matcher<List<V>> {
+public final class IgnoreOrderListMatcher<V> implements Matcher<List<V>> {
 
     private final Comparator<V> comparator;
 

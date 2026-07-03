@@ -37,7 +37,7 @@ import nl.alexeyu.structmatcher.property.SimpleProperty;
  * <pre>
  * FeedbackNode feedback = ObjectMatcher.forClass(Date.class)
  *         .withMatcher(
- *                 Matchers.normalizingBoth(millis -> millis / 1000, Matchers.<Long>valuesEqual()),
+ *                 Matchers.<Long>valuesEqual().normalizingBoth(millis -> millis / 1000),
  *                 "Time")
  *         .match(date1, date2);
  * // The feedback is: java.util.Date: [].

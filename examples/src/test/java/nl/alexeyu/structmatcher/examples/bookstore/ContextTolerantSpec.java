@@ -76,8 +76,8 @@ final class ContextTolerantSpec {
     private static Matcher<List<String>> keywordsMatcher() {
         UnaryOperator<List<String>> toLowerCase =
                 keywords -> keywords.stream().map(k -> k.toLowerCase(Locale.ROOT)).toList();
-        return Matchers.normalizingBoth(toLowerCase,
-                Matchers.listsHaveEqualElements(Comparator.<String>naturalOrder()));
+        return Matchers.listsHaveEqualElements(Comparator.<String>naturalOrder())
+                .normalizingBoth(toLowerCase);
     }
 
 }

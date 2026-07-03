@@ -145,11 +145,12 @@ FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
         .with(IntegerMatchers.inRange(2, 5000),
                 BookSearchResult::getMetadata, SearchMetadata::getProcessingTimeMs) // the processing time is a reasonable number
         // String path, needed here because it traverses into each element of the Books list.
-        .with(Matchers.and(  // verifies that all the suppositions below are correct
-                Matchers.nonNull(), // the property is present...
-                StringMatchers.nonEmpty(), // ...and is a non-empty string
-                Matchers.normalizingBase(name -> name.substring(0, 1) + ".", valuesEqual()) // ...and matches once the first name is shortened to an initial
-              ),  "Books.Authors.FirstName") // the initials match
+        // Matchers compose fluently, left to right.
+        .with(Matchers.<String>nonNull()
+                .and(StringMatchers.nonEmpty()) // present and a non-empty string...
+                .and(Matchers.<String>valuesEqual()
+                        .normalizingBase(name -> name.charAt(0) + ".")), // ...and equal once shortened to an initial
+                "Books.Authors.FirstName") // the initials match
         .with(Matchers.constant(null), "Books.YearPublished") // the publishing year is absent in the target response
         .match(desktopResponse, mobileResponse); // match the mobile response against the desktop one
 assertTrue(feedback.isEmpty()); // correct for this example

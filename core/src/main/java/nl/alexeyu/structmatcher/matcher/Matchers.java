@@ -209,7 +209,7 @@ public final class Matchers {
      * @return a matcher with the behavior specified above.
      */
     public static <V> Matcher<V> normalizing(UnaryOperator<V> normalizer, Matcher<V> delegate) {
-        return (prop, exp, act) -> delegate.match(prop, exp, normalizer.apply(act));
+        return delegate.normalizing(normalizer);
     }
 
     /**
@@ -229,7 +229,7 @@ public final class Matchers {
      * @return a matcher with the behavior specified above.
      */
     public static <V> Matcher<V> normalizingBase(UnaryOperator<V> normalizer, Matcher<V> delegate) {
-        return (prop, exp, act) -> delegate.match(prop, normalizer.apply(exp), act);
+        return delegate.normalizingBase(normalizer);
     }
 
     /**
@@ -249,8 +249,7 @@ public final class Matchers {
      * @return a matcher with the behavior specified above.
      */
     public static <V> Matcher<V> normalizingBoth(UnaryOperator<V> normalizer, Matcher<V> delegate) {
-        return (prop, exp, act) -> delegate.match(prop, normalizer.apply(exp),
-                normalizer.apply(act));
+        return delegate.normalizingBoth(normalizer);
     }
 
     /**

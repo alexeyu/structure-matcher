@@ -11,7 +11,6 @@ import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
-import nl.alexeyu.structmatcher.matcher.IndirectMatcher;
 import nl.alexeyu.structmatcher.matcher.Matchers;
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 
@@ -32,7 +31,7 @@ public class BookMatchingTest {
         // Typed path: Author is a record, so the accessor is Author::firstName. A rename
         // of the component is now a compile error instead of a silently stale "FirstName".
         var feedback = ObjectMatcher.forClass(Author.class)
-                .with(Matchers.<String>normalizing(name -> stripAccents(name), valuesEqual()),
+                .with(Matchers.<String>valuesEqual().normalizing(name -> stripAccents(name)),
                         Author::firstName)
                 .match(francoiseSaganNormalized, francoiseSagan);
         assertTrue(feedback.isEmpty());
@@ -47,14 +46,15 @@ public class BookMatchingTest {
                 Arrays.asList(new Author("Tenessee", "Williams")), "Paperback",
                 new PublishingInfo("Signet", 1961, 127));
 
-        var publishingMatcher = new IndirectMatcher<Book, PublishingInfo>(
+        var publishingMatcher = Matchers.indirectMatcher(
                 "Old, unstructured metadata to new, structured one", valuesEqual(),
                 new V1MetadataExtractor(), Book::publishingInfo);
 
         var feedback = ObjectMatcher.forClass(Book.class)
-                .withMatcher((p, e, a) -> Feedback.empty("PublishingInfo"), "PublishingInfo")
+                // PublishingInfo is validated indirectly (below) from the old unstructured Meta,
+                // so ignore the direct field comparison, where the old value is simply null.
+                .withMatcher((p, e, a) -> Feedback.empty(p), "PublishingInfo")
                 .withMatcher(publishingMatcher, "Meta").match(oldVersion, newVersion);
-        System.out.println(feedback);
         assertTrue(feedback.isEmpty());
     }
 
