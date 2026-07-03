@@ -355,6 +355,15 @@ permanent once on Central, so tighten the surface first.
       property-based framework: jqwik ≥1.10 ships an anti-AI `stdout` banner, so we dropped
       it and forgo automatic shrinking — compensating with a fixed seed (reproducible
       failures) and hardcoded edge cases.
+- [x] **Solid README.** Leads with the narrow niche (equivalence validation at scale
+      with a per-field report) and says what it is not: a general object diff (JaVers,
+      java-object-diff) or a single-object assertion. **Done:** full top-to-bottom
+      rewrite. New niche-first intro, a quick-start, a module map (core, json, report,
+      assertj, junit5), a "using it in tests" section for the assertj/junit5 bridges, and
+      the batch-report and persistence sections (`FeedbackAggregator`/`FeedbackSummary`/
+      `FeedbackQuery`, the two `json` shapes, and a runnable `BatchReportTest`), now with
+      a realistic batch example that replays a set of queries against both APIs. Concise
+      style pass throughout.
 - [ ] **Critical code & comment polish pass.** Re-read the whole surface with fresh
       eyes now that six modules exist: public-API javadoc completeness and honesty,
       dead/duplicated code (e.g. the near-identical broken-leaf message formatting now
@@ -362,11 +371,6 @@ permanent once on Central, so tighten the surface first.
       into `report` or keep them intentionally distinct), naming consistency, and
       comments that have drifted from the code. Tighten before the API is frozen by a
       public release.
-- [ ] **Solid README.** Supersedes the `[~]` rewrite item below — a top-to-bottom
-      README that leads with the narrow, true positioning (equivalence validation at
-      scale with a per-field report), a quick-start, the module map (core + json +
-      report + assertj + junit5), and the batch-report story. Fold in the open
-      sub-items from that entry (opening-pitch rewrite, record-based example models).
 - [ ] **Bump version `1.1-SNAPSHOT` → `2.0`.** Single point of change in the root
       `build.gradle` (`version = '1.1-SNAPSHOT'`). Do this last, as the release commit,
       once the above land. (Major bump is justified: records/maps/sets/arrays/Optional,
@@ -375,22 +379,6 @@ permanent once on Central, so tighten the surface first.
 
 - [ ] Publish to Maven Central (the `nl.alexeyu.structmatcher` group is already set) —
       **gated on the release-gate checklist above.**
-- [~] README rewrite around the **corrected** positioning — **superseded by the
-      "Solid README" release-gate item above**; kept here for the progress record.
-      Claim the *narrow, true* niche — "equivalence validation at scale with a
-      per-field report" — not the broad, false "structured POJO diff" (which JaVers /
-      java-object-diff already own). **Done so far:** the README gained "Beyond a single
-      comparison: the batch report" and "Serializing and persisting feedback" sections
-      documenting the `report` module (`FeedbackAggregator`/`FeedbackSummary`/
-      `FeedbackQuery`) and the two `json` shapes (`Json.mapper()` rendering vs the
-      versioned `FeedbackArchives` persistence + reload→aggregate), framed around
-      equivalence-at-scale; a runnable batch example landed as
-      `BatchReportTest` in `examples` (aggregate → query → persist+reload, asserting
-      per-field rates and `topMismatchingFields`). **Still open:** a top-to-bottom
-      rewrite of the *opening* pitch around the narrow niche (the intro still leads with
-      the single-compare framing). (The "convert example models to records" sub-item is
-      **done** — the bookstore models are already records, now also showcased by the
-      AssertJ / JUnit-5 example tests.)
 
 ---
 
