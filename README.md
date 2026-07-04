@@ -8,6 +8,34 @@ It fits one job well: validating that two object streams are equivalent, at scal
 
 Use it when your objects have no meaningful `equals` (or can't have one), some fields need loose matching, and you want the difference reported field by field.
 
+## Installation
+
+Available on Maven Central. `core` is all you need to compare objects; add the optional modules for JSON persistence, batch reporting, or a test-framework bridge.
+
+Gradle:
+
+```groovy
+implementation 'io.github.alexeyu:structure-matcher-core:2.0'
+
+// optional add-ons
+implementation    'io.github.alexeyu:structure-matcher-json:2.0'    // JSON rendering + versioned persistence
+implementation    'io.github.alexeyu:structure-matcher-report:2.0'  // batch aggregation and querying
+testImplementation 'io.github.alexeyu:structure-matcher-assertj:2.0' // AssertJ assertion bridge
+testImplementation 'io.github.alexeyu:structure-matcher-junit5:2.0'  // JUnit 5 assertion helpers
+```
+
+Maven:
+
+```xml
+<dependency>
+    <groupId>io.github.alexeyu</groupId>
+    <artifactId>structure-matcher-core</artifactId>
+    <version>2.0</version>
+</dependency>
+```
+
+The Java packages are `nl.alexeyu.structmatcher.*` regardless of the `io.github.alexeyu` coordinate namespace.
+
 ## Quick start
 
 Compare two objects and inspect the feedback. Empty feedback means they matched.

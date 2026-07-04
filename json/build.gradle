@@ -1,3 +1,6 @@
+description = 'JSON serialization and stable, versioned persistence for structure-matcher ' +
+        'feedback trees (Jackson).'
+
 dependencies {
     api project(':core')
     // The persistence/archive format reuses report's canonical-path extraction (BrokenLeaf /

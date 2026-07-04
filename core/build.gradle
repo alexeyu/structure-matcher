@@ -1,3 +1,6 @@
+description = 'Compare two complex Java objects property by property and get a per-field ' +
+        'feedback tree of every difference. Zero runtime dependencies.'
+
 dependencies {
     testImplementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
     testImplementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"

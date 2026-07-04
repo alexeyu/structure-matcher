@@ -1,3 +1,6 @@
+description = 'Plain JUnit 5 assertion helpers for structure-matcher: ' +
+        'StructAssertions.assertMatches(expected, actual).'
+
 dependencies {
     // core's ObjectMatcher/FeedbackNode appear in this module's public API (the assertion takes a
     // spec and matches with it), so they are exposed transitively.

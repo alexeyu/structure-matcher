@@ -1,3 +1,6 @@
+description = 'AssertJ assertion bridge for structure-matcher: ' +
+        'assertThat(actual).matchesStructure(expected).'
+
 dependencies {
     // core's ObjectMatcher/FeedbackNode appear in this module's public API (the assertion takes a
     // spec and matches with it), so they are exposed transitively.

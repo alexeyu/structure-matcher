@@ -1,5 +1,6 @@
 plugins {
     id 'com.diffplug.spotless' version '6.25.0' apply false
+    id 'com.vanniktech.maven.publish' version '0.34.0' apply false
 }
 
 ext {
@@ -8,7 +9,6 @@ ext {
 
 subprojects {
     apply plugin: 'java-library'
-    apply plugin: 'maven-publish'
     apply plugin: 'com.diffplug.spotless'
 
     // Light-touch formatting: orders imports, removes unused imports, trims trailing
@@ -54,8 +54,10 @@ subprojects {
     tasks.named('check').configure { dependsOn 'checkLineLength' }
     tasks.named('test').configure { dependsOn 'checkLineLength' }
 
-    group = 'nl.alexeyu.structmatcher'
-    version = '1.1-SNAPSHOT'
+    // Maven Central groupId. The Java packages stay `nl.alexeyu.structmatcher.*`; only the
+    // published coordinate namespace is `io.github.alexeyu` (verified via the GitHub account).
+    group = 'io.github.alexeyu'
+    version = '2.0'
 
     repositories {
         mavenCentral()
@@ -65,8 +67,6 @@ subprojects {
         toolchain {
             languageVersion = JavaLanguageVersion.of(17)
         }
-        withSourcesJar()
-        withJavadocJar()
     }
 
     // Enforce the 'reference' doclint group (broken @see/@link targets, wrong @param
@@ -86,11 +86,43 @@ subprojects {
     test {
         useJUnitPlatform()
     }
+}
 
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                from components.java
+// Publishing to Maven Central (Central Portal). Every module except the runnable `examples`
+// demo is a published artifact. The vanniktech plugin builds the sources/javadoc jars, signs
+// every publication, and uploads a bundle to the Central Portal. Artifacts are published as
+// `io.github.alexeyu:structure-matcher-<module>:<version>`; inter-module `project(...)`
+// dependencies are rewritten to those coordinates automatically.
+configure(subprojects.findAll { it.name != 'examples' }) {
+    apply plugin: 'com.vanniktech.maven.publish'
+
+    mavenPublishing {
+        publishToMavenCentral()
+        signAllPublications()
+
+        coordinates(group.toString(), "structure-matcher-${project.name}", version.toString())
+
+        pom {
+            name = "Structure matcher :: ${project.name}"
+            description = project.description
+            url = 'https://github.com/alexeyu/structure-matcher'
+            licenses {
+                license {
+                    name = 'MIT License'
+                    url = 'https://opensource.org/licenses/MIT'
+                    distribution = 'repo'
+                }
+            }
+            developers {
+                developer {
+                    id = 'alexeyu'
+                    name = 'Oleksii Ustenko'
+                }
+            }
+            scm {
+                connection = 'scm:git:git://github.com/alexeyu/structure-matcher.git'
+                developerConnection = 'scm:git:ssh://git@github.com/alexeyu/structure-matcher.git'
+                url = 'https://github.com/alexeyu/structure-matcher'
             }
         }
     }
