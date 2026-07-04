@@ -1,5 +1,7 @@
 # Structure matcher
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeyu/structure-matcher-core)](https://central.sonatype.com/artifact/io.github.alexeyu/structure-matcher-core)
+
 *Check whether two complex Java objects are "equal enough", and get a per-field report of every difference.*
 
 Structure matcher compares two POJOs property by property, and returns a feedback tree. Per-property rules let you loosen the comparison where it should be loose: a value in a range, a string matching a regex, an ignored field, an order-insensitive list. The result serializes to JSON, so you can store and diff large numbers of comparisons.
