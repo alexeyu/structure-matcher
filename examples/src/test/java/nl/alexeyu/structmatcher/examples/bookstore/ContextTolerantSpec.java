@@ -52,6 +52,8 @@ final class ContextTolerantSpec {
 
     /** A fresh matcher that tolerates the context metadata and compares the answer strictly. */
     static ObjectMatcher<BookSearchResult> matcher() {
+        // Only the context and keywords get custom rules; booksFound and every field under books
+        // keep the default strict equality — that strict-by-default answer is the whole point.
         return ObjectMatcher.forClass(BookSearchResult.class)
                 // Execution-context fields — each tolerated by a rule that still means something.
                 .with(StringMatchers.regex(IP_PATTERN), BookSearchResult::metadata,
@@ -63,7 +65,6 @@ final class ContextTolerantSpec {
                 .with(anyValue(), BookSearchResult::metadata, SearchMetadata::platform)
                 // Keywords: order- and case-insensitive, but the set of terms must still match.
                 .with(keywordsMatcher(), BookSearchResult::metadata, SearchMetadata::keywords);
-        // booksFound and every field under books keep the default strict equality.
     }
 
     /**

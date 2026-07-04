@@ -97,9 +97,9 @@ public final class FeedbackArchives {
             throw new IllegalArgumentException("Could not parse feedback archive", e);
         }
         if (archive.schemaVersion() != CURRENT_SCHEMA_VERSION) {
-            throw new IllegalArgumentException("Unsupported feedback archive schemaVersion "
-                    + archive.schemaVersion() + "; this build understands "
-                    + CURRENT_SCHEMA_VERSION);
+            throw new IllegalArgumentException(
+                    "Unsupported feedback archive schemaVersion %d; this build understands %d"
+                            .formatted(archive.schemaVersion(), CURRENT_SCHEMA_VERSION));
         }
         return archive;
     }
