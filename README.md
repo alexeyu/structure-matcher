@@ -6,9 +6,11 @@
 
 Structure matcher compares two POJOs property by property, and returns a feedback tree. Per-property rules let you loosen the comparison where it should be loose: a value in a range, a string matching a regex, an ignored field, an order-insensitive list. The result serializes to JSON, so you can store and diff large numbers of comparisons.
 
-It fits one job well: validating that two object streams are equivalent, at scale, with a localized report. Think API v1-vs-v2 contract checks, data-pipeline regression, or cross-system reconciliation, where you want to see which fields diverge
+It fits one job well: validating that two object streams are equivalent, at scale, with a localized report. Think API v1-vs-v2 contract checks, data-pipeline regression, or cross-system reconciliation, where you want to see which fields diverge.
 
 Use it when your objects have no meaningful `equals` (or can't have one), some fields need loose matching, and you want the difference reported field by field.
+
+For a single test assertion, AssertJ's `usingRecursiveComparison()` is probably the better tool. [How this compares to JaVers, AssertJ and json-unit](COMPARISON.md) says where each one wins.
 
 ## Installation
 
@@ -19,11 +21,11 @@ Gradle:
 ```groovy
 implementation 'io.github.alexeyu:structure-matcher-core:2.0'
 
-// optional add-ons
-implementation    'io.github.alexeyu:structure-matcher-json:2.0'    // JSON rendering + versioned persistence
-implementation    'io.github.alexeyu:structure-matcher-report:2.0'  // batch aggregation and querying
-testImplementation 'io.github.alexeyu:structure-matcher-assertj:2.0' // AssertJ assertion bridge
-testImplementation 'io.github.alexeyu:structure-matcher-junit5:2.0'  // JUnit 5 assertion helpers
+// optional add-ons, described below
+implementation     'io.github.alexeyu:structure-matcher-json:2.0'
+implementation     'io.github.alexeyu:structure-matcher-report:2.0'
+testImplementation 'io.github.alexeyu:structure-matcher-assertj:2.0'
+testImplementation 'io.github.alexeyu:structure-matcher-junit5:2.0'
 ```
 
 Maven:
@@ -56,9 +58,9 @@ By default every property is compared for equality, recursing into nested struct
 ```java
 FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
         .with(IntegerMatchers.inRange(2, 5000),
-                BookSearchResult::getMetadata, SearchMetadata::getProcessingTimeMs)
+                BookSearchResult::metadata, SearchMetadata::getProcessingTimeMs)
         .with(StringMatchers.regex(IPADDRESS_PATTERN),
-                BookSearchResult::getMetadata, SearchMetadata::getServer, Server::ip)
+                BookSearchResult::metadata, SearchMetadata::getServer, Server::ip)
         .match(expected, actual);
 ```
 
@@ -66,13 +68,14 @@ FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
 
 - **core** - the library. Zero runtime dependencies. All matching logic lives here.
 - **json** - serialize feedback to JSON, in two shapes: a readable rendering, and a stable versioned archive for persistence.
-- **report** - aggregate many comparisons into a batch summary, and query a single result tree. - **assertj** - an AssertJ assertion: `assertThat(actual).matchesStructure(expected, spec)`.
+- **report** - aggregate many comparisons into a batch summary, and query a single result tree.
+- **assertj** - an AssertJ assertion: `assertThat(actual).matchesStructure(expected, spec)`.
 - **junit5** - plain JUnit 5 helpers: `StructAssertions.assertMatches(expected, actual, spec)`.
 - **examples** - the runnable bookstore scenario shown below.
 
 ## Example
 
-Imagine a bookstore REST API. The search endpoint returns the books that match a query. The legacy version serves a traditional website and returns XML. The new version serves mobile devices and returns JSON. The mobile response is lighter, so it omits some properties and shortens others, like the author's first name. Here is the same result in both versions:
+Imagine a bookstore REST API. The search endpoint returns the books that match a query. The legacy version serves a traditional website and returns XML. The new version serves mobile devices and returns JSON. The mobile response is lighter, so it omits some properties and shortens others, like the author's first name. Here is the same result in both versions, with the second of the two books elided:
 
 ```xml
 <BookSearchResult>
@@ -96,17 +99,11 @@ Imagine a bookstore REST API. The search endpoint returns the books that match a
           <lastName>King</lastName>
         </authors>
       </authors>
-      <yearPublished>1999</yearPublished>
-    </books>
-    <books>
-      <title>Summer and smoke</title>
-      <authors>
-        <authors>
-          <firstName>Tennessee</firstName>
-          <lastName>Williams</lastName>
-        </authors>
-      </authors>
-      <yearPublished>1950</yearPublished>
+      <publishingInfo>
+        <publisher>Simon &amp; Schuster Audio</publisher>
+        <year>1999</year>
+        <length>96</length>
+      </publishingInfo>
     </books>
   </books>
 </BookSearchResult>
@@ -128,12 +125,6 @@ Imagine a bookstore REST API. The search endpoint returns the books that match a
       "firstName" : "S.",
       "lastName" : "King"
     } ]
-  }, {
-    "title" : "Summer and smoke",
-    "authors" : [ {
-      "firstName" : "T.",
-      "lastName" : "Williams"
-    } ]
   } ]
 }
 ```
@@ -143,11 +134,14 @@ How do we prove the two responses carry the same information?
 First, we need POJOs that model the response, so we can read the XML or JSON into them (with Jackson, for instance). The simplest classes are omitted:
 
 ```java
-public record Book(String title, List<Author> authors, String meta, PublishingInfo publishingInfo) {}
+public record Book(String title, List<Author> authors, PublishingInfo publishingInfo) {}
+
+public record PublishingInfo(String publisher, int year, int length) {}
 
 // A record works just as well as a classic bean. Its components are discovered as properties.
 public record Server(String ip, int port) {}
 
+// A classic bean, to show the two styles mixing in one path.
 public class SearchMetadata {}
 
 public record BookSearchResult(SearchMetadata metadata, List<Book> books) {}
@@ -157,7 +151,7 @@ Second, we tell Structure matcher about every logical difference between the res
 
 A custom matcher is attached to a property by **path**. There are two ways to write a path:
 
-- **Typed accessor chains** (preferred) - a sequence of method references such as `BookSearchResult::getMetadata, SearchMetadata::getServer, Server::ip`. They are checked by the compiler, completed by the IDE, and survive renames. A chain mixes bean getters and record accessors freely.
+- **Typed accessor chains** (preferred) - a sequence of method references such as `BookSearchResult::metadata, SearchMetadata::getServer, Server::ip`. They are checked by the compiler, completed by the IDE, and survive renames. A chain mixes bean getters and record accessors freely.
 - **Dot-separated strings** - `"Metadata.Server.Ip"`. Loosely typed, but the only way to express paths that descend *into* collection elements (`"Books.Authors.FirstName"`) or use the `*` wildcard.
 
 The two styles produce identical paths and can be mixed in one set-up.
@@ -169,24 +163,36 @@ FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
         // Typed accessor chains are refactor-safe; this one descends a bean (SearchMetadata)
         // into a record (Server) transparently.
         .with(StringMatchers.regex(IPADDRESS_PATTERN),
-                BookSearchResult::getMetadata, SearchMetadata::getServer, Server::ip) // both properties are valid IP addresses
+                BookSearchResult::metadata, SearchMetadata::getServer, Server::ip) // both properties are valid IP addresses
         .with(IntegerMatchers.oneOf(8080, 8081, 8090, 8091),
-                BookSearchResult::getMetadata, SearchMetadata::getServer, Server::port) // the port is one of the listed values
+                BookSearchResult::metadata, SearchMetadata::getServer, Server::port) // the port is one of the listed values
         .with(IntegerMatchers.inRange(2, 5000),
-                BookSearchResult::getMetadata, SearchMetadata::getProcessingTimeMs) // the processing time is a reasonable number
-        // String path, needed here because it traverses into each element of the Books list.
+                BookSearchResult::metadata, SearchMetadata::getProcessingTimeMs) // the processing time is a reasonable number
         // Matchers compose fluently, left to right.
         .with(Matchers.<String>nonNull()
                 .and(StringMatchers.nonEmpty()) // present and a non-empty string...
                 .and(Matchers.<String>valuesEqual()
-                        .normalizingBase(name -> name.charAt(0) + ".")), // ...and equal once shortened to an initial
-                "Books.Authors.FirstName") // the initials match
-        .with(Matchers.constant(null), "Books.YearPublished") // the publishing year is absent in the target response
+                        .normalizingBoth(name -> name.charAt(0) + ".")), // ...and the same once reduced to an initial
+                "Books.Authors.FirstName") // "Stephen" and "S." are the same author
+        .with(absentOrEqual(), "Books.PublishingInfo") // absent is fine, present must be right
         .match(desktopResponse, mobileResponse); // match the mobile response against the desktop one
-assertTrue(feedback.isEmpty()); // correct for this example
+assertTrue(feedback.isEmpty()); // the two responses carry the same answer
 ```
 
-Only the exceptions are defined. Every other property is compared automatically, in the standard way.
+Two details to note:
+
+- `normalizingBoth`, not `normalizingBase`. Reducing only the baseline would make `Stephen` match `S.` but stop `Stephen` matching `Stephen`, so the spec would fail on any desktop-to-desktop comparison. Reducing both sides makes one spec serve every pairing, and it stays strict: `Stephen` still does not match `T.`.
+- `absentOrEqual` tolerates *absence*, not *anything*. A response that omits `publishingInfo` passes; one that returns the wrong year does not. A matcher is just a lambda, so a rule the built-ins don't cover is a few lines:
+
+  ```java
+  static Matcher<PublishingInfo> absentOrEqual() {
+      return (property, expected, actual) -> actual == null
+              ? Feedback.empty(property)
+              : Matchers.<PublishingInfo>structuresEqual().match(property, expected, actual);
+  }
+  ```
+
+Only the deviations are defined. Every other property is compared automatically, in the standard way.
 
 ## Beyond a single comparison: the batch report
 
@@ -203,31 +209,71 @@ FeedbackSummary summary = FeedbackAggregator.summarize(searches.stream()
         .map(query -> matcher.match(legacyApi.search(query), mobileApi.search(query)))
         .toList());
 
-summary.total();                      // one comparison per query
-summary.mismatchRate();               // fraction whose responses diverged
-summary.failureCount("Book.title");   // responses that differed on the server IP
-summary.failureRate("Book.title");    // the same as a fraction of the batch
-summary.topMismatchingFields(3);      // the fields diverging most often, worst first
+summary.total();                          // one comparison per query
+summary.mismatchRate();                   // fraction whose responses diverged
+summary.failureCount("Books[].Title");    // responses differing on a book title
+summary.failureRate("Books[].Title");     // the same as a fraction of the batch
+summary.topMismatchingFields(3);          // the fields diverging most often, worst first
 ```
 
-A field is counted at most once per comparison, and collection indices collapse to a single field (`Books[0].Meta` and `Books[1].Meta` become `Books[].Meta`), so a rate reads as "the fraction of comparisons in which this field broke."
+`summary.toString()` is the digest, worst field first:
+
+```
+200 comparisons: 170 matched, 30 mismatched (15.0%)
+  Books[].Title: 19 (9.5%)
+  Metadata.BooksFound: 10 (5.0%)
+  Books[].Authors[].LastName: 3 (1.5%)
+```
+
+That is the idea: not "30 responses differed", but *which* three fields account for them, and how often each one breaks. Every response in this batch came from a different host and port, took a different time, abbreviated every author's first name and omitted the publishing details. None of that reaches the report, because the spec tolerates all of it. What is left is signal.
+
+A field is counted at most once per comparison, and collection indices collapse to a single field (`Books[0].Title` and `Books[1].Title` become `Books[].Title`), so a rate reads as "the fraction of comparisons in which this field broke."
 
 To inspect one comparison, `FeedbackQuery` walks the tree down to its broken leaves, each carrying its path plus the expected and actual values:
 
 ```java
 import nl.alexeyu.structmatcher.report.FeedbackQuery;
 
-var feedback = matcher.match(legacyResponse, mobileResponse);
-FeedbackQuery.brokenLeaves(feedback);                           // every broken (path, expectation, value)
-FeedbackQuery.mismatchesUnder(feedback, "Book.PublishingInfo"); // only the leaves under a given path
+var feedback = matcher.match(desktopResponse, mobileResponse);
+FeedbackQuery.brokenLeaves(feedback);                  // every broken (path, expectation, value)
+FeedbackQuery.mismatchesUnder(feedback, "Books[0]");   // only the leaves under a given path
 ```
+
+Run the same spec against a response that really did regress - it claims three hits while returning two, and renders the first title differently - and `brokenLeaves` returns exactly those two divergences as `(path, expectation, value)`:
+
+```
+Metadata.BooksFound | 2               | 3
+Books[0].Title      | Blood and Smoke | Blood & Smoke
+```
+
+The abbreviated first names and the missing publishing details are in this response too, and they are absent from the list. That is what scoped tolerance achieves: the rules suppress the differences you decided are irrelevant.
 
 ## Serializing and persisting feedback
 
-Two JSON shapes for two jobs, both in the `json` module (which adds Jackson):
+Two JSON shapes for two jobs, both in the `json` module:
 
 - **Human-readable rendering** - `Json.mapper()` serializes a `FeedbackNode` tree to nested, property-keyed JSON, for reading or diffing a single comparison.
 - **Stable persistence format** - `FeedbackArchives` writes a flat, **versioned** archive (`{schemaVersion, matched, brokenLeaves:[{path, expectation, value}]}`): the format to store and reload. The reader rejects an unknown `schemaVersion` and ignores unknown fields, so additive changes stay forward-compatible.
+
+The archive of the comparison above:
+
+```json
+{
+  "schemaVersion" : 1,
+  "matched" : false,
+  "brokenLeaves" : [ {
+    "path" : "Metadata.BooksFound",
+    "expectation" : 2,
+    "value" : 3
+  }, {
+    "path" : "Books[0].Title",
+    "expectation" : "Blood and Smoke",
+    "value" : "Blood & Smoke"
+  } ]
+}
+```
+
+A whole batch goes to one document as JSON Lines (`toJsonLines` / `fromJsonLines`), one compact archive per line.
 
 Because the archive keeps each broken path, a persisted batch can be reloaded and aggregated **without re-running the comparisons**. Feed the stored paths back through `FeedbackAggregator.addBrokenPaths`:
 
@@ -253,10 +299,12 @@ StructMatcherAssertions.assertThat(actual).matchesStructure(expected, spec);
 StructAssertions.assertMatches(expected, actual, spec);
 ```
 
-## At a glance
+The failure names every field that diverged, instead of dumping two objects and leaving you to spot the difference:
 
-- **Lightweight** - `core` and `report` have no runtime dependencies; only `json` (and `examples`) pull in Jackson.
-- **Flexible** - assign any matcher to any property of a composite object.
-- **Refactor-safe** - attach matchers with typed accessor chains (`Server::ip`) checked by the compiler, not just dot-separated strings.
-- **Extensible** - write your own matchers, or use the two dozen that ship built in.
-- **Scalable** - results aggregate into a batch report and persist to a stable, versioned JSON format, so a stored batch reloads and rolls up without re-running the comparisons.
+```
+2 field(s) did not match:
+  [Metadata.BooksFound] expected: <2> but was: <3>
+  [Books[0].Title] expected: <Blood and Smoke> but was: <Blood & Smoke>
+```
+
+The AssertJ bridge prints the same per-field list, preceded by both objects in AssertJ's usual style. The JUnit 5 helper attaches them to the `AssertionFailedError`, so the IDE still offers its comparison view.
