@@ -21,7 +21,11 @@
           <lastName>King</lastName>
         </authors>
       </authors>
-      <meta>1999</meta>
+      <publishingInfo>
+        <publisher>Simon &amp; Schuster Audio</publisher>
+        <year>1999</year>
+        <length>96</length>
+      </publishingInfo>
     </books>
     <books>
       <title>Summer and smoke</title>
@@ -31,7 +35,11 @@
           <lastName>Williams</lastName>
         </authors>
       </authors>
-      <meta>1950</meta>
+      <publishingInfo>
+        <publisher>New Directions</publisher>
+        <year>1950</year>
+        <length>128</length>
+      </publishingInfo>
     </books>
   </books>
 </BookSearchResult>

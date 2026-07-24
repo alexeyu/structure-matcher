@@ -15,13 +15,21 @@
       "firstName" : "Stephen",
       "lastName" : "King"
     } ],
-    "meta" : 1999
+    "publishingInfo" : {
+      "publisher" : "Simon & Schuster Audio",
+      "year" : 1999,
+      "length" : 96
+    }
   }, {
     "title" : "Summer and smoke",
     "authors" : [ {
       "firstName" : "Tennessee",
       "lastName" : "Williams"
     } ],
-    "meta" : 1950
+    "publishingInfo" : {
+      "publisher" : "New Directions",
+      "year" : 1950,
+      "length" : 128
+    }
   } ]
 }

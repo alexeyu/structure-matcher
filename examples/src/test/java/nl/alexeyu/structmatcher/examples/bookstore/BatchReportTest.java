@@ -26,7 +26,7 @@ import nl.alexeyu.structmatcher.report.FeedbackSummary;
  * The batch / "report is the product" scenario: instead of matching one pair, check many responses
  * against a baseline and roll the feedback up to see <em>which fields systematically diverge</em>.
  * Every comparison uses the shared {@link ContextTolerantSpec}, so the execution-context metadata
- * is filtered out and the report is about real book-payload divergence, not environment noise —
+ * is filtered out and the report is about real book-payload divergence, not environment noise -
  * one v1 desktop baseline checked against a v2 mobile response (books genuinely changed), the v1
  * production XML (only context differs), and itself. Demonstrates the {@code report} module
  * ({@link FeedbackAggregator}, {@link FeedbackQuery}) and the {@code json} persistence format
@@ -36,7 +36,7 @@ public class BatchReportTest {
 
     private Path rootPath;
 
-    private BookSearchResult desktopTest, desktopProd, mobileTest;
+    private BookSearchResult desktopTest, desktopProd, mobileTest, mobileRegression;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -45,6 +45,7 @@ public class BatchReportTest {
         var jsonMapper = new ObjectMapper();
         desktopTest = fromFile(jsonMapper, "response-on-smoke-for-desktop-test.json");
         mobileTest = fromFile(jsonMapper, "response-on-smoke-for-mobile-test.json");
+        mobileRegression = fromFile(jsonMapper, "response-on-smoke-for-mobile-regression.json");
         desktopProd = fromFile(new XmlMapper(), "response-on-smoke-for-desktop-prod.xml");
     }
 
@@ -56,41 +57,48 @@ public class BatchReportTest {
     private List<FeedbackNode> batch() {
         ObjectMatcher<BookSearchResult> matcher = ContextTolerantSpec.matcher();
         return List.of(matcher.match(desktopTest, mobileTest),
-                matcher.match(desktopTest, desktopProd), matcher.match(desktopTest, desktopTest));
+                matcher.match(desktopTest, desktopProd), matcher.match(desktopTest, desktopTest),
+                matcher.match(desktopTest, mobileRegression));
     }
 
     @Test
     public void aggregateRevealsSystematicallyDivergingFields() {
         FeedbackSummary summary = FeedbackAggregator.summarize(batch());
 
-        assertEquals(3, summary.total());
-        assertEquals(2, summary.matched());
+        assertEquals(4, summary.total());
+        assertEquals(3, summary.matched());
         assertEquals(1, summary.mismatched());
-        assertEquals(1.0 / 3.0, summary.mismatchRate(), 1e-9);
+        assertEquals(0.25, summary.mismatchRate(), 1e-9);
 
-        // Only the mobile response diverges, and only in the book payload: abbreviated author
-        // first names and the dropped per-book meta. The tolerated metadata never shows up.
-        assertEquals(1, summary.failureCount("Books[].Authors[].FirstName"));
-        assertEquals(1, summary.failureCount("Books[].Meta"));
+        // Only the regressed response diverges, and only where the answer really changed.
+        assertEquals(1, summary.failureCount("Books[].Title"));
+        assertEquals(1, summary.failureCount("Metadata.BooksFound"));
+
+        // This is the point of the spec: every response in the batch was served by a different
+        // host, port and platform, and two of them abbreviate the author names and omit the
+        // publishing details. None of that noise reaches the report.
+        assertEquals(0, summary.failureCount("Books[].Authors[].FirstName"));
+        assertEquals(0, summary.failureCount("Books[].PublishingInfo"));
         assertEquals(0, summary.failureCount("Metadata.Server.Ip"));
 
-        // Most-failing first, ties broken by path — the real payload regressions bubble to the top.
-        assertEquals(List.of("Books[].Authors[].FirstName", "Books[].Meta"),
+        // Most-failing first, ties broken by path.
+        assertEquals(List.of("Books[].Title", "Metadata.BooksFound"),
                 summary.topMismatchingFields(2));
     }
 
     @Test
     public void querySingleComparisonForTheLeavesUnderAPath() {
-        var feedback = ContextTolerantSpec.matcher().match(desktopTest, mobileTest);
+        var feedback = ContextTolerantSpec.matcher().match(desktopTest, mobileRegression);
 
-        // "What broke in the first book?" — the author's first name and the meta both changed.
+        // "What broke in the first book?" - the title, and only the title. The initial standing in
+        // for the full first name is tolerated, so it is not reported as a difference.
         List<BrokenLeaf> underFirstBook = FeedbackQuery.mismatchesUnder(feedback, "Books[0]");
-        assertEquals(List.of("Books[0].Authors[0].FirstName", "Books[0].Meta"),
+        assertEquals(List.of("Books[0].Title"),
                 underFirstBook.stream().map(BrokenLeaf::path).collect(toList()));
 
-        var firstName = underFirstBook.get(0);
-        assertEquals("Stephen", firstName.expectation()); // baseline (expected)
-        assertEquals("S.", firstName.value()); // mobile (actual)
+        var title = underFirstBook.get(0);
+        assertEquals("Blood and Smoke", title.expectation()); // baseline (expected)
+        assertEquals("Blood & Smoke", title.value()); // regressed response (actual)
     }
 
     @Test

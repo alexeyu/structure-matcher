@@ -15,16 +15,16 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 /**
  * Shows the {@code assertj} bridge in the bookstore scenario: assert straight from an existing
  * AssertJ test that a response is <em>equivalent enough</em> to a baseline under the shared
- * {@link ContextTolerantSpec} (metadata tolerated, book payload strict). The prod response matches
- * because only its execution context differs; the mobile response fails because its book payload
- * genuinely changed — and the AssertJ failure localizes that to {@code Books[...]}, not the
- * tolerated metadata. Same fixtures as {@link ResponseMatchingTest}.
+ * {@link ContextTolerantSpec}. The prod and mobile responses both pass - one differs only in
+ * execution context, the other only in how it presents the same answer - while the regressed
+ * response fails, and the AssertJ message names the two fields that actually changed rather than
+ * anything the spec tolerates. Same fixtures as {@link ResponseMatchingTest}.
  */
 public class AssertJExampleTest {
 
     private Path rootPath;
 
-    private BookSearchResult desktopTest, desktopProd, mobileTest;
+    private BookSearchResult desktopTest, desktopProd, mobileTest, mobileRegression;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -33,6 +33,7 @@ public class AssertJExampleTest {
         var jsonMapper = new ObjectMapper();
         desktopTest = fromFile(jsonMapper, "response-on-smoke-for-desktop-test.json");
         mobileTest = fromFile(jsonMapper, "response-on-smoke-for-mobile-test.json");
+        mobileRegression = fromFile(jsonMapper, "response-on-smoke-for-mobile-regression.json");
         desktopProd = fromFile(new XmlMapper(), "response-on-smoke-for-desktop-prod.xml");
     }
 
@@ -46,17 +47,26 @@ public class AssertJExampleTest {
     }
 
     @Test
-    public void mobileFailsOnTheBookPayloadDespiteTolerantMetadata() {
-        // The metadata rules tolerate the different server/platform, but the abbreviated author
-        // names and dropped meta are a real payload change — the failure points at the books.
+    public void mobileIsEquivalentDespiteAbbreviatedPresentation() {
+        // The initials and the omitted publishing details are presentation, not a different
+        // answer, so the assertion passes.
+        assertThat(mobileTest).matchesStructure(desktopTest, ContextTolerantSpec.matcher());
+    }
+
+    @Test
+    public void aGenuineRegressionFailsAndTheMessageNamesTheField() {
+        // Same tolerated presentation, but a changed title and a hit count that disagrees with
+        // the returned books - the failure points at exactly those two fields.
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> assertThat(mobileTest)
+                .isThrownBy(() -> assertThat(mobileRegression)
                         .matchesStructure(desktopTest, ContextTolerantSpec.matcher()))
-                .withMessageContaining("Books[0].Authors[0].FirstName")
-                .withMessageContaining("Books[0].Meta")
-                // No tolerated metadata field appears as a diff line (the paths are bracketed).
-                .matches(e -> !e.getMessage().contains("[Metadata"),
-                        "no tolerated metadata field appears in the diff");
+                .withMessageContaining("[Books[0].Title]")
+                .withMessageContaining("[Metadata.BooksFound]")
+                // Nothing tolerated rides along: no server, timing or author-name diff line.
+                .matches(e -> !e.getMessage().contains("[Metadata.Server"),
+                        "no tolerated metadata field appears in the diff")
+                .matches(e -> !e.getMessage().contains("FirstName"),
+                        "the abbreviated first name is tolerated, not reported");
     }
 
 }

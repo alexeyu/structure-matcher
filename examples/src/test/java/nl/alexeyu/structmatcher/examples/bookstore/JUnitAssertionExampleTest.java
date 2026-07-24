@@ -16,17 +16,17 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 /**
  * Shows the {@code junit5} assertion helpers in the bookstore scenario, without AssertJ. Using the
- * shared {@link ContextTolerantSpec} (metadata tolerated, book payload strict): the prod response
- * matches the baseline because only its execution context differs, while the mobile response throws
- * {@link AssertionFailedError} — its book payload genuinely changed, so the message names the
- * offending {@code Books[...]} fields (and carries both objects for the IDE's comparison view),
- * with no tolerated metadata field in sight. Same fixtures as {@link ResponseMatchingTest}.
+ * shared {@link ContextTolerantSpec}: the prod and mobile responses both match the baseline (one
+ * differs only in execution context, the other only in presentation), while the regressed response
+ * throws {@link AssertionFailedError} naming the two fields whose values genuinely changed - and
+ * carrying both objects for the IDE's comparison view - with no tolerated field in sight. Same
+ * fixtures as {@link ResponseMatchingTest}.
  */
 public class JUnitAssertionExampleTest {
 
     private Path rootPath;
 
-    private BookSearchResult desktopTest, desktopProd, mobileTest;
+    private BookSearchResult desktopTest, desktopProd, mobileTest, mobileRegression;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -35,6 +35,7 @@ public class JUnitAssertionExampleTest {
         var jsonMapper = new ObjectMapper();
         desktopTest = fromFile(jsonMapper, "response-on-smoke-for-desktop-test.json");
         mobileTest = fromFile(jsonMapper, "response-on-smoke-for-mobile-test.json");
+        mobileRegression = fromFile(jsonMapper, "response-on-smoke-for-mobile-regression.json");
         desktopProd = fromFile(new XmlMapper(), "response-on-smoke-for-desktop-prod.xml");
     }
 
@@ -44,24 +45,33 @@ public class JUnitAssertionExampleTest {
 
     @Test
     public void prodIsEquivalentToTestUnderTolerantMetadata() {
-        // baseline (expected) first, actual second — the same order as JUnit's assertEquals.
+        // baseline (expected) first, actual second - the same order as JUnit's assertEquals.
         assertMatches(desktopTest, desktopProd, ContextTolerantSpec.matcher());
     }
 
     @Test
-    public void mobileFailsOnTheBookPayloadDespiteTolerantMetadata() {
-        var error = assertThrows(AssertionFailedError.class,
-                () -> assertMatches(desktopTest, mobileTest, ContextTolerantSpec.matcher()));
+    public void mobileIsEquivalentDespiteAbbreviatedPresentation() {
+        // Initials instead of full first names, and no publishing details: the same answer, so
+        // the assertion passes.
+        assertMatches(desktopTest, mobileTest, ContextTolerantSpec.matcher());
+    }
 
-        // The metadata is tolerated; only the genuine book-payload changes are reported.
+    @Test
+    public void aGenuineRegressionThrowsAndTheMessageNamesTheField() {
+        var error = assertThrows(AssertionFailedError.class,
+                () -> assertMatches(desktopTest, mobileRegression, ContextTolerantSpec.matcher()));
+
+        // Only the real divergence is reported: a changed title and a hit count that disagrees
+        // with the books actually returned.
         var message = error.getMessage();
-        assertTrue(message.contains("Books[0].Authors[0].FirstName"), message);
-        assertTrue(message.contains("Books[0].Meta"), message);
-        assertTrue(!message.contains("[Metadata"), message); // no tolerated metadata path
+        assertTrue(message.contains("[Books[0].Title]"), message);
+        assertTrue(message.contains("[Metadata.BooksFound]"), message);
+        assertTrue(!message.contains("[Metadata.Server"), message); // tolerated context
+        assertTrue(!message.contains("FirstName"), message); // tolerated abbreviation
 
         // Both responses ride along so a JUnit 5 IDE can render a comparison view.
         assertTrue(error.getExpected().getEphemeralValue() == desktopTest);
-        assertTrue(error.getActual().getEphemeralValue() == mobileTest);
+        assertTrue(error.getActual().getEphemeralValue() == mobileRegression);
     }
 
 }
