@@ -1,6 +1,10 @@
 # Structure matcher
 
+[![build](https://github.com/alexeyu/structure-matcher/actions/workflows/build.yml/badge.svg)](https://github.com/alexeyu/structure-matcher/actions/workflows/build.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeyu/structure-matcher-core)](https://central.sonatype.com/artifact/io.github.alexeyu/structure-matcher-core)
+[![javadoc](https://img.shields.io/badge/javadoc-2.0-blue.svg)](https://javadoc.io/doc/io.github.alexeyu/structure-matcher-core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Java 17+](https://img.shields.io/badge/Java-17%2B-orange)
 
 *Check whether two complex Java objects are "equal enough", and get a per-field report of every difference.*
 
