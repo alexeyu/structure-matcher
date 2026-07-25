@@ -8,6 +8,6 @@ abstract class IgnoreFeedbackNodePropertiesMixin {
     abstract boolean isEmpty();
 
     @JsonIgnore
-    abstract boolean getProperty();
+    abstract String getProperty();
 
 }
