@@ -36,7 +36,8 @@ public final class ClassProperty implements Property {
      * Provides stream of properties of a given class. For a {@code record} the properties are its
      * components, in declaration order. For any other class they are derived from its public getter
      * methods: a method is considered a getter if its name starts with 'get' or 'is' and it takes
-     * no parameters. The method <code>getClass()</code> is ignored.
+     * no parameters. The method <code>getClass()</code> is ignored, as are bridge and synthetic
+     * methods.
      */
     public static Stream<ClassProperty> forClass(Class<?> cl) {
         if (cl.isRecord()) {
@@ -122,27 +123,29 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is a list (implements the <code>java.util.List</code> interface).
+     * Tells if a property is a list (its type implements <code>java.util.List</code>). Mind the
+     * direction: a concrete <code>ArrayList</code> counts, a supertype (<code>Collection</code>,
+     * <code>Object</code>) does not.
      */
     @Override
     public boolean isList() {
-        return method.getReturnType().isAssignableFrom(List.class);
+        return List.class.isAssignableFrom(method.getReturnType());
     }
 
     /**
-     * Tells if a property is a map (implements the <code>java.util.Map</code> interface).
+     * Tells if a property is a map (implements <code>java.util.Map</code>). @see #isList()
      */
     @Override
     public boolean isMap() {
-        return method.getReturnType().isAssignableFrom(Map.class);
+        return Map.class.isAssignableFrom(method.getReturnType());
     }
 
     /**
-     * Tells if a property is a set (implements the <code>java.util.Set</code> interface).
+     * Tells if a property is a set (implements <code>java.util.Set</code>). @see #isList()
      */
     @Override
     public boolean isSet() {
-        return method.getReturnType().isAssignableFrom(Set.class);
+        return Set.class.isAssignableFrom(method.getReturnType());
     }
 
     /**
@@ -169,7 +172,16 @@ public final class ClassProperty implements Property {
     }
 
     private static boolean isValid(Method method) {
-        return nameMatches(method) && parametersMatch(method) && isNotBlacklisted(method);
+        return nameMatches(method) && parametersMatch(method) && isNotDenylisted(method)
+                && isDeclared(method);
+    }
+
+    /**
+     * Excludes compiler-generated methods. The bridge of a covariant accessor declares the erased
+     * return type, so keeping it would duplicate the property and type it as <code>Object</code>.
+     */
+    private static boolean isDeclared(Method method) {
+        return !method.isBridge() && !method.isSynthetic();
     }
 
     private static boolean nameMatches(Method method) {
@@ -180,7 +192,7 @@ public final class ClassProperty implements Property {
         return method.getParameterCount() == 0;
     }
 
-    private static boolean isNotBlacklisted(Method method) {
+    private static boolean isNotDenylisted(Method method) {
         return !HIDDEN_GETTERS.contains(method.getName());
     }
 

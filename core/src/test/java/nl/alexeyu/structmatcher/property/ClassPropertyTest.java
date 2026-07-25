@@ -6,19 +6,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import nl.alexeyu.structmatcher.matcher.ArrayHolder;
 import nl.alexeyu.structmatcher.matcher.Color;
+import nl.alexeyu.structmatcher.matcher.ConcreteCollectionsHolder;
 import nl.alexeyu.structmatcher.matcher.MapHolder;
 import nl.alexeyu.structmatcher.matcher.OptionalHolder;
 import nl.alexeyu.structmatcher.matcher.RecordStructure;
 import nl.alexeyu.structmatcher.matcher.RecordSubstructure;
 import nl.alexeyu.structmatcher.matcher.SetHolder;
+import nl.alexeyu.structmatcher.matcher.StringValueBox;
 import nl.alexeyu.structmatcher.matcher.Structure;
 import nl.alexeyu.structmatcher.matcher.Substructure;
+import nl.alexeyu.structmatcher.matcher.ValueBox;
 
 public class ClassPropertyTest {
 
@@ -31,7 +35,7 @@ public class ClassPropertyTest {
     }
 
     @Test
-    public void doesNotCreateBlacklistedProperty() throws NoSuchMethodException {
+    public void doesNotCreateDenylistedProperty() throws NoSuchMethodException {
         assertFalse(ClassProperty.of(getStructMethod("getClass")).isPresent());
     }
 
@@ -117,6 +121,44 @@ public class ClassPropertyTest {
         assertFalse(nickname.isSet());
         assertFalse(nickname.isArray());
         assertFalse(nickname.isSimple());
+    }
+
+    @Test
+    public void concreteCollectionTypesAreStillCollections() {
+        var properties = ClassProperty.forClass(ConcreteCollectionsHolder.class)
+                .collect(Collectors.toMap(ClassProperty::getName, p -> p));
+        assertTrue(properties.get("Items").isList());
+        assertTrue(properties.get("Sections").isMap());
+        assertTrue(properties.get("Tags").isSet());
+        properties.values().forEach(p -> assertFalse(p.isSimple()));
+    }
+
+    @Test
+    public void aSupertypeOfCollectionIsNotACollection() {
+        // The generic declaration erases to Object, which is a supertype of every collection.
+        var property = ClassProperty.of(ValueBox.class.getMethods()[0]);
+        assertTrue(property.isPresent());
+        assertEquals(Object.class, ValueBox.class.getMethods()[0].getReturnType());
+        assertFalse(property.get().isList());
+        assertFalse(property.get().isMap());
+        assertFalse(property.get().isSet());
+    }
+
+    @Test
+    public void bridgeMethodIsNotAProperty() {
+        var bridge = Arrays.stream(StringValueBox.class.getMethods()).filter(Method::isBridge)
+                .findFirst();
+        assertTrue(bridge.isPresent(), "expected a bridge accessor on " + StringValueBox.class);
+        assertFalse(ClassProperty.of(bridge.get()).isPresent());
+    }
+
+    @Test
+    public void aGenericAccessorYieldsOneProperlyTypedProperty() {
+        var properties = ClassProperty.forClass(StringValueBox.class).toList();
+        assertEquals(1, properties.size());
+        assertEquals("Value", properties.get(0).getName());
+        assertTrue(properties.get(0).isSimple());
+        assertFalse(properties.get(0).isList());
     }
 
     @Test

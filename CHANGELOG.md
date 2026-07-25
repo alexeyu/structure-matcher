@@ -4,6 +4,29 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [semantic versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- **Collection properties declared with a concrete type are matched as collections.**
+  `ClassProperty.isList`/`isMap`/`isSet` asked the assignability question backwards, so a property
+  declared `ArrayList<String>` (or `HashMap`, `HashSet`) was matched as a structure instead, which
+  compared the collection's own getters and reported differing collections as **matching**. Only
+  interface-typed properties worked.
+- **A type with no discoverable properties is no longer reported as matching.** Types the library
+  cannot introspect (accessors without a `get`/`is` prefix, classes with only public fields, an
+  array reached as a collection element) produced an empty feedback tree, i.e. "these match". They
+  are now compared by their own `equals`, or rejected with the new
+  `NoComparablePropertiesException` naming the type and property; registering a custom matcher for
+  the property still overrides the default. A collection nested in a collection
+  (`List<List<String>>`) is unaffected and remains the known limitation it was, since `ArrayList`
+  does expose a property (`isEmpty()`).
+- **Models implementing a generic interface no longer crash.** The same inverted check treated any
+  accessor returning `Object` as a list, which is what the bridge method of a covariant accessor
+  declares, so matching failed with `ClassCastException: class java.lang.String cannot be cast to
+  class java.util.List`. Bridge and synthetic methods are now excluded from property discovery,
+  which also stops the property being discovered twice.
+
 ## [2.0] - 2026-07-04
 
 The first release published to Maven Central. Versions 1.x existed only as git tags
