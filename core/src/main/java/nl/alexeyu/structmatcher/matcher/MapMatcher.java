@@ -8,12 +8,11 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * Matches two maps entry by entry. Two maps match when they have the same keys and, for every key,
- * matching values. A key present in only one of the maps is reported as a missing entry (present in
- * the base, absent in the target) or an extra entry (the other way around); every value mismatch is
- * reported too. Each entry is reported under the property name <code>property[key]</code>. Values
- * are matched the same way as anywhere else: simple values by equality, complex values
- * structurally. The maps themselves must not be <code>null</code> (their values may be).
+ * Matches two maps entry by entry: they match when they hold the same keys and matching values for
+ * each. A key only the base map holds counts as a missing entry, a key only the target holds counts
+ * as an extra one, and each lands in the feedback under <code>property[key]</code>, next to the
+ * value mismatches. Values go through the usual logic, simple ones by equality and complex ones
+ * structurally. Neither map may be <code>null</code>, though their values may.
  */
 public final class MapMatcher<K, V> implements Matcher<Map<K, V>> {
 
@@ -34,9 +33,8 @@ public final class MapMatcher<K, V> implements Matcher<Map<K, V>> {
     }
 
     /**
-     * Matches a single entry of the base map against the target map, returning its feedback if the
-     * entry is missing from the target or its value does not match, or an empty optional if the
-     * values match.
+     * Matches one entry of the base map against the target map. Returns feedback when the target
+     * lacks the key or holds a different value, and an empty optional when the values match.
      */
     private Optional<FeedbackNode> matchExpectedEntry(String property, K key, V expectedValue,
             Map<K, V> actual) {

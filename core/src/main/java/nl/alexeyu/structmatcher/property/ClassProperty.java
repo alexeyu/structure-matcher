@@ -33,11 +33,9 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Provides stream of properties of a given class. For a {@code record} the properties are its
-     * components, in declaration order. For any other class they are derived from its public getter
-     * methods: a method is considered a getter if its name starts with 'get' or 'is' and it takes
-     * no parameters. The method <code>getClass()</code> is ignored, as are bridge and synthetic
-     * methods.
+     * Streams the properties of a class. A {@code record} yields its components, in declaration
+     * order. Any other class yields its public getters: a no-arg method whose name starts with
+     * 'get' or 'is'. This skips <code>getClass()</code>, along with bridge and synthetic methods.
      */
     public static Stream<ClassProperty> forClass(Class<?> cl) {
         if (cl.isRecord()) {
@@ -66,8 +64,8 @@ public final class ClassProperty implements Property {
      * Returns the name of a property. For a bean getter the prefix is stripped: <code>getFoo</code>
      * and <code>isFoo</code> both yield 'Foo'. For a record component the accessor name is used
      * as-is: <code>foo()</code> yields 'Foo'.<br/>
-     * <b>Note:</b> provided the method names are in the camel case, property name will always start
-     * with a capital letter, regardless of the source.
+     * <b>Note:</b> with camel-case method names, a property name starts with a capital either way,
+     * so a bean and a record produce the same path.
      */
     @Override
     public String getName() {
@@ -88,13 +86,12 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Gets the value of this property for a given object by calling the property's get method.
+     * Reads this property off an object by calling its accessor.
      *
      * @param obj
-     *            an object to get the property value from.
-     * @return a value of a property.
+     *            the object to read the property from.
      * @throws IllegalStateException
-     *             if there was an exception on the method call.
+     *             if the accessor call fails.
      */
     @Override
     public Object getValue(Object obj) {
@@ -107,7 +104,7 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is simple. Properties of the following types are considered simple:
+     * Whether the property is simple, which covers these types:
      * <ul>
      * <li>all primitive types
      * <li>enumerations
@@ -123,8 +120,8 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is a list (its type implements <code>java.util.List</code>). Mind the
-     * direction: a concrete <code>ArrayList</code> counts, a supertype (<code>Collection</code>,
+     * Whether the declared type implements <code>java.util.List</code>. Mind the direction: a
+     * concrete <code>ArrayList</code> counts, a supertype (<code>Collection</code>,
      * <code>Object</code>) does not.
      */
     @Override
@@ -133,7 +130,7 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is a map (implements <code>java.util.Map</code>). @see #isList()
+     * Whether the declared type implements <code>java.util.Map</code>. @see #isList()
      */
     @Override
     public boolean isMap() {
@@ -141,7 +138,7 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is a set (implements <code>java.util.Set</code>). @see #isList()
+     * Whether the declared type implements <code>java.util.Set</code>. @see #isList()
      */
     @Override
     public boolean isSet() {
@@ -149,7 +146,7 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is an array (of objects or of primitives).
+     * Whether the property is an array, of objects or of primitives.
      */
     @Override
     public boolean isArray() {
@@ -157,8 +154,8 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Tells if a property is an {@link Optional}. <code>Optional</code> is final, so this is an
-     * exact type check rather than an "is-assignable" one.
+     * Whether the property is an {@link Optional}. <code>Optional</code> is final, so this checks
+     * the exact type rather than assignability.
      */
     @Override
     public boolean isOptional() {

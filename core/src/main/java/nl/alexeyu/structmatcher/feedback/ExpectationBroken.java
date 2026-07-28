@@ -1,15 +1,14 @@
 package nl.alexeyu.structmatcher.feedback;
 
 /**
- * Holds information about an expectation for a value of a property which was not fulfilled.
+ * Records a property value that broke its expectation.
  *
  * @param property
- *            name of a property which was verified.
+ *            the property name.
  * @param expectation
- *            description of an expected value. Depends on the implementation of a matcher. For
- *            example 'Non-null', 'A positive integer', '42'.
+ *            what the matcher expected, in its own words: 'Non-null', 'A positive integer', '42'.
  * @param value
- *            actual value which does not match the provided expectation.
+ *            the value that broke it.
  */
 public record ExpectationBroken(String property, Object expectation,
         Object value) implements FeedbackNode {

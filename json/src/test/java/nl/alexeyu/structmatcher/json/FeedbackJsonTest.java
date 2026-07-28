@@ -14,16 +14,15 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
  * Characterization tests pinning the exact JSON that {@link Json#mapper()} produces for feedback
- * trees. These exist to make any change to the serialized output a conscious decision — they
- * guard the shape across refactorings such as the move of the feedback value types to
- * {@code record}s,
- * which alters how Jackson discovers their properties.
+ * trees. They turn any change to the serialized output into a deliberate one, holding the shape
+ * across refactorings like the move of the feedback value types to {@code record}s, which changed
+ * how Jackson discovers their properties.
  */
 public class FeedbackJsonTest {
 
     private final ObjectMapper mapper = Json.mapper();
 
-    // Shapes the matching pipeline actually emits (composites of non-empty nodes).
+    // The shapes the matching pipeline emits: composites of non-empty nodes.
 
     @Test
     public void brokenLeafOmitsPropertyAndKeepsExpectationAndValue() {
@@ -94,7 +93,7 @@ public class FeedbackJsonTest {
         assertEquals(expected, json(nested));
     }
 
-    // Structural assertions documenting the contract explicitly
+    // Structural assertions spelling the contract out
 
     @Test
     public void brokenLeafHasNoPropertyField() throws Exception {
@@ -114,12 +113,8 @@ public class FeedbackJsonTest {
         assertTrue(node.has("color"));
     }
 
-    // A "met" (empty) node carries nothing to report, so it renders as an empty
-    // object —
-    // consistent with an empty composite, which already renders as "{ }". (Before
-    // the value
-    // types became records this threw an empty-bean error; the records made it
-    // consistent.)
+    // A "met" node carries nothing to report, so it renders as the empty object, matching an
+    // empty composite. Before the value types became records this threw an empty-bean error.
 
     @Test
     public void standaloneMetNodeRendersAsEmptyObject() {

@@ -43,7 +43,7 @@ public class TypedPathObjectMatcherTest {
                 .with(ignore, Structure::getSub, Substructure::isBool).match(expected, actual);
         var stringly = ObjectMatcher.forClass(Structure.class).with(ignore, "Sub.Bool")
                 .match(expected, actual);
-        // Only Sub.Bool is ignored, so Strings still differs in both runs — equally.
+        // Only Sub.Bool is ignored, so Strings still differs in both runs, to the same degree.
         assertEquals(stringly.isEmpty(), typed.isEmpty());
         assertFalse(typed.isEmpty());
     }

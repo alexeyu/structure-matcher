@@ -16,9 +16,9 @@ package nl.alexeyu.structmatcher.assertj;
  * assertThat(actualResponse).matchesStructure(expectedResponse, spec);
  * </pre>
  *
- * On a mismatch the test fails with the structured, per-field diff (every broken path with its
- * expected/actual detail) rather than a single boolean — so the failure localizes exactly which
- * fields diverged.
+ * On a mismatch the test fails with the structured, per-field diff, every broken path beside its
+ * expected and actual value, so the failure localizes the divergence instead of reporting that the
+ * two objects differ.
  */
 public final class StructMatcherAssertions {
 

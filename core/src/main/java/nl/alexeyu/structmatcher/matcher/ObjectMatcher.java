@@ -13,16 +13,15 @@ import nl.alexeyu.structmatcher.property.PropertyRefs;
 import nl.alexeyu.structmatcher.property.SimpleProperty;
 
 /**
- * Matches two objects of a given class. This is the entry point to the library. Matching consists
- * from four steps:
+ * Matches two objects of a given class, and serves as the entry point to the library. You take four
+ * steps:
  * <ol>
  * <li>Create a matcher.
- * <li>Optionally register custom matchers for sub-properties of the structure.
- * <li>Perform matching.
- * <li>Analyze the result.
+ * <li>Register custom matchers for sub-properties, where the comparison should be loose.
+ * <li>Run the matching.
+ * <li>Read the result.
  * </ol>
- * This class has convenient methods to provide steps 1-3. In the simplest case (no custom
- * matchers), the code could look like:
+ * This class covers steps 1 to 3. Without custom matchers, the code looks like:
  *
  * <pre>
  * Date date1 = Date.from(Instant.parse("2017-05-22T23:00:00.01Z"));
@@ -31,8 +30,8 @@ import nl.alexeyu.structmatcher.property.SimpleProperty;
  * // The feedback is: java.util.Date: [Time: 1495494000000 !~ 1495494000010].
  * </pre>
  * <p>
- * For instance, if milliseconds should be ignored, a special matcher can be registered. (In this
- * case it "normalizes" both values by dividing them by 1000 before the comparison).
+ * To ignore the milliseconds, register a matcher that normalizes both values by dividing them by
+ * 1000 before the comparison:
  *
  * <pre>
  * FeedbackNode feedback = ObjectMatcher.forClass(Date.class)
@@ -54,38 +53,33 @@ public class ObjectMatcher<T> {
     }
 
     /**
-     * Creates a matcher which would validate the instances of a given class.
+     * Creates a matcher for instances of the given class, ready to be set up and run.
      *
      * @param clazz
-     *            the class of entities to be matched.
-     * @return a matcher ready to be set up and executed.
+     *            the class of the objects to match.
      */
     public static <T> ObjectMatcher<T> forClass(Class<T> clazz) {
         return new ObjectMatcher<>(clazz);
     }
 
     /**
-     * Registers a custom matcher for a property with a given path.
+     * Registers a custom matcher for the property at the given path, and returns this matcher for
+     * further set-up.
      *
      * @param matcher
-     *            to be registered and invoked when two values of a specified property will be
-     *            matched.
+     *            invoked instead of the default when the two values of that property meet.
      * @param propertyPath
-     *            a path to a property, including the property itself. Every string value
-     *            corresponds to a property name in a given structure. Properties of a class are
-     *            defined by getter methods without parameters. For example,
-     *            <code>java.util.Calendar</code> would have 10 properties (8 get and 2 is methods),
-     *            while the return type of <code>Calendar::getTimeZone</code> has 4 properties. If
-     *            it is necessary to define a custom matcher for
-     *            <code>TimeZone::getRawOffset</code>, the code would look like:
+     *            the path to the property, the property itself included. Each segment names a
+     *            property of the structure one level up, and a no-arg getter defines a property. So
+     *            <code>java.util.Calendar</code> has 10 properties (8 get and 2 is methods), and
+     *            the return type of <code>Calendar::getTimeZone</code> has 4. A matcher for
+     *            <code>TimeZone::getRawOffset</code> registers like this:
      *
      *            <pre>
      * ObjectMapper.forClass(Calendar.class)
      *         .withMatcher(<a custom matcher>, "TimeZone", "RawOffset");
      *            </pre>
      *
-     * @return the same instance of the <code>ObjectMatcher</code>, ready to be set up further
-     *         and/or executed.
      * @see ClassProperty
      */
     public ObjectMatcher<T> withMatcher(Matcher<?> matcher, String... propertyPath) {
@@ -96,9 +90,8 @@ public class ObjectMatcher<T> {
     }
 
     /**
-     * A shortcut for the <code>withMatcher</code> method. The path to a property is specified by
-     * one string where property names are separated by period. So, an example from the former
-     * method would look like:
+     * A shortcut for <code>withMatcher</code> that takes the property names in one dot-separated
+     * string, so the example above shortens to:
      *
      * <pre>
      * ObjectMapper.forClass(Calendar.class)
@@ -106,22 +99,19 @@ public class ObjectMatcher<T> {
      * </pre>
      *
      * @param matcher
-     *            to be registered and invoked when two values of a specified property will be
-     *            matched.
+     *            invoked instead of the default when the two values of that property meet.
      * @param propertyPath
-     *            the path to a property as a dot-separated string.
-     * @return the same instance of the <code>ObjectMatcher</code>, ready to be set up further
-     *         and/or executed.
+     *            the path to the property, dot-separated.
      */
     public ObjectMatcher<T> with(Matcher<?> matcher, String propertyPath) {
         return withMatcher(matcher, propertyPath.split("\\."));
     }
 
     /**
-     * Type-safe counterpart of {@link #withMatcher}: the property path is given as a chain of
-     * accessor references ({@code Server::getIp}, or {@code Server::ip} for a record) instead of
-     * strings, so renames are caught by the compiler and the IDE can complete each step. Each
-     * reference's return type must be the receiver type of the next, e.g.
+     * Type-safe counterpart of {@link #withMatcher}: you spell the path as a chain of accessor
+     * references ({@code Server::getIp}, or {@code Server::ip} for a record) rather than strings,
+     * so the compiler catches a rename and the IDE completes each step. Each reference's return
+     * type must be the receiver type of the next, e.g.
      *
      * <pre>
      * ObjectMatcher.forClass(BookSearchResult.class)
@@ -129,12 +119,9 @@ public class ObjectMatcher<T> {
      *             SearchMetadata::getServer, Server::getIp);
      * </pre>
      *
-     * The resulting path is identical to the equivalent string path (property names are
-     * capitalized the same way), so typed and {@code "Dot.Separated"} registrations are
+     * The resulting path is identical to the equivalent string path, since both capitalize the
+     * property names the same way, so typed and {@code "Dot.Separated"} registrations are
      * interchangeable and both honour wildcard string paths registered elsewhere.
-     *
-     * @return the same instance of the <code>ObjectMatcher</code>, ready to be set up further
-     *         and/or executed.
      */
     public <A> ObjectMatcher<T> with(Matcher<?> matcher, PropertyRef<? super T, A> p1) {
         return withRefs(matcher, p1);
@@ -166,16 +153,13 @@ public class ObjectMatcher<T> {
     }
 
     /**
-     * Matches two objects and returns a feedback. If the feedback is empty, the objects are
-     * considered matching. Otherwise the feedback contains details of which concrete properties do
-     * not match and why.
+     * Matches two objects and returns the feedback. Empty feedback means they match; otherwise the
+     * tree names each property that diverged and why.
      *
      * @param expected
-     *            a "base" object the other object should be matched against.
+     *            the "base" object, the reference the other one is held against.
      * @param actual
-     *            an object to be matched against the base one.
-     * @return empty feedback if the objects are considered matching, a non-empty feedback tree
-     *         otherwise.
+     *            the object under comparison.
      */
     public FeedbackNode match(T expected, T actual) {
         try {

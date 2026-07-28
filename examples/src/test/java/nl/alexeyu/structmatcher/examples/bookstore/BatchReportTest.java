@@ -23,14 +23,13 @@ import nl.alexeyu.structmatcher.report.FeedbackQuery;
 import nl.alexeyu.structmatcher.report.FeedbackSummary;
 
 /**
- * The batch / "report is the product" scenario: instead of matching one pair, check many responses
- * against a baseline and roll the feedback up to see <em>which fields systematically diverge</em>.
- * Every comparison uses the shared {@link ContextTolerantSpec}, so the execution-context metadata
- * is filtered out and the report is about real book-payload divergence, not environment noise -
- * one v1 desktop baseline checked against a v2 mobile response (books genuinely changed), the v1
- * production XML (only context differs), and itself. Demonstrates the {@code report} module
- * ({@link FeedbackAggregator}, {@link FeedbackQuery}) and the {@code json} persistence format
- * ({@link FeedbackArchives}).
+ * The batch scenario, where the report is the product: check many responses against a baseline and
+ * roll the feedback up to see <em>which fields systematically diverge</em>. Every comparison runs
+ * under the shared {@link ContextTolerantSpec}, which filters the execution-context metadata out
+ * and leaves a report about the book payload. The batch pairs one v1 desktop baseline with a v2
+ * mobile response (whose books changed), the v1 production XML (where only the context differs),
+ * and itself. It exercises the {@code report} module ({@link FeedbackAggregator},
+ * {@link FeedbackQuery}) and the {@code json} persistence format ({@link FeedbackArchives}).
  */
 public class BatchReportTest {
 
@@ -70,13 +69,13 @@ public class BatchReportTest {
         assertEquals(1, summary.mismatched());
         assertEquals(0.25, summary.mismatchRate(), 1e-9);
 
-        // Only the regressed response diverges, and only where the answer really changed.
+        // Only the regressed response diverges, and only where the answer changed.
         assertEquals(1, summary.failureCount("Books[].Title"));
         assertEquals(1, summary.failureCount("Metadata.BooksFound"));
 
-        // This is the point of the spec: every response in the batch was served by a different
-        // host, port and platform, and two of them abbreviate the author names and omit the
-        // publishing details. None of that noise reaches the report.
+        // A different host, port and platform served each response in the batch, and two of them
+        // abbreviate the author names and omit the publishing details. The spec keeps all of that
+        // out of the report.
         assertEquals(0, summary.failureCount("Books[].Authors[].FirstName"));
         assertEquals(0, summary.failureCount("Books[].PublishingInfo"));
         assertEquals(0, summary.failureCount("Metadata.Server.Ip"));
@@ -90,8 +89,8 @@ public class BatchReportTest {
     public void querySingleComparisonForTheLeavesUnderAPath() {
         var feedback = ContextTolerantSpec.matcher().match(desktopTest, mobileRegression);
 
-        // "What broke in the first book?" - the title, and only the title. The initial standing in
-        // for the full first name is tolerated, so it is not reported as a difference.
+        // What broke in the first book: the title, and nothing else. The initial standing in for
+        // the full first name is tolerated, so it stays out of the list.
         List<BrokenLeaf> underFirstBook = FeedbackQuery.mismatchesUnder(feedback, "Books[0]");
         assertEquals(List.of("Books[0].Title"),
                 underFirstBook.stream().map(BrokenLeaf::path).collect(toList()));

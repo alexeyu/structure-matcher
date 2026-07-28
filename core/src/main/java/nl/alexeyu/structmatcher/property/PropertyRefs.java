@@ -5,10 +5,10 @@ import java.lang.reflect.Method;
 
 /**
  * Derives the property name a {@link PropertyRef} points at, so a method reference yields the same
- * name a string path would. The implementing accessor is recovered from the lambda's synthetic
- * {@code writeReplace} method (which returns a {@link SerializedLambda}), then the existing
- * {@link ClassProperty} naming rules are applied — getters get their {@code get}/{@code is}
- * prefix stripped, record components are capitalized as-is.
+ * name a string path would. It recovers the accessor behind the lambda through its synthetic
+ * {@code writeReplace} method, which returns a {@link SerializedLambda}, then applies the
+ * {@link ClassProperty} naming rules: a getter loses its {@code get}/{@code is} prefix, a record
+ * component keeps its name and gains a capital.
  */
 public final class PropertyRefs {
 

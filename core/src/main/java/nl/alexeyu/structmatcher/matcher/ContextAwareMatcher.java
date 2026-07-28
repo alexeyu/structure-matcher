@@ -6,21 +6,14 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.property.Property;
 
 /**
- * A special matcher which gets a necessary matcher from the context and applies it. The context is
- * defined by the property it pushes to the stack. After pushing the property, there are 3
- * possibilities:
- * <ol>
- * <li>An indirect matcher is defined for that property.</>
- * <ol>
- * <li>A custom matcher is defined for that property.</>
- * <ol>
- * <li>No matcher is defined for that property.</>
- * </ol>
- * The first case means, although the property gets verified, its actual and expected values get
- * taken from the highest level data structures, so context matcher passes both base and target
- * object to that matcher. In the second or third case, this matcher derives the values of the
- * property for the base and target objects and passes them to an underlying matcher, along with the
- * property name.
+ * Pushes the current property onto the matching stack, which hands back the matcher for the path
+ * that results, then runs it. What it feeds that matcher depends on its kind:
+ * <ul>
+ * <li>an {@link IndirectMatcher} receives the top-level base and target structures, since it
+ * derives the two values to compare itself;
+ * <li>any other matcher, custom or default, receives the property name and the two values read off
+ * this property.
+ * </ul>
  */
 final class ContextAwareMatcher {
 

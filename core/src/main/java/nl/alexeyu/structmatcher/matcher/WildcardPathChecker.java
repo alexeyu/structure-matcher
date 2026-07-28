@@ -6,11 +6,10 @@ import nl.alexeyu.structmatcher.property.PropertyPath;
 import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 
 /**
- * Check a path to a registered custom matcher against a stack of nested properties. The path may
- * contain wildcards (*), which mean, any subset of properties between two concrete path elements
- * would match. Wildcards are convenient when there are sub-properties with the same name and type
- * in the different objects of the model. For instance, all properties with the name/type 'url' can
- * be validated with the same URL matcher.
+ * Checks the path a custom matcher was registered for against the stack of nested properties the
+ * traversal has reached. A path may contain wildcards (*), each standing for any run of properties
+ * between two concrete segments. Reach for one when the same name and type recurs across the model:
+ * the path <code>*,Url</code> puts one URL matcher on every 'url' property, wherever it sits.
  * <p>
  * Examples:
  * <table>
@@ -65,11 +64,11 @@ final class WildcardPathChecker implements BiPredicate<PropertyPathPattern, Prop
         if (!pattern.startsWithWildcard()) {
             return false;
         }
-        // A wildcard can absorb zero-or-more leading path segments. Try both: let it end here
+        // A wildcard can absorb zero or more leading path segments, so try both: let it end here
         // (advance past the wildcard, keep the path) or absorb one more segment (keep the
-        // wildcard, drop a path head). Both branches are needed to backtrack correctly when a
-        // literal after the wildcard also occurs among the segments it should absorb — e.g.
-        // pattern `*,A` against path `A,A` must let `*` swallow the first `A`.
+        // wildcard, drop a path head). Backtracking needs both branches when a literal after the
+        // wildcard also occurs among the segments it should absorb: pattern `*,A` against path
+        // `A,A` only matches if `*` swallows the first `A`.
         return test(pattern.tail(), path) || test(pattern, path.tail());
     }
 

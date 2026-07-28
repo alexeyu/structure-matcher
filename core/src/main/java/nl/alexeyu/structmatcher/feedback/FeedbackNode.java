@@ -1,9 +1,8 @@
 package nl.alexeyu.structmatcher.feedback;
 
 /**
- * Feedback about a value of a property. The value gets verified with certain expectation about it
- * (e.g. it should be equal to some base value). A node is empty if this expectation was fulfilled
- * and is non-empty otherwise.
+ * Feedback about one property value, held against an expectation such as "equal to the base value".
+ * The node is empty when the value met that expectation and non-empty when it broke it.
  */
 public sealed interface FeedbackNode
         permits CompositeFeedbackNode, ExpectationBroken, ExpectationMet {

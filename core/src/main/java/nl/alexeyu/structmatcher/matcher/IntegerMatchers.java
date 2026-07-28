@@ -8,7 +8,10 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Factory of integer-specific matchers.
+ * Factory of integer-specific matchers. Each one is strict, in the sense
+ * {@link MustConformMatcher} defines: an actual value that fails the test produces non-empty
+ * feedback, while a base value that fails it throws <code>BrokenSpecificationException</code>. A
+ * value counts as an integer when {@link Integer#valueOf(String)} parses its string form.
  */
 public final class IntegerMatchers {
 
@@ -18,11 +21,8 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it is any integer.
-     * Please note that the matcher will throw <code>BrokenSpecificationException</code> if a base
-     * value is not an integer.
+     * Accepts any integer.
      *
-     * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
      */
     public static Matcher<Object> any() {
@@ -30,11 +30,8 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it is any non-negative
-     * integer. Please note that the matcher will throw <code>BrokenSpecificationException</code> if
-     * a base value is not a positive integer.
+     * Accepts an integer of 0 or above.
      *
-     * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
      */
     public static Matcher<Object> nonNegative() {
@@ -42,11 +39,8 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it is any positive
-     * integer. Please note that the matcher will throw <code>BrokenSpecificationException</code> if
-     * a base value is not a positive integer.
+     * Accepts an integer above 0.
      *
-     * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
      */
     public static Matcher<Object> positive() {
@@ -54,11 +48,8 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it is greater than a
-     * parameter value. Please note that the matcher will throw
-     * <code>BrokenSpecificationException</code> if a base value is not a positive integer.
+     * Accepts an integer greater than <code>value</code>.
      *
-     * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
      */
     public static Matcher<Object> greaterThan(int value) {
@@ -67,11 +58,8 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it is any negative
-     * integer. Please note that the matcher will throw <code>BrokenSpecificationException</code> if
-     * a base value is not a positive integer.
+     * Accepts an integer below 0.
      *
-     * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
      */
     public static Matcher<Object> negative() {
@@ -79,11 +67,8 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it is less than a
-     * parameter value. Please note that the matcher will throw
-     * <code>BrokenSpecificationException</code> if a base value is not a positive integer.
+     * Accepts an integer less than <code>value</code>.
      *
-     * @return a matcher with the behavior specified above.
      * @see MustConformMatcher
      */
     public static Matcher<Object> lessThan(int value) {
@@ -92,17 +77,12 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it belongs to a
-     * specified range. Please note that the matcher will throw
-     * <code>BrokenSpecificationException</code> if a base value is not within a given range.
+     * Accepts an integer inside the range, both bounds excluded.
      *
      * @param minExclusive
-     *            a minimum of the range: a value being verified should be bigger than this
-     *            parameter.
+     *            the value must be greater than this.
      * @param maxExclusive
-     *            a maximum of the range: a value being verified should be bigger than this
-     *            parameter.
-     * @return a matcher with the behavior specified above.
+     *            the value must be smaller than this.
      */
     public static Matcher<Object> inRange(int minExclusive, int maxExclusive) {
         return new MustConformMatcher<>(
@@ -111,13 +91,10 @@ public final class IntegerMatchers {
     }
 
     /**
-     * Returns a strict matcher which considers an actual value matching if it belongs to a set of
-     * specified numbers. Please note that the matcher will throw
-     * <code>BrokenSpecificationException</code> if it does not belong to the argument list.
+     * Accepts an integer drawn from a known set, e.g. the ports a service pool listens on.
      *
      * @param possibleValues
-     *            a list of values a value being verified should belong to.
-     * @return a matcher with the behavior specified above.
+     *            the values the matcher accepts.
      */
     public static Matcher<Object> oneOf(Integer... possibleValues) {
         var possibleValuesList = Arrays.asList(possibleValues);

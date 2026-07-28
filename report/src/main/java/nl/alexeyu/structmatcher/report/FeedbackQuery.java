@@ -6,14 +6,15 @@ import java.util.function.Predicate;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * Query helpers over a single {@link FeedbackNode} tree: locate the broken leaves, optionally
- * filtered. Where {@link FeedbackAggregator} rolls many comparisons into batch-level rates, this
- * inspects one comparison and answers "what broke, and where". Each result is a {@link BrokenLeaf}
- * carrying both the canonical path and the offending expectation/value, so a renderer or assertion
- * needs no second walk of the tree.
+ * Query helpers over a single {@link FeedbackNode} tree: locate the broken leaves, filtered or not.
+ * {@link FeedbackAggregator} rolls many comparisons into batch-level rates; these methods inspect
+ * one comparison and answer "what broke, and where". Each result is a {@link BrokenLeaf} carrying
+ * the canonical path along with the expectation and the offending value, sparing a renderer or an
+ * assertion a second walk of the tree.
  *
  * <p>
- * Zero runtime dependencies; pure functions over the tree (no shared state, thread-safe).
+ * Zero runtime dependencies. These are pure functions over the tree, keeping no state, so any
+ * thread may call them.
  */
 public final class FeedbackQuery {
 
@@ -31,10 +32,10 @@ public final class FeedbackQuery {
     }
 
     /**
-     * The broken leaves at or beneath the given path prefix. The prefix is matched on whole path
-     * segments, so {@code "Books"} matches {@code Books}, {@code Books[0].Title} and
-     * {@code Books.Count} but not {@code BooksCount}; {@code "Books[0]"} matches
-     * {@code Books[0].Title}. Pass an exact leaf path to fetch just that leaf.
+     * The broken leaves at or beneath the given path prefix. Matching runs on whole path segments,
+     * so {@code "Books"} covers {@code Books}, {@code Books[0].Title} and {@code Books.Count} while
+     * leaving {@code BooksCount} out, and {@code "Books[0]"} covers {@code Books[0].Title}. Pass an
+     * exact leaf path to fetch that one leaf.
      */
     public static List<BrokenLeaf> mismatchesUnder(FeedbackNode root, String pathPrefix) {
         return find(root, leaf -> isUnder(leaf.path(), pathPrefix));

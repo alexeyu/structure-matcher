@@ -19,10 +19,9 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 
 /**
- * Pins the stable persistence format produced by {@link FeedbackArchives}: that a comparison's
- * feedback survives a write/read round-trip, that the format carries a {@code schemaVersion}, and
- * that the reader is strict about versions it cannot understand yet tolerant of additive (unknown)
- * fields.
+ * Pins the stable persistence format {@link FeedbackArchives} produces: a comparison's feedback
+ * survives a write and read round-trip, the document carries a {@code schemaVersion}, and the
+ * reader rejects a version it cannot understand while tolerating unknown fields.
  */
 public class FeedbackArchivesTest {
 

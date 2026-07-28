@@ -10,17 +10,16 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
  * Accumulates the results of many comparisons into a {@link FeedbackSummary}. Feed it the
- * {@link FeedbackNode} returned by each comparison via {@link #add} (or {@link #addAll}); call
- * {@link #summary()} for a snapshot at any point. For a one-shot summary of a collection use the
- * static {@link #summarize}. To aggregate a batch that was persisted and reloaded (where the
- * live tree is no longer in hand), feed each comparison's stored broken paths to
- * {@link #addBrokenPaths}.
+ * {@link FeedbackNode} each comparison returned through {@link #add} or {@link #addAll}, and call
+ * {@link #summary()} for a snapshot at any point. The static {@link #summarize} does a collection
+ * in one call. Once a batch has been persisted and reloaded and the live tree is gone, feed each
+ * comparison's stored broken paths to {@link #addBrokenPaths} instead.
  *
  * <p>
- * Each comparison contributes at most one tally per {@link FeedbackPaths#toFieldPath field},
- * even if that field broke at several collection indices, so the resulting rates are
- * per-comparison. Not thread-safe; aggregate from a single thread (or one aggregator per thread,
- * then sum offline).
+ * A comparison contributes at most one tally per {@link FeedbackPaths#toFieldPath field}, however
+ * many collection indices that field broke at, which keeps the rates per-comparison. The class
+ * keeps mutable state, so aggregate from one thread, or give each thread its own aggregator and
+ * sum the results offline.
  */
 public final class FeedbackAggregator {
 
@@ -36,13 +35,12 @@ public final class FeedbackAggregator {
     }
 
     /**
-     * Adds one comparison described directly by the canonical paths at which it broke, rather
-     * than a live {@link FeedbackNode}. This is the reload path: feed it the paths persisted in a
-     * report archive (e.g. {@code FeedbackArchive.brokenPaths()} from the {@code json} module) so
-     * a batch stored to disk can be aggregated without rebuilding the feedback tree. An empty
-     * counts as a fully matched comparison; otherwise the paths are normalized to
-     * {@link FeedbackPaths#toFieldPath fields} and each field is tallied at most once. Returns
-     * {@code this} for chaining.
+     * Adds one comparison described by the canonical paths at which it broke, rather than by a
+     * live {@link FeedbackNode}. This is the reload path: hand it the paths a report archive holds
+     * ({@code FeedbackArchive.brokenPaths()} in the {@code json} module) and a batch stored to disk
+     * rolls up without rebuilding a feedback tree. An empty collection counts as a fully matched
+     * comparison. Otherwise the paths normalize to {@link FeedbackPaths#toFieldPath fields}, each
+     * tallied once. Returns {@code this} for chaining.
      */
     public FeedbackAggregator addBrokenPaths(Collection<String> brokenPaths) {
         total++;

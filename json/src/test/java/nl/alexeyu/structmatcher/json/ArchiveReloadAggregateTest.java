@@ -12,10 +12,10 @@ import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 import nl.alexeyu.structmatcher.report.FeedbackAggregator;
 
 /**
- * Closes the persist-reload-aggregate loop across the module boundary: run comparisons, persist
- * each as archive JSON, reload, and aggregate the reloaded archives into the same summary the live
- * trees would have produced — without ever rebuilding a {@link FeedbackNode}. The bridge is
- * {@code FeedbackArchive.brokenPaths()} feeding {@link FeedbackAggregator#addBrokenPaths}.
+ * Closes the persist-reload-aggregate loop across the module boundary: run the comparisons, persist
+ * each as archive JSON, reload, and aggregate the reloaded archives into the summary the live trees
+ * would have produced, without rebuilding a {@link FeedbackNode}. The bridge across that boundary
+ * is {@code FeedbackArchive.brokenPaths()} feeding {@link FeedbackAggregator#addBrokenPaths}.
  */
 public class ArchiveReloadAggregateTest {
 
@@ -33,7 +33,7 @@ public class ArchiveReloadAggregateTest {
                 compare(new SampleStructure("white", asList("a"), new SampleSub(true)));
         var identical = compare(expected);
 
-        // Persist to JSON (what would be written to disk/DB), then read back.
+        // Persist to JSON, the form you would write to disk or a database, then read it back.
         var persisted = new ArrayList<String>();
         for (var feedback : asList(allDiffer, onlyColorDiffers, identical)) {
             persisted.add(FeedbackArchives.toJson(feedback));

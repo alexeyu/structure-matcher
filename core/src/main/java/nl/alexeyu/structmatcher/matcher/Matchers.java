@@ -19,14 +19,11 @@ public final class Matchers {
     }
 
     /**
-     * Returns a matcher that considers two values matching if both of them are <code>null</code>.
-     * If both of them are not <code>null</code>, calls a matcher passed as an argument to make the
-     * final decision.
+     * Wraps a matcher so that two nulls match and a single null does not. When both values are
+     * present, {@code nextMatcher} decides.
      *
      * @param nextMatcher
-     *            matcher to be called if both arguments passed for matching are not
-     *            <code>null</code>.
-     * @return a matcher with the behavior specified above.
+     *            the matcher to call when neither value is <code>null</code>.
      * @see NullAwareMatcher
      */
     public static <V> Matcher<V> nullAware(Matcher<V> nextMatcher) {
@@ -34,10 +31,9 @@ public final class Matchers {
     }
 
     /**
-     * Returns a matcher which considers two values matching when both of them are <code>null</code>
-     * or both of them are not <code>null</code>.
+     * Accepts any pair of values, as long as both are <code>null</code> or both are present. Use it
+     * to drop a property out of the comparison.
      *
-     * @return a matcher with the behavior specified above.
      * @see NullAwareMatcher
      */
     public static <V> Matcher<V> anyValue() {
@@ -45,9 +41,8 @@ public final class Matchers {
     }
 
     /**
-     * Returns a matcher which expect any given value to be equal to an argument of this method. The
-     * matcher ignores the first argument of its <code>match</code> method, replacing it with the
-     * <code>alwaysExpected</code> parameter.
+     * Compares the actual value with <code>alwaysExpected</code>, ignoring the base value its
+     * <code>match</code> method receives.
      * <p/>
      * <i>Example:</i>
      *
@@ -57,18 +52,16 @@ public final class Matchers {
      * </pre>
      *
      * @param alwaysExpected
-     *            a value every value passed to the matcher will compared with.
-     * @return a matcher with the behavior specified above.
+     *            the value every actual value is compared with.
      */
     public static <V> Matcher<V> constant(V alwaysExpected) {
         return (prop, exp, act) -> valuesEqual().match(prop, alwaysExpected, act);
     }
 
     /**
-     * Produces a matcher which considers two values matching either if they both <code>null</code>
-     * or equal to each other.
+     * Matches two values that are both <code>null</code> or equal to each other. This is the
+     * default for a simple property.
      *
-     * @return a matcher with the behavior specified above.
      * @see NullAwareMatcher
      */
     public static <V> Matcher<V> valuesEqual() {
@@ -76,14 +69,12 @@ public final class Matchers {
     }
 
     /**
-     * Produces a matcher which considers two lists matching if all their elements match to each
-     * other. By default, the elements will be processed with the <code>valuesMatcher</code>, which
-     * means they would be considered matching if both are null or equal. However it is possible to
-     * redefine this matcher with a custom one. Such custom matcher would be applied to every pair
-     * of elements of the lists. Indeed, lists of different size are considered non-matching (this
-     * logic cannot be re-defined). Does not allow arguments to be null.
+     * Matches two lists element by element, in order, and reports each mismatch under
+     * <code>property[index]</code>. Elements go through the default logic
+     * (<code>valuesEqual</code> for simple values, <code>structuresEqual</code> for the rest), so a
+     * matcher registered for a path inside an element still applies. Lists of different size never
+     * match, and that rule cannot be redefined. Neither list may be null.
      *
-     * @return a matcher with the behavior specified above.
      * @see ObjectMatcher
      */
     public static <V> ListMatcher<V> listsEqual() {
@@ -91,13 +82,12 @@ public final class Matchers {
     }
 
     /**
-     * Produces a matcher which considers two lists matching if all their elements match to each
-     * other. Unlike the previous matcher, this one ignores the order of elements. For instance,
-     * lists <code>[1, 2, 3]</code> and <code>[2, 3, 1]</code> will be considered matching.
+     * Matches two lists as multisets: it sorts both with the comparator first, so
+     * <code>[1, 2, 3]</code> matches <code>[2, 3, 1]</code>. Sorting alone tolerates order, not
+     * differing elements: after the sort the elements still have to match pairwise.
      *
      * @param comparator
-     *            element comparator which will be used by the matcher.
-     * @return a matcher with the behavior specified above.
+     *            the order the matcher sorts both lists by.
      * @see ObjectMatcher
      */
     public static <V> IgnoreOrderListMatcher<V> listsHaveEqualElements(Comparator<V> comparator) {
@@ -105,13 +95,10 @@ public final class Matchers {
     }
 
     /**
-     * Produces a matcher which considers two maps matching if they have the same keys and matching
-     * values for every key. Keys present in only one of the maps are reported, as are value
-     * mismatches. Values are matched with the default logic (<code>valuesEqual</code> for simple
-     * values, <code>structuresEqual</code> for complex ones). Does not allow the maps themselves to
-     * be null.
+     * Matches two maps key by key, reporting missing and extra keys along with value mismatches.
+     * Values go through the default logic (<code>valuesEqual</code> for simple values,
+     * <code>structuresEqual</code> for complex ones). Neither map may be null.
      *
-     * @return a matcher with the behavior specified above.
      * @see MapMatcher
      */
     public static <K, V> MapMatcher<K, V> mapsEqual() {
@@ -119,12 +106,11 @@ public final class Matchers {
     }
 
     /**
-     * Produces a matcher which considers two sets matching if they contain the same elements,
-     * regardless of order. Elements present in only one of the sets are reported. Elements are
-     * compared by their own <code>equals</code>/ <code>hashCode</code> (set membership), not field
-     * by field. Does not allow the sets themselves to be null.
+     * Matches two sets by membership, reporting the elements only one side holds. It compares
+     * elements by their own <code>equals</code>/<code>hashCode</code>, so value types (records,
+     * strings, enums) make the natural elements; for a field-aware, order-insensitive comparison
+     * of a <em>list</em>, use {@link #listsHaveEqualElements}. Neither set may be null.
      *
-     * @return a matcher with the behavior specified above.
      * @see SetMatcher
      */
     public static <V> SetMatcher<V> setsEqual() {
@@ -132,13 +118,10 @@ public final class Matchers {
     }
 
     /**
-     * Produces a matcher which considers two arrays matching if they have the same length and
-     * matching elements at every index. Arrays of objects and of primitives are both supported.
-     * Elements are matched with the default logic (<code>valuesEqual</code> for simple values,
-     * <code>structuresEqual</code> for complex ones). Does not allow the arrays themselves to be
-     * null.
+     * Matches two arrays of the same length index by index, boxing primitives on the way in.
+     * Elements go through the default logic (<code>valuesEqual</code> for simple values,
+     * <code>structuresEqual</code> for complex ones). Neither array may be null.
      *
-     * @return a matcher with the behavior specified above.
      * @see ArrayMatcher
      */
     public static ArrayMatcher arraysEqual() {
@@ -146,11 +129,10 @@ public final class Matchers {
     }
 
     /**
-     * Produces a matcher for {@link java.util.Optional} properties which treats an empty optional
-     * as a <code>null</code> value: it unwraps both values and matches their contents with the
-     * default logic. Two empty optionals match; a present and an empty one do not.
+     * Matches two {@link java.util.Optional} properties by unwrapping both and comparing the
+     * contents with the default logic, treating an empty optional as <code>null</code>. Two empty
+     * optionals match; an empty one against a present one does not.
      *
-     * @return a matcher with the behavior specified above.
      * @see OptionalMatcher
      */
     public static OptionalMatcher optional() {
@@ -158,14 +140,11 @@ public final class Matchers {
     }
 
     /**
-     * Returns a matcher which matches two data structures. It considers structures matching either
-     * if they both are <code>null</code> or if each of their properties matches to a respective
-     * property of another structure. By default, the properties will be processed with matchers
-     * which look for their equality (<code>valuesEqual</code> for simple properties,
-     * <code>listsEqual</code> for lists and <code>structuresEqual</code> for all the other
-     * properties). However it is possible to redefine a matcher for any property with a custom one.
+     * Matches two structures property by property, recursing into nested ones. Two nulls match, and
+     * each property gets the default matcher for its kind (<code>valuesEqual</code> for a simple
+     * property, <code>listsEqual</code> for a list, <code>structuresEqual</code> for the rest)
+     * unless a matcher registered on {@link ObjectMatcher} claims its path.
      *
-     * @return a matcher with the behavior specified above.
      * @see ObjectMatcher
      */
     public static <V> Matcher<V> structuresEqual() {
@@ -173,8 +152,7 @@ public final class Matchers {
     }
 
     /**
-     * Returns a matcher which apply a given function to the second (so-called actual) value and
-     * then delegates matching to a given matcher. <i>Example:</i>
+     * Applies the normalizer to the actual value, then delegates. <i>Example:</i>
      *
      * <pre>
      * Matchers.<String>normalizing(name -> name.trim(), Matchers.valuesEqual())
@@ -183,18 +161,16 @@ public final class Matchers {
      * </pre>
      *
      * @param normalizer
-     *            a function to be applied to the actual value before matching it to the base one.
+     *            applied to the actual value before it meets the base one.
      * @param delegate
-     *            a matcher to be applied after the normalization.
-     * @return a matcher with the behavior specified above.
+     *            the matcher that runs after the normalization.
      */
     public static <V> Matcher<V> normalizing(UnaryOperator<V> normalizer, Matcher<V> delegate) {
         return delegate.normalizing(normalizer);
     }
 
     /**
-     * Returns a matcher which applies a given function to the first (so-called base) value and then
-     * delegates matching to a given matcher. <i>Example:</i>
+     * Applies the normalizer to the base value, then delegates. <i>Example:</i>
      *
      * <pre>
      * Matchers.<String>normalizingBase(name -> name.substring(0,1) + ".",
@@ -203,18 +179,16 @@ public final class Matchers {
      * </pre>
      *
      * @param normalizer
-     *            a function to be applied to the base value before matching the actual one to it.
+     *            applied to the base value before the actual one meets it.
      * @param delegate
-     *            a matcher to be applied after the normalization.
-     * @return a matcher with the behavior specified above.
+     *            the matcher that runs after the normalization.
      */
     public static <V> Matcher<V> normalizingBase(UnaryOperator<V> normalizer, Matcher<V> delegate) {
         return delegate.normalizingBase(normalizer);
     }
 
     /**
-     * Returns a matcher which applies a given function to the both values and then delegates
-     * matching to a given matcher. <i>Example:</i>
+     * Applies the normalizer to both values, then delegates. <i>Example:</i>
      *
      * <pre>
      * Matchers.<String>normalizingBoth(name -> name.trim(),
@@ -223,25 +197,21 @@ public final class Matchers {
      * </pre>
      *
      * @param normalizer
-     *            a function to be applied to both values before matching them.
+     *            applied to both values before they meet.
      * @param delegate
-     *            a matcher to be applied after the normalization.
-     * @return a matcher with the behavior specified above.
+     *            the matcher that runs after the normalization.
      */
     public static <V> Matcher<V> normalizingBoth(UnaryOperator<V> normalizer, Matcher<V> delegate) {
         return delegate.normalizingBoth(normalizer);
     }
 
     /**
-     * Returns a default matcher for a given property.
+     * Picks the default matcher for a property by its kind: <code>listsEqual()</code> for a list,
+     * <code>mapsEqual()</code> for a map, <code>setsEqual()</code> for a set,
+     * <code>arraysEqual()</code> for an array, <code>optional()</code> for an
+     * {@link java.util.Optional}, <code>valuesEqual()</code> for a simple value, and
+     * <code>structuresEqual()</code> for anything else.
      *
-     * @param property
-     *            to receive a matcher for.
-     * @return <code>listsEqual()</code> matcher for a list property, <code>mapsEqual()</code>
-     *         matcher for a map property, <code>setsEqual()</code> matcher for a set property,
-     *         <code>arraysEqual()</code> matcher for an array property, <code>optional()</code>
-     *         matcher for an Optional property, <code>valuesEqual()</code> matcher for a simple
-     *         property, <code>structuresEqual()</code> for any other property.
      * @see ClassProperty
      */
     public static Matcher<Object> forProperty(Property property) {
@@ -272,10 +242,10 @@ public final class Matchers {
 
     /**
      * Adapts a matcher of any value type to {@code Matcher<Object>}, the single erased type the
-     * matching stack stores and invokes. The cast is safe because the stack only ever feeds a
-     * matcher the values of the property it was selected/registered for, whose runtime type is
-     * exactly the type the matcher expects. Used both for the default matchers picked by
-     * {@link #defaultMatcherFor} and for the custom matchers registered on {@link ObjectMatcher}.
+     * matching stack stores and invokes. The cast holds because the stack feeds a matcher only the
+     * values of the property it was selected or registered for, whose runtime type is the type the
+     * matcher expects. Serves both the defaults picked by {@link #defaultMatcherFor} and the custom
+     * matchers registered on {@link ObjectMatcher}.
      */
     @SuppressWarnings("unchecked")
     static Matcher<Object> asObjectMatcher(Matcher<?> matcher) {
@@ -283,22 +253,19 @@ public final class Matchers {
     }
 
     /**
-     * Returns a strict matcher which ensures the values are not null. If a base value appears to be
-     * <code>null</code>, <code>BrokenSpecificationException</code> will be thrown. The matcher will
-     * return an empty feedback if an actual value is not <code>null</code> and non-empty feedback
-     * otherwise.
-     *
-     * @return a matcher with the behavior specified above.
+     * Requires both values to be present. A <code>null</code> actual value produces non-empty
+     * feedback; a <code>null</code> base value throws <code>BrokenSpecificationException</code>,
+     * since the reference side breaking the rule points at the spec, not at the data.
      */
     public static <V> Matcher<V> nonNull() {
         return mustConform(v -> v != null, "A non-null value");
     }
 
     /**
-     * Returns a strict matcher which ensure the values conform a given predicate. If the predicate
-     * returns <code>false</code> for the base value, <code>BrokenSpecificationException</code> will
-     * be thrown. The matcher will return an empty feedback if the predicate returns
-     * <code>true</code> for the actual value and non-empty feedback otherwise. <i>Example:</i>
+     * Requires both values to satisfy the predicate. An actual value that fails it produces
+     * non-empty feedback; a base value that fails it throws
+     * <code>BrokenSpecificationException</code>, since the reference side breaking the rule points
+     * at the spec, not at the data. <i>Example:</i>
      *
      * <pre>
      * Matchers.<String>mustConform(m -> m.toUpperCase().equals(m),
@@ -307,11 +274,9 @@ public final class Matchers {
      * </pre>
      *
      * @param predicate
-     *            predicate to be applied to both values.
+     *            applied to the base and the actual value.
      * @param specification
-     *            a message for an exception or a non-empty feedback this method will result in if a
-     *            base/actual value does not conform the given predicate.
-     * @return a matcher with the behavior specified above.
+     *            what the predicate stands for, quoted in the feedback or the exception.
      */
     public static <V> Matcher<V> mustConform(Predicate<V> predicate, String specification) {
         return new MustConformMatcher<>(predicate, specification);
@@ -335,7 +300,7 @@ public final class Matchers {
 
     static <V> Matcher<V> forObject(V obj) {
         if (obj == null) {
-            // Should not happen due to null-aware matcher logic
+            // Unreachable: the null-aware wrapper answers before a null gets here.
             return (p, e, a) -> {
                 throw new NullPointerException("Cannot match null value.");
             };

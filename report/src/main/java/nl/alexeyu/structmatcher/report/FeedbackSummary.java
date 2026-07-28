@@ -8,16 +8,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * An aggregate view over a batch of comparisons: how many were run, how many matched, and — per
- * field — how often that field broke. A "field" is a {@link FeedbackPaths#toFieldPath normalized}
- * path, so mismatches that differ only by collection index, map key or set element are grouped
- * together. Each field is counted at most once per comparison, so {@link #failureRate} reads as
- * "the fraction of comparisons in which this field broke".
+ * An aggregate view over a batch of comparisons: how many ran, how many matched, and how often
+ * each field broke. A "field" is a {@link FeedbackPaths#toFieldPath normalized} path, which groups
+ * mismatches that differ only by collection index, map key or set element. Each field counts at
+ * most once per comparison, so {@link #failureRate} reads as "the fraction of comparisons in which
+ * this field broke".
  *
  * <p>
- * Produced by {@link FeedbackAggregator}; {@link #failuresByField()} (and everything derived from
- * it) is ordered by descending failure count, then by path, so the most problematic fields come
- * first.
+ * {@link FeedbackAggregator} builds it. {@link #failuresByField()}, and everything derived from it,
+ * runs by descending failure count and then by path, putting the worst field first.
  */
 public final class FeedbackSummary {
 
@@ -38,30 +37,29 @@ public final class FeedbackSummary {
         return total;
     }
 
-    /** How many of the comparisons matched fully (empty feedback). */
+    /** How many comparisons matched fully, i.e. produced empty feedback. */
     public int matched() {
         return matched;
     }
 
-    /** How many of the comparisons had at least one broken expectation. */
+    /** How many comparisons broke at least one expectation. */
     public int mismatched() {
         return total - matched;
     }
 
-    /** The fraction of comparisons that did not fully match, in {@code [0, 1]}. */
+    /** The fraction of comparisons that broke somewhere, in {@code [0, 1]}. */
     public double mismatchRate() {
         return rate(mismatched());
     }
 
     /**
-     * Per-field failure counts (how many comparisons broke at each field), ordered most-failing
-     * first. Unmodifiable.
+     * How many comparisons broke at each field, worst field first. Unmodifiable.
      */
     public Map<String, Integer> failuresByField() {
         return failuresByField;
     }
 
-    /** How many comparisons broke at the given normalized field path (0 if never). */
+    /** How many comparisons broke at the given normalized field path, 0 if none did. */
     public int failureCount(String field) {
         return failuresByField.getOrDefault(field, 0);
     }
@@ -71,14 +69,14 @@ public final class FeedbackSummary {
         return rate(failureCount(field));
     }
 
-    /** Per-field failure rates, ordered most-failing first. Unmodifiable. */
+    /** Per-field failure rates, worst field first. Unmodifiable. */
     public Map<String, Double> failureRatesByField() {
         var rates = new LinkedHashMap<String, Double>();
         failuresByField.forEach((field, count) -> rates.put(field, rate(count)));
         return Collections.unmodifiableMap(rates);
     }
 
-    /** The {@code limit} most frequently failing fields, most-failing first. */
+    /** The {@code limit} fields that break most often, worst first. */
     public List<String> topMismatchingFields(int limit) {
         return failuresByField.keySet().stream().limit(limit).toList();
     }

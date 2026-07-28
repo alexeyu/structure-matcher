@@ -5,12 +5,9 @@ import java.util.function.UnaryOperator;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * Tests a value of a property against an expectation and returns feedback about it. If the feedback
- * is empty, the expectation is considered fulfilled.
- * <p/>
- * If the Feedback is not empty, the values are considered non matching. The result should contain
- * the necessary information for such a case (a name of the property, an expected value or condition
- * and the actual value).
+ * Tests a property value against an expectation and returns the feedback. Empty feedback means the
+ * value met the expectation; non-empty feedback carries what a reader needs to see the difference:
+ * the property name, the expected value or condition, and the actual value.
  * <p>
  * Matchers compose in a fluent, left-to-right style, the way {@link java.util.function.Predicate}
  * and {@link java.util.Comparator} do:
@@ -32,7 +29,6 @@ public interface Matcher<V> {
      *
      * @param other
      *            the matcher to apply after this one.
-     * @return a matcher that requires both.
      */
     default Matcher<V> and(Matcher<V> other) {
         return (property, expected, actual) -> {
@@ -46,7 +42,6 @@ public interface Matcher<V> {
      *
      * @param normalizer
      *            the function applied to the actual value.
-     * @return a matcher that normalizes the actual value first.
      */
     default Matcher<V> normalizing(UnaryOperator<V> normalizer) {
         return (property, expected, actual) -> match(property, expected, normalizer.apply(actual));
@@ -57,7 +52,6 @@ public interface Matcher<V> {
      *
      * @param normalizer
      *            the function applied to the base value.
-     * @return a matcher that normalizes the base value first.
      */
     default Matcher<V> normalizingBase(UnaryOperator<V> normalizer) {
         return (property, expected, actual) -> match(property, normalizer.apply(expected), actual);
@@ -68,7 +62,6 @@ public interface Matcher<V> {
      *
      * @param normalizer
      *            the function applied to both values.
-     * @return a matcher that normalizes both values first.
      */
     default Matcher<V> normalizingBoth(UnaryOperator<V> normalizer) {
         return (property, expected, actual) -> match(property, normalizer.apply(expected),

@@ -7,15 +7,14 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * Matches two sets by membership: they match when they contain the same elements, regardless of
- * order. An element present in the base set but not the target is reported as missing, and an
- * element present only in the target is reported as extra; each is reported under the property name
- * <code>property[element]</code>.
+ * Matches two sets by membership: they match when they hold the same elements, in any order. An
+ * element only the base set holds counts as missing, one only the target holds counts as extra, and
+ * each lands in the feedback under <code>property[element]</code>.
  * <p>
- * Elements are compared using their own <code>equals</code>/<code>hashCode</code>, which is how a
- * {@link Set} determines membership in the first place. Unlike structures and maps, a set's
- * elements are therefore not matched field by field; value types (records, primitives wrappers,
- * strings, enums) are the natural set elements. The set itself must not be <code>null</code>.
+ * Elements meet through their own <code>equals</code>/<code>hashCode</code>, which is how a
+ * {@link Set} decides membership to begin with. A set's elements therefore never match field by
+ * field the way a structure's or a map's do, which makes value types (records, primitive wrappers,
+ * strings, enums) the natural set elements. The set itself may not be <code>null</code>.
  */
 public final class SetMatcher<V> implements Matcher<Set<V>> {
 

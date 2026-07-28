@@ -15,11 +15,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Randomized checks for the list matchers, expressed as plain JUnit 5
- * {@code @ParameterizedTest} + {@code @MethodSource}. {@link ListMatcher} is order- and
- * size-sensitive; {@link IgnoreOrderListMatcher} accepts any permutation (same multiset) but still
- * rejects a genuinely different one. Cases are a fixed-seed random sample over integer lists (a
- * simple, null-free element type, so the default value matcher applies) plus a few explicit edge
- * cases. The seed is fixed so any failure reproduces exactly.
+ * {@code @ParameterizedTest} + {@code @MethodSource}. {@link ListMatcher} minds order and size,
+ * while {@link IgnoreOrderListMatcher} accepts any permutation of the same multiset and still
+ * rejects a different one. The cases come from a fixed-seed random sample over integer lists, a
+ * simple null-free element type that the default value matcher covers, plus a few explicit edge
+ * cases. Fixing the seed keeps a failure reproducible.
  */
 class ListMatcherRandomizedTest {
 

@@ -8,11 +8,10 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
  * Matches two arrays element by element by adapting them to lists and delegating to
- * {@link ListMatcher}. Reflection ({@link Array}) is used to read the elements, so arrays of
- * objects and of primitives are handled the same way (primitive elements are auto-boxed). Elements
- * are matched the way they are everywhere else: simple values by equality, complex values
- * structurally; each is reported under <code>property[index]</code>. The arrays themselves must not
- * be <code>null</code> (their elements may be).
+ * {@link ListMatcher}. It reads the elements through {@link Array}, so an array of primitives
+ * behaves like an array of objects, boxing on the way. Elements go through the usual logic, simple
+ * ones by equality and complex ones structurally, and each mismatch lands under
+ * <code>property[index]</code>. Neither array may be <code>null</code>, though their elements may.
  */
 public final class ArrayMatcher implements Matcher<Object> {
 

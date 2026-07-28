@@ -15,12 +15,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 /**
- * Shows the {@code junit5} assertion helpers in the bookstore scenario, without AssertJ. Using the
- * shared {@link ContextTolerantSpec}: the prod and mobile responses both match the baseline (one
- * differs only in execution context, the other only in presentation), while the regressed response
- * throws {@link AssertionFailedError} naming the two fields whose values genuinely changed - and
- * carrying both objects for the IDE's comparison view - with no tolerated field in sight. Same
- * fixtures as {@link ResponseMatchingTest}.
+ * Shows the {@code junit5} assertion helpers in the bookstore scenario, without AssertJ. Under the
+ * shared {@link ContextTolerantSpec} the prod and mobile responses both match the baseline, one
+ * differing in execution context and the other in presentation, while the regressed response
+ * throws {@link AssertionFailedError} naming the two fields whose values changed, carrying both
+ * objects for the IDE's comparison view and no tolerated field. Same fixtures as
+ * {@link ResponseMatchingTest}.
  */
 public class JUnitAssertionExampleTest {
 
@@ -45,14 +45,14 @@ public class JUnitAssertionExampleTest {
 
     @Test
     public void prodIsEquivalentToTestUnderTolerantMetadata() {
-        // baseline (expected) first, actual second - the same order as JUnit's assertEquals.
+        // Baseline first, actual second, the order JUnit's assertEquals uses.
         assertMatches(desktopTest, desktopProd, ContextTolerantSpec.matcher());
     }
 
     @Test
     public void mobileIsEquivalentDespiteAbbreviatedPresentation() {
-        // Initials instead of full first names, and no publishing details: the same answer, so
-        // the assertion passes.
+        // Initials instead of full first names, and no publishing details, but the same answer,
+        // so the assertion passes.
         assertMatches(desktopTest, mobileTest, ContextTolerantSpec.matcher());
     }
 
@@ -61,8 +61,8 @@ public class JUnitAssertionExampleTest {
         var error = assertThrows(AssertionFailedError.class,
                 () -> assertMatches(desktopTest, mobileRegression, ContextTolerantSpec.matcher()));
 
-        // Only the real divergence is reported: a changed title and a hit count that disagrees
-        // with the books actually returned.
+        // The message covers the divergence alone: a changed title and a hit count that disagrees
+        // with the books returned.
         var message = error.getMessage();
         assertTrue(message.contains("[Books[0].Title]"), message);
         assertTrue(message.contains("[Metadata.BooksFound]"), message);

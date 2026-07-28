@@ -18,11 +18,12 @@ import nl.alexeyu.structmatcher.property.PropertyPathPattern;
 /**
  * Randomized checks for {@link WildcardPathChecker}, expressed as plain JUnit 5
  * {@code @ParameterizedTest} + {@code @MethodSource} and complementing the example-based
- * {@link WildcardPathCheckerTest}. They pin the structural invariants of wildcard
- * matching: a literal pattern matches a path iff they are equal, and a {@code *} absorbs any run of
- * segments at either end. Cases are a fixed-seed random sample over short alphabetic segment lists
- * plus explicit edge cases — notably {@code ["A", "A"]}, which guards the wildcard-backtracking fix
- * ({@code *,A} must match {@code A,A}). The seed is fixed so any failure reproduces exactly.
+ * {@link WildcardPathCheckerTest}. They pin the structural invariants of wildcard matching: a
+ * literal pattern matches a path iff the two are equal, and a {@code *} absorbs any run of segments
+ * at either end. The cases come from a fixed-seed random sample over short alphabetic segment
+ * lists, plus explicit edge cases, {@code ["A", "A"]} above all, which guards the
+ * wildcard-backtracking fix ({@code *,A} has to match {@code A,A}). Fixing the seed keeps a failure
+ * reproducible.
  */
 class WildcardPathCheckerRandomizedTest {
 
@@ -37,9 +38,9 @@ class WildcardPathCheckerRandomizedTest {
     }
 
     /**
-     * Pairs of segment lists for the literal-equality check: half are two independent random lists
-     * (usually unequal), half pair a list with an equal copy of itself, so both branches of the
-     * {@code iff} are exercised.
+     * Pairs of segment lists for the literal-equality check. Half hold two independent random
+     * lists, which rarely coincide, and half pair a list with an equal copy of itself, so the
+     * cases cover both branches of the {@code iff}.
      */
     static Stream<Arguments> segmentPairs() {
         var random = new Random(19750101L);

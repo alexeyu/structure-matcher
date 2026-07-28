@@ -14,7 +14,8 @@ public final class Json {
     }
 
     /**
-     * Produces a convenient mapper to convert feedback into JSON.
+     * Returns a mapper that renders a feedback tree as nested, property-keyed JSON, for reading or
+     * diffing one comparison. To persist a comparison, use {@link FeedbackArchives} instead.
      */
     public static ObjectMapper mapper() {
         var mapper = new ObjectMapper();

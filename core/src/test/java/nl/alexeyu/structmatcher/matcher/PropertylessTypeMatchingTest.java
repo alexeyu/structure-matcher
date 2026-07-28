@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 
 /**
- * Types with no discoverable properties. The outcome that must never happen is empty feedback,
- * which would report two arbitrarily different values as matching: the type's own {@code equals}
- * decides instead, and where there is none the comparison is rejected.
+ * Types with no discoverable properties. Empty feedback is the one outcome to rule out, since it
+ * would report two unrelated values as matching. The type's own {@code equals} decides instead,
+ * and a type without one gets its comparison rejected.
  */
 public class PropertylessTypeMatchingTest {
 

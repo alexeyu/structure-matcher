@@ -6,9 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 
 /**
- * Feedback node for a complex data structure (a list or a POJO). Contains other feedback nodes
- * which correspond to properties of an object or members of a list. Empty iff all its children are
- * empty.
+ * Feedback node for a complex value, a POJO or a list. It carries one child per property of the
+ * object or per member of the list, and counts as empty only when every child is empty.
  */
 public final class CompositeFeedbackNode implements FeedbackNode {
 

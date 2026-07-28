@@ -4,8 +4,8 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * Matcher which considers two values matching if they are equal. Obviously, an expected value
- * cannot be null, so it is recommended to use this matcher with the {@link NullAwareMatcher}.
+ * Matches two values that are equal. It calls <code>equals</code> on the expected value, so wrap it
+ * in a {@link NullAwareMatcher} to handle the null cases first.
  */
 final class ValuesEqualMatcher<V> implements Matcher<V> {
 

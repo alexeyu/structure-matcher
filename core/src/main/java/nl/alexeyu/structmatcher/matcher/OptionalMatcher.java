@@ -5,11 +5,11 @@ import java.util.Optional;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * Matches two {@link Optional} values by treating an empty optional as if it were
- * <code>null</code>: it unwraps both sides to their contained value (or <code>null</code> when
- * empty) and matches those the way any other value is matched — simple values by equality,
- * complex values structurally. Two empty optionals match; a present one and an empty one do not. A
- * non-optional value is passed through unchanged, so the matcher is harmless if applied to one.
+ * Matches two {@link Optional} values, treating an empty optional as <code>null</code>. It unwraps
+ * both sides to the contained value (or <code>null</code> when empty) and runs the usual logic on
+ * those, simple values by equality and complex ones structurally. Two empty optionals match; an
+ * empty one against a present one does not. A non-optional value passes through untouched, so
+ * registering this matcher on the wrong property costs nothing.
  */
 public final class OptionalMatcher implements Matcher<Object> {
 

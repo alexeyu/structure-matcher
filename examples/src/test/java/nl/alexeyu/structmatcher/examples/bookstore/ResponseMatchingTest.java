@@ -26,12 +26,12 @@ import nl.alexeyu.structmatcher.report.FeedbackPaths;
 
 /**
  * The core single-comparison example. A {@code BookSearchResult} mixes two kinds of data:
- * execution-context {@code metadata} (which server answered, how fast, from which platform) that
- * legitimately varies, and the {@code books} payload that is the actual answer and must not. These
- * tests show the raw comparison drowning in context noise; then the {@link ContextTolerantSpec}
- * making both the prod response (different environment) and the mobile response (abbreviated
- * presentation) "equivalent enough"; and finally that the same spec still fails on a response whose
- * answer genuinely changed, localized to the two fields that changed and no others.
+ * execution-context {@code metadata} (which server answered, how fast, from which platform), which
+ * varies for good reasons, and the {@code books} payload, the answer, which may not. These tests
+ * walk through the raw comparison drowning in context noise, then {@link ContextTolerantSpec}
+ * making both the prod response (different environment) and the mobile one (abbreviated
+ * presentation) "equivalent enough", and last the same spec failing on a response whose answer
+ * changed, at the two fields that changed and nowhere else.
  */
 public class ResponseMatchingTest {
 
@@ -58,8 +58,8 @@ public class ResponseMatchingTest {
 
     @Test
     public void rawComparisonDrownsInExecutionContextNoise() throws Exception {
-        // Without any rules, the identical book payloads are buried under metadata that simply
-        // reflects a different server and timing - the motivation for ContextTolerantSpec.
+        // Without any rules, metadata about a different server and timing buries the identical
+        // book payloads. Hence ContextTolerantSpec.
         var feedback = ObjectMatcher.forClass(BookSearchResult.class).match(desktopTest,
                 desktopProd);
         assertFalse(feedback.isEmpty());
@@ -75,8 +75,8 @@ public class ResponseMatchingTest {
 
     @Test
     public void prodMatchesTestBecauseOnlyExecutionContextDiffers() throws Exception {
-        // Same search, different environment: the server, port and timing differ, but the books
-        // are identical. Tolerating the metadata makes the two responses equivalent.
+        // Same search, different environment: the server, port and timing differ while the books
+        // stay identical. Tolerating the metadata makes the two responses equivalent.
         var feedback = ContextTolerantSpec.matcher().match(desktopTest, desktopProd);
         assertTrue(feedback.isEmpty());
     }
@@ -84,18 +84,17 @@ public class ResponseMatchingTest {
     @Test
     public void mobileIsEquivalentBecauseAbbreviationsCarryTheSameAnswer() throws Exception {
         // The mobile response ran elsewhere (tolerated), abbreviates each author's first name to
-        // an initial and omits the publishing details - both presentation choices for a small
-        // screen, not a change in which books were found. It found the same two books, so it is
-        // equivalent.
+        // an initial and omits the publishing details. Both are presentation choices for a small
+        // screen, and it returned the same two books, so it counts as equivalent.
         var feedback = ContextTolerantSpec.matcher().match(desktopTest, mobileTest);
         assertTrue(feedback.isEmpty());
     }
 
     @Test
     public void aGenuineRegressionStillFailsAndIsLocalized() throws Exception {
-        // Same tolerated presentation as above, but this response claims three hits while
-        // returning two, and renders the first title differently. That is a real divergence in the
-        // answer, so it surfaces - and only it does: no tolerated field rides along.
+        // Same tolerated presentation as above, except this response claims three hits while
+        // returning two, and renders the first title differently. The answer itself diverged, so
+        // the feedback names those two fields and no tolerated one rides along.
         var feedback = ContextTolerantSpec.matcher().match(desktopTest, mobileRegression);
 
         assertFalse(feedback.isEmpty());
@@ -105,9 +104,8 @@ public class ResponseMatchingTest {
 
     @Test
     public void typedAndStringPathsRegisterTheSameMatcher() throws Exception {
-        // The typed accessor chain and the dotted string resolve to the identical path, so the
-        // serialized feedback is byte-for-byte the same regardless of how the matcher is
-        // registered.
+        // The typed accessor chain and the dotted string resolve to one path, so the serialized
+        // feedback comes out byte-for-byte the same whichever way you register the matcher.
         var viaTyped = ObjectMatcher.forClass(BookSearchResult.class)
                 .with(ipMatcher, BookSearchResult::metadata, SearchMetadata::server, Server::ip)
                 .match(desktopTest, desktopProd);

@@ -18,10 +18,10 @@ import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * Matching driven by a property's declared type where that type is not the plain
- * {@code List}/{@code Map}/{@code Set} interface: a concrete collection type must still be matched
- * as a collection, and the bridge method of a covariant accessor must not be taken for a property.
- * Both used to be classified wrongly - the first reported differing collections as matching, the
+ * Matching driven by a property's declared type where that type is something other than the plain
+ * {@code List}/{@code Map}/{@code Set} interface. A concrete collection type still has to match as
+ * a collection, and the bridge method of a covariant accessor may not pass for a property. The
+ * library used to classify both wrongly: the first reported differing collections as matching, the
  * second failed with a {@code ClassCastException}.
  */
 public class DeclaredTypeMatchingTest {

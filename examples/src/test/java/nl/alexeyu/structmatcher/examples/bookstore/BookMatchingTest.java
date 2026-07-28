@@ -28,8 +28,8 @@ public class BookMatchingTest {
 
     @Test
     public void notNormalizedStringsDoMatchWithNormalizationAwareMatcher() {
-        // Typed path: Author is a record, so the accessor is Author::firstName. A rename
-        // of the component is now a compile error instead of a silently stale "FirstName".
+        // Typed path: Author is a record, so the accessor is Author::firstName. Renaming the
+        // component now breaks the compile instead of leaving a stale "FirstName" behind.
         var feedback = ObjectMatcher.forClass(Author.class)
                 .with(Matchers.<String>valuesEqual().normalizing(name -> stripAccents(name)),
                         Author::firstName)
@@ -51,8 +51,8 @@ public class BookMatchingTest {
                 new V1MetadataExtractor(), Book::publishingInfo);
 
         var feedback = ObjectMatcher.forClass(Book.class)
-                // PublishingInfo is validated indirectly (below) from the old unstructured Meta,
-                // so ignore the direct field comparison, where the old value is simply null.
+                // The indirect matcher below derives PublishingInfo from the old unstructured
+                // Meta, so skip the direct comparison, where the old value is null.
                 .withMatcher((p, e, a) -> Feedback.empty(p), "PublishingInfo")
                 .withMatcher(publishingMatcher, "Meta").match(oldVersion, newVersion);
         assertTrue(feedback.isEmpty());

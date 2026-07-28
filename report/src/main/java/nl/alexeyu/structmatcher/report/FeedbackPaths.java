@@ -8,17 +8,17 @@ import nl.alexeyu.structmatcher.feedback.ExpectationBroken;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * Turns a {@link FeedbackNode} tree into the flat list of paths at which an expectation was broken.
- * A path reads the way a custom-matcher registration path does, so the two line up:
+ * Turns a {@link FeedbackNode} tree into the flat list of paths where an expectation broke. A path
+ * reads the way a custom-matcher registration path does, so the two line up:
  * <ul>
- * <li>the root property (the matched class's name) is dropped — paths are relative to it;
- * <li>structure sub-properties are joined with a dot: {@code Metadata.Server.Ip};
- * <li>collection elements keep the bracketed segment their matcher produced, without repeating the
+ * <li>the root property, the matched class's name, drops out, leaving paths relative to it;
+ * <li>a dot joins the sub-properties of a structure: {@code Metadata.Server.Ip};
+ * <li>a collection element keeps the bracketed segment its matcher produced, without repeating the
  * collection's own name: {@code Strings[0]}, {@code Books[0].Authors[0].FirstName},
  * {@code Headers[Content-Type]}.
  * </ul>
- * {@link #toFieldPath} additionally collapses every bracketed segment to {@code []} so paths that
- * differ only by index/key/element group together as one field for aggregation.
+ * {@link #toFieldPath} goes one step further and collapses every bracketed segment to {@code []},
+ * grouping paths that differ only by index, key or element into one field for aggregation.
  */
 public final class FeedbackPaths {
 
@@ -27,7 +27,7 @@ public final class FeedbackPaths {
 
     /**
      * Returns the canonical paths of every broken leaf in the tree, in depth-first encounter order.
-     * An empty (fully matching) tree yields an empty list.
+     * A fully matching tree yields an empty list.
      */
     public static List<String> brokenPaths(FeedbackNode root) {
         return brokenLeaves(root).stream().map(BrokenLeaf::path).toList();
@@ -35,8 +35,8 @@ public final class FeedbackPaths {
 
     /**
      * Returns every broken leaf in the tree paired with its canonical path, in depth-first
-     * encounter order. Shared traversal behind {@link #brokenPaths} and {@link FeedbackQuery}; an
-     * empty (fully matching) tree yields an empty list.
+     * encounter order. This is the traversal {@link #brokenPaths} and {@link FeedbackQuery} share.
+     * A fully matching tree yields an empty list.
      */
     static List<BrokenLeaf> brokenLeaves(FeedbackNode root) {
         var leaves = new ArrayList<BrokenLeaf>();
@@ -55,7 +55,7 @@ public final class FeedbackPaths {
 
     /**
      * Normalizes a path so that entries differing only by collection index, map key or set element
-     * become one field, e.g. {@code Books[0].Authors[2].FirstName} and
+     * collapse into one field: {@code Books[0].Authors[2].FirstName} and
      * {@code Books[1].Authors[0].FirstName} both become {@code Books[].Authors[].FirstName}.
      */
     public static String toFieldPath(String exactPath) {
@@ -84,12 +84,12 @@ public final class FeedbackPaths {
 
     private static String childPath(String parentPath, String parentName, String childProperty) {
         if (parentPath.isEmpty()) {
-            // Directly under the root: the root's own name (the class name) is dropped.
+            // Directly under the root, whose own name (the class name) drops out.
             return childProperty;
         }
         if (childProperty.startsWith(parentName + "[")) {
-            // A collection element whose property already embeds the collection's name; keep only
-            // the bracketed suffix so the name is not repeated.
+            // A collection element whose property already embeds the collection's name, so keep
+            // the bracketed suffix alone rather than repeating it.
             return parentPath + childProperty.substring(parentName.length());
         }
         return parentPath + "." + childProperty;

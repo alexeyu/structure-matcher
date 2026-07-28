@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 /**
- * Shows the {@code assertj} bridge in the bookstore scenario: assert straight from an existing
+ * Shows the {@code assertj} bridge in the bookstore scenario: assert from inside an existing
  * AssertJ test that a response is <em>equivalent enough</em> to a baseline under the shared
- * {@link ContextTolerantSpec}. The prod and mobile responses both pass - one differs only in
- * execution context, the other only in how it presents the same answer - while the regressed
- * response fails, and the AssertJ message names the two fields that actually changed rather than
- * anything the spec tolerates. Same fixtures as {@link ResponseMatchingTest}.
+ * {@link ContextTolerantSpec}. The prod and mobile responses both pass, one differing in execution
+ * context and the other in how it presents the same answer, while the regressed response fails and
+ * the AssertJ message names the two fields that changed, none of the tolerated ones. Same fixtures
+ * as {@link ResponseMatchingTest}.
  */
 public class AssertJExampleTest {
 
@@ -48,15 +48,15 @@ public class AssertJExampleTest {
 
     @Test
     public void mobileIsEquivalentDespiteAbbreviatedPresentation() {
-        // The initials and the omitted publishing details are presentation, not a different
-        // answer, so the assertion passes.
+        // The initials and the omitted publishing details are presentation, so the assertion
+        // passes: the answer is the same.
         assertThat(mobileTest).matchesStructure(desktopTest, ContextTolerantSpec.matcher());
     }
 
     @Test
     public void aGenuineRegressionFailsAndTheMessageNamesTheField() {
-        // Same tolerated presentation, but a changed title and a hit count that disagrees with
-        // the returned books - the failure points at exactly those two fields.
+        // Same tolerated presentation, plus a changed title and a hit count that disagrees with
+        // the returned books. The failure points at those two fields.
         assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> assertThat(mobileRegression)
                         .matchesStructure(desktopTest, ContextTolerantSpec.matcher()))

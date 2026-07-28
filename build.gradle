@@ -12,12 +12,12 @@ subprojects {
     apply plugin: 'com.diffplug.spotless'
 
     // Light-touch formatting: orders imports, removes unused imports, trims trailing
-    // whitespace, and enforces a final newline — no wrapping/indentation reformatting.
+    // whitespace, and enforces a final newline. It leaves wrapping and indentation alone.
     // Run `./gradlew spotlessApply` to fix, `spotlessCheck` to verify (runs in `build`).
     spotless {
         java {
             // Preserve the existing grouping (static, then java, third-party, project),
-            // blank-line separated — rather than collapsing everything into one block.
+            // separated by blank lines, rather than collapsing it into one block.
             importOrder('\\#', 'java', 'javax', 'org', 'com', 'nl')
             removeUnusedImports()
             trimTrailingWhitespace()
@@ -25,8 +25,8 @@ subprojects {
         }
     }
 
-    // Enforce a 100-character line limit. Spotless is intentionally light-touch and does not
-    // rewrap, so this is a check-only guard (it fails the build, it does not fix). Wired into
+    // Enforce a 100-character line limit. Spotless stays light-touch and never rewraps, so this
+    // is a check-only guard: it fails the build rather than fixing the line. Wired into
     // `check`, so it runs as part of `build` / CI. Counts characters, not bytes.
     def maxLineLength = 100
     tasks.register('checkLineLength') {

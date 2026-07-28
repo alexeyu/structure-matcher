@@ -3,9 +3,9 @@ package nl.alexeyu.structmatcher.report;
 import java.util.List;
 
 /**
- * A small public model for the end-to-end report test. It must be public with public getters so the
+ * A small public model for the end-to-end report test. It stays public, with public getters, so the
  * core matcher can discover and invoke its properties by reflection across the module boundary. It
- * exercises a simple field ({@code Color}), a list element ({@code Tags[0]}) and a nested-structure
+ * covers a simple field ({@code Color}), a list element ({@code Tags[0]}) and a nested-structure
  * field ({@code Sub.Flag}).
  */
 public class SampleStructure {

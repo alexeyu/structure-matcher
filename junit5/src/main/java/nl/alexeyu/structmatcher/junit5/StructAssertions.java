@@ -26,9 +26,10 @@ import nl.alexeyu.structmatcher.report.FeedbackQuery;
  * </pre>
  *
  * On a mismatch the helpers throw {@link AssertionFailedError}, carrying the two objects as
- * expected/actual (so a JUnit 5 IDE offers its comparison view) and a message listing every broken
- * field with its expected/actual value. {@code AssertionFailedError} is opentest4j — JUnit 5's
- * assertion foundation — but engine-agnostic, so these helpers work under JUnit 5 or 4.
+ * expected and actual, so a JUnit 5 IDE offers its comparison view, plus a message listing every
+ * broken field with its expected and actual value. {@code AssertionFailedError} comes from
+ * opentest4j, JUnit 5's assertion foundation, and stays engine-agnostic, so these helpers work
+ * under JUnit 5 or 4.
  */
 public final class StructAssertions {
 
@@ -36,9 +37,9 @@ public final class StructAssertions {
     }
 
     /**
-     * Asserts that {@code actual} matches {@code expected} using the default rules (plain per-field
-     * equality, recursing into nested structures and collections). Use
-     * {@link #assertMatches(Object, Object, ObjectMatcher)} to apply a configured, tolerant spec.
+     * Asserts that {@code actual} matches {@code expected} under the default rules: per-field
+     * equality, recursing into nested structures and collections. Pass a configured, tolerant spec
+     * to {@link #assertMatches(Object, Object, ObjectMatcher)} instead when you need one.
      *
      * @throws AssertionFailedError
      *             if the two diverge on any field.
@@ -46,7 +47,7 @@ public final class StructAssertions {
     public static <T> void assertMatches(T expected, T actual) {
         var base = expected != null ? expected : actual;
         if (base == null) {
-            return; // both null — nothing to compare, trivially equivalent.
+            return; // Both null: nothing to compare, so they are equivalent.
         }
         @SuppressWarnings("unchecked")
         var type = (Class<T>) base.getClass();
@@ -54,9 +55,9 @@ public final class StructAssertions {
     }
 
     /**
-     * Asserts that {@code actual} matches {@code expected} using the given {@code spec} — an
-     * {@link ObjectMatcher} you have configured with tolerant / cross-field rules. The spec's
-     * registered matchers, wildcards and typed paths all apply.
+     * Asserts that {@code actual} matches {@code expected} under the given {@code spec}, an
+     * {@link ObjectMatcher} you have configured with tolerant or cross-field rules. Its registered
+     * matchers, wildcards and typed paths all apply.
      *
      * @throws AssertionFailedError
      *             if the two diverge on any field the spec does not tolerate.

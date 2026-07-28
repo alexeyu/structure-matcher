@@ -5,9 +5,9 @@ import java.util.function.Function;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
- * A matcher that allows the maximal level of flexibility: operates with 2 functions that derive an
- * expected and an actual value from the base and target objects respectively. Then it feeds these
- * values to an underlying matcher.
+ * Derives the two values to compare from the whole base and target objects, through a fetcher
+ * function each, and hands them to an underlying matcher. Use it when the expected value for one
+ * field depends on a different part of the object.
  */
 public final class IndirectMatcher<T, V> implements Matcher<T> {
 
@@ -36,10 +36,10 @@ public final class IndirectMatcher<T, V> implements Matcher<T> {
     /**
      * Applies this matcher to the top-level base/actual structures, deriving the values to compare
      * via the two fetchers. Called by {@link ContextAwareMatcher}, which sources the structures
-     * from the matching stack. The cast is safe by construction: an indirect matcher is registered
-     * for the structure type {@code T} it was built against, which is exactly the type the matching
-     * stack carries — so isolating the one unavoidable unchecked cast here keeps the caller (which
-     * only holds an {@code IndirectMatcher<?, ?>}) free of raw types and unchecked operations.
+     * from the matching stack. The cast holds by construction: you register an indirect matcher for
+     * the structure type {@code T} it was built against, which is the type the matching stack
+     * carries. Isolating the cast here keeps the caller, which holds only an
+     * {@code IndirectMatcher<?, ?>}, free of raw types and unchecked operations.
      */
     @SuppressWarnings("unchecked")
     FeedbackNode matchStructures(Object baseStructure, Object actualStructure) {

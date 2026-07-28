@@ -12,16 +12,16 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 import nl.alexeyu.structmatcher.report.FeedbackPaths;
 
 /**
- * Proves the exact rules {@link ContextTolerantSpec} applies to the two metadata fields that are
- * <em>not</em> pure execution context: {@code keywords} (a list that is semantically a set — order
- * and case tolerated, but the set of terms must match) and {@code booksFound} (strict). Uses
- * hand-built responses that vary only the field under test, so any feedback is attributable to it.
+ * Proves the rules {@link ContextTolerantSpec} applies to the two metadata fields that carry more
+ * than execution context: {@code keywords}, a list standing for a set, where order and case fall
+ * away but the terms have to match, and {@code booksFound}, which stays strict. Each response is
+ * hand-built to vary the field under test alone, so any feedback belongs to that field.
  */
 public class MetadataFieldRulesTest {
 
     private final BookSearchResult baseline = response(List.of("smoke"), 2);
 
-    /** A response that differs from {@link #baseline} only in its keywords and/or booksFound. */
+    /** A response differing from {@link #baseline} in its keywords, its booksFound, or both. */
     private BookSearchResult response(List<String> keywords, int booksFound) {
         var metadata = new SearchMetadata(keywords, booksFound, 12,
                 new Server("192.168.10.10", 8080), Platform.DESKTOP);

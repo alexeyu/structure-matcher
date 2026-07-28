@@ -15,10 +15,9 @@ import nl.alexeyu.structmatcher.report.FeedbackQuery;
  * {@link StructMatcherAssertions#assertThat(Object)}.
  *
  * <p>
- * The assertion runs a full {@link ObjectMatcher} comparison and, on any mismatch, fails with the
- * structured per-field diff — each broken {@link FeedbackQuery canonical path} with its expected
- * and actual value — so the failure says exactly which fields diverged, not merely that the two
- * objects differ.
+ * The assertion runs a full {@link ObjectMatcher} comparison and, on a mismatch, fails with the
+ * structured per-field diff: each broken {@link FeedbackQuery canonical path} beside its expected
+ * and actual value, so the failure names the fields that diverged.
  *
  * @param <T>
  *            the type under assertion.
@@ -30,9 +29,9 @@ public class StructureAssert<T> extends AbstractAssert<StructureAssert<T>, T> {
     }
 
     /**
-     * Asserts that {@code actual} matches {@code expected} using the default rules (plain per-field
-     * equality, recursing into nested structures and collections). Use
-     * {@link #matchesStructure(Object, ObjectMatcher)} to apply a configured, tolerant spec.
+     * Asserts that {@code actual} matches {@code expected} under the default rules: per-field
+     * equality, recursing into nested structures and collections. Pass a configured, tolerant spec
+     * to {@link #matchesStructure(Object, ObjectMatcher)} instead when you need one.
      *
      * @return {@code this} for chaining.
      */
@@ -44,9 +43,9 @@ public class StructureAssert<T> extends AbstractAssert<StructureAssert<T>, T> {
     }
 
     /**
-     * Asserts that {@code actual} matches {@code expected} using the given {@code spec} — an
-     * {@link ObjectMatcher} you have configured with tolerant / cross-field rules. The spec's
-     * registered matchers, wildcards and typed paths all apply.
+     * Asserts that {@code actual} matches {@code expected} under the given {@code spec}, an
+     * {@link ObjectMatcher} you have configured with tolerant or cross-field rules. Its registered
+     * matchers, wildcards and typed paths all apply.
      *
      * @return {@code this} for chaining.
      */

@@ -14,15 +14,14 @@ import nl.alexeyu.structmatcher.report.FeedbackQuery;
 
 /**
  * Reads and writes the stable, versioned {@link FeedbackArchive persistence format} for a
- * comparison's feedback. This is the format to <em>store</em> (one comparison per document) and
- * load back to aggregate/query a batch — distinct from {@link Json#mapper()}, which renders the
- * nested tree for humans.
+ * comparison's feedback. Use this to <em>store</em> a comparison (one per document) and load it
+ * back to aggregate or query a batch; {@link Json#mapper()} renders the nested tree for humans
+ * instead.
  *
  * <p>
- * The mapper is configured for forward compatibility: unknown JSON properties are ignored, so a
- * document written by a newer minor revision (extra fields, same
- * {@link #CURRENT_SCHEMA_VERSION}) still parses. A document whose {@code schemaVersion} this build
- * does not understand is rejected by {@link #fromJson} rather than silently mis-read.
+ * The mapper ignores unknown JSON properties, so a document written by a newer minor revision
+ * (extra fields, same {@link #CURRENT_SCHEMA_VERSION}) still parses. {@link #fromJson} rejects a
+ * {@code schemaVersion} this build does not understand rather than mis-reading the document.
  */
 public final class FeedbackArchives {
 
@@ -32,13 +31,13 @@ public final class FeedbackArchives {
      * additive, backward-compatible changes do not require a bump.
      *
      * <p>
-     * <strong>Bumping is not free.</strong> {@link #fromJson} accepts only this exact version,
-     * so the moment this constant becomes {@code 2} every document already persisted at version 1
-     * stops parsing. The version field marks <em>which</em> schema produced a document; it does
-     * not by itself teach the reader how to read an older one. So whoever raises this must, in the
-     * same change, add read support for the prior version(s) — branch in {@link #fromJson} on the
-     * parsed {@code schemaVersion}, or migrate the old shape forward before constructing the
-     * record — otherwise older corpora become unreadable.
+     * <strong>Bumping is not free.</strong> {@link #fromJson} accepts only this exact version, so
+     * the moment this constant becomes {@code 2} every document already persisted at version 1
+     * stops parsing. The version field marks <em>which</em> schema produced a document; on its own
+     * it teaches the reader nothing about reading an older one. Whoever raises this must add read
+     * support for the prior versions in the same change, either by branching in {@link #fromJson}
+     * on the parsed {@code schemaVersion} or by migrating the old shape forward before
+     * constructing the record. Skip that and older corpora become unreadable.
      */
     public static final int CURRENT_SCHEMA_VERSION = 1;
 
@@ -47,9 +46,8 @@ public final class FeedbackArchives {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     /**
-     * A compact (single-line) writer for the JSON Lines batch format: each archive must occupy
-     * exactly one line, so indentation is disabled here even though single-document output is
-     * pretty-printed.
+     * A compact writer for the JSON Lines batch format. Each archive has to occupy one line, so
+     * this writer drops the indentation that single-document output keeps.
      */
     private static final ObjectWriter LINE_WRITER = MAPPER.writer()
             .without(SerializationFeature.INDENT_OUTPUT);
@@ -58,9 +56,9 @@ public final class FeedbackArchives {
     }
 
     /**
-     * Reduces a comparison's feedback tree to its flat, versioned archive (no I/O). The broken
-     * leaves are taken via {@link FeedbackQuery}, so their paths are the canonical
-     * registration-style paths.
+     * Reduces a comparison's feedback tree to its flat, versioned archive, without touching any
+     * I/O. It collects the broken leaves through {@link FeedbackQuery}, so each path is the
+     * canonical registration-style one.
      */
     public static FeedbackArchive archive(FeedbackNode feedback) {
         var leaves = FeedbackQuery.brokenLeaves(feedback).stream()
@@ -105,10 +103,10 @@ public final class FeedbackArchives {
     }
 
     /**
-     * Serializes a whole batch of comparisons to <a href="https://jsonlines.org">JSON Lines</a> —
-     * one compact {@link FeedbackArchive} per line. This is the format to persist a batch as a
-     * single document (or append to incrementally) and reload with {@link #fromJsonLines} to roll
-     * up into a report. The lines are in iteration order; an empty batch yields an empty string.
+     * Serializes a whole batch of comparisons to <a href="https://jsonlines.org">JSON Lines</a>,
+     * one compact {@link FeedbackArchive} per line. Use it to persist a batch as a single document
+     * (or to append to one), then reload with {@link #fromJsonLines} and roll the batch up into a
+     * report. The lines follow iteration order, and an empty batch yields an empty string.
      */
     public static String toJsonLines(Collection<? extends FeedbackNode> feedbacks) {
         return writeLines(feedbacks.stream().map(FeedbackArchives::archive).toList());
@@ -124,9 +122,9 @@ public final class FeedbackArchives {
     }
 
     /**
-     * Parses a JSON Lines batch back into archives, one per non-blank line, each validated the
-     * same way as {@link #fromJson} (unsupported {@code schemaVersion} and malformed lines are
-     * rejected). Blank lines are skipped, so a trailing newline is fine.
+     * Parses a JSON Lines batch back into archives, one per non-blank line, validating each line
+     * the way {@link #fromJson} does: it rejects a malformed line or an unsupported
+     * {@code schemaVersion}. It skips blank lines, so a trailing newline is fine.
      */
     public static List<FeedbackArchive> fromJsonLines(String jsonLines) {
         return jsonLines.lines()

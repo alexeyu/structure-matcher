@@ -11,86 +11,76 @@ public final class Feedback {
     }
 
     /**
-     * Produces an empty feedback about comparison two values of a property.
+     * Reports that the two values of a property match.
      *
      * @param property
-     *            property name.
-     * @return an empty feedback which means that values are considered matching.
+     *            the property name.
      */
     public static FeedbackNode empty(String property) {
         return new ExpectationMet(property);
     }
 
     /**
-     * Produces feedback telling that two values of a property are not equal.
+     * Reports that the two values of a property differ.
      *
      * @param property
-     *            name of a property which was verified.
+     *            the property name.
      * @param expected
-     *            an expected value of the property.
+     *            the value the base structure holds.
      * @param actual
-     *            an actual value of a property.
+     *            the value found instead.
      */
     public static FeedbackNode nonEqual(String property, Object expected, Object actual) {
         return new ExpectationBroken(property, expected, actual);
     }
 
     /**
-     * Produces a non-empty feedback node which means that an expectation regarding certain property
-     * value is not fulfilled.
+     * Reports a value that breaks a stated expectation.
      *
      * @param property
-     *            property name.
+     *            the property name.
      * @param value
-     *            a value which was tested.
+     *            the value under test.
      * @param specification
-     *            a description of the expectation regarding a value being tested (e.g. 'a positive
-     *            number')
-     * @return a feedback node which captures information about the broken expectation.
+     *            what the value should have satisfied, e.g. 'a positive number'.
      */
     public static FeedbackNode doesNotConform(String property, Object value, String specification) {
         return new ExpectationBroken(property, specification, value);
     }
 
     /**
-     * Produces a non-empty feedback node which means that a null value was tested while a non-null
-     * value was expected.
+     * Reports a null value where the base structure holds one.
      *
      * @param property
-     *            property name.
+     *            the property name.
      * @param expected
-     *            a value which was expected.
-     * @return a feedback node which captures information about the broken expectation.
+     *            the value the base structure holds.
      */
     public static FeedbackNode gotNull(String property, Object expected) {
         return new ExpectationBroken(property, expected, null);
     }
 
     /**
-     * Produces a non-empty feedback node which means that a non-null value was tested while a null
-     * was expected.
+     * Reports a present value where the base structure holds null.
      *
      * @param property
-     *            property name.
+     *            the property name.
      * @param actual
-     *            a value which was tested.
-     * @return a feedback node which captures information about the broken expectation.
+     *            the value found instead.
      */
     public static FeedbackNode gotNonNull(String property, Object actual) {
         return new ExpectationBroken(property, "null", actual);
     }
 
     /**
-     * Produces an composite feedback node for a property.
+     * Groups the feedback about a property's sub-properties. The node counts as empty only when
+     * every child is empty; otherwise walk the children to find which sub-properties diverged and
+     * why.
      *
      * @param property
-     *            a property name.
+     *            the property name.
      * @param children
-     *            a collection of feedback nodes which represent a result of matching sub-properties
-     *            of a given property
-     * @return a composite feedback node. It is considered empty only if all its children are empty.
-     *         Otherwise its children can be examined to find non-matching sub-properties and the
-     *         reason of their difference.
+     *            the feedback from matching its sub-properties.
      */
     public static CompositeFeedbackNode composite(String property,
             Collection<FeedbackNode> children) {
@@ -98,16 +88,15 @@ public final class Feedback {
     }
 
     /**
-     * Produces a non-empty feedback node which means that the size of collection is not as
-     * expected. Useful when comparing list properties.
+     * Reports two collections of different size, which the list and array matchers treat as a
+     * mismatch on the spot.
      *
      * @param property
-     *            name of a property which was verified.
+     *            the property name.
      * @param expectedSize
-     *            an expected size of a collection.
+     *            the size of the base collection.
      * @param actualSize
-     *            an actual collection size.
-     * @return a feedback node which captures information about the broken expectation.
+     *            the size found instead.
      */
     public static FeedbackNode differentCollectionSizes(String property, int expectedSize,
             int actualSize) {
