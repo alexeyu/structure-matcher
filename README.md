@@ -14,7 +14,7 @@ It fits one job well: validating that two object streams are equivalent, at scal
 
 Use it when your objects have no meaningful `equals` (or can't have one), some fields need loose matching, and you want the difference reported field by field.
 
-For a single test assertion, AssertJ's `usingRecursiveComparison()` is probably the better tool. [How this compares to JaVers, AssertJ and json-unit](COMPARISON.md) says where each one wins.
+For a single test assertion, reach for AssertJ's `usingRecursiveComparison()` instead. [How this compares to JaVers, AssertJ and json-unit](COMPARISON.md) says where each one wins.
 
 ## Installation
 
@@ -57,7 +57,7 @@ if (feedback.isEmpty()) {
 }
 ```
 
-By default every property is compared for equality, recursing into nested structures, lists, maps, sets, arrays, and `Optional`. Register custom matchers to loosen specific fields:
+By default `ObjectMatcher` compares every property for equality, recursing into nested structures, lists, maps, sets, arrays, and `Optional`. Register custom matchers to loosen specific fields:
 
 ```java
 FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
@@ -133,16 +133,14 @@ Imagine a bookstore REST API. The search endpoint returns the books that match a
 }
 ```
 
-How do we prove the two responses carry the same information?
-
-First, we need POJOs that model the response, so we can read the XML or JSON into them (with Jackson, for instance). The simplest classes are omitted:
+To prove the two responses carry the same information, start with POJOs that model the response, so you can read the XML or JSON into them (with Jackson, for instance). The simplest classes are omitted:
 
 ```java
 public record Book(String title, List<Author> authors, PublishingInfo publishingInfo) {}
 
 public record PublishingInfo(String publisher, int year, int length) {}
 
-// A record works just as well as a classic bean. Its components are discovered as properties.
+// A record works as well as a classic bean. Its components become properties.
 public record Server(String ip, int port) {}
 
 // A classic bean, to show the two styles mixing in one path.
@@ -151,14 +149,14 @@ public class SearchMetadata {}
 public record BookSearchResult(SearchMetadata metadata, List<Book> books) {}
 ```
 
-Second, we tell Structure matcher about every logical difference between the responses, then ask it to compare them.
+Then declare every logical difference between the responses and run the comparison.
 
-A custom matcher is attached to a property by **path**. There are two ways to write a path:
+You attach a custom matcher to a property by **path**, written either way:
 
-- **Typed accessor chains** (preferred) - a sequence of method references such as `BookSearchResult::metadata, SearchMetadata::getServer, Server::ip`. They are checked by the compiler, completed by the IDE, and survive renames. A chain mixes bean getters and record accessors freely.
+- **Typed accessor chains** (preferred) - a sequence of method references such as `BookSearchResult::metadata, SearchMetadata::getServer, Server::ip`. The compiler checks them, the IDE completes them, and they survive a rename. One chain can mix bean getters and record accessors.
 - **Dot-separated strings** - `"Metadata.Server.Ip"`. Loosely typed, but the only way to express paths that descend *into* collection elements (`"Books.Authors.FirstName"`) or use the `*` wildcard.
 
-The two styles produce identical paths and can be mixed in one set-up.
+Both styles produce identical paths, and one set-up can mix them.
 
 ```java
 BookSearchResult desktopResponse = // read XML response
@@ -183,10 +181,10 @@ FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
 assertTrue(feedback.isEmpty()); // the two responses carry the same answer
 ```
 
-Two details to note:
+Two details:
 
 - `normalizingBoth`, not `normalizingBase`. Reducing only the baseline would make `Stephen` match `S.` but stop `Stephen` matching `Stephen`, so the spec would fail on any desktop-to-desktop comparison. Reducing both sides makes one spec serve every pairing, and it stays strict: `Stephen` still does not match `T.`.
-- `absentOrEqual` tolerates *absence*, not *anything*. A response that omits `publishingInfo` passes; one that returns the wrong year does not. A matcher is just a lambda, so a rule the built-ins don't cover is a few lines:
+- `absentOrEqual` tolerates *absence*, not *anything*. A response that omits `publishingInfo` passes; one that returns the wrong year does not. A matcher is a lambda, so a rule the built-ins don't cover takes a few lines:
 
   ```java
   static Matcher<PublishingInfo> absentOrEqual() {
@@ -196,11 +194,11 @@ Two details to note:
   }
   ```
 
-Only the deviations are defined. Every other property is compared automatically, in the standard way.
+You define only the deviations. Structure matcher compares every other property in the standard way.
 
 ## Beyond a single comparison: the batch report
 
-`match` returns a `FeedbackNode` tree, not a boolean, so a *batch* of comparisons can be rolled up to show **which fields systematically diverge**. That is the point of validating two object streams for *equivalence at scale*: API v1-vs-v2 contract checks, data-pipeline regression, cross-system reconciliation, where you want a localized report, not pass/fail.
+`match` returns a `FeedbackNode` tree rather than a boolean, so you can roll a *batch* of comparisons up into a view of **which fields systematically diverge**, which is what an API v1-vs-v2 contract check or a data-pipeline regression run needs.
 
 The `report` module aggregates many results into a `FeedbackSummary`. Replay a set of search queries against the legacy and the new API, then compare each paired response:
 
@@ -229,7 +227,7 @@ summary.topMismatchingFields(3);          // the fields diverging most often, wo
   Books[].Authors[].LastName: 3 (1.5%)
 ```
 
-That is the idea: not "30 responses differed", but *which* three fields account for them, and how often each one breaks. Every response in this batch came from a different host and port, took a different time, abbreviated every author's first name and omitted the publishing details. None of that reaches the report, because the spec tolerates all of it. What is left is signal.
+The digest names the three fields behind those 30 mismatches and how often each one breaks. Every response in this batch came from a different host and port, took a different time, abbreviated the author first names and omitted the publishing details; the spec tolerates all of that, so none of it shows up here.
 
 A field is counted at most once per comparison, and collection indices collapse to a single field (`Books[0].Title` and `Books[1].Title` become `Books[].Title`), so a rate reads as "the fraction of comparisons in which this field broke."
 
@@ -243,14 +241,14 @@ FeedbackQuery.brokenLeaves(feedback);                  // every broken (path, ex
 FeedbackQuery.mismatchesUnder(feedback, "Books[0]");   // only the leaves under a given path
 ```
 
-Run the same spec against a response that really did regress - it claims three hits while returning two, and renders the first title differently - and `brokenLeaves` returns exactly those two divergences as `(path, expectation, value)`:
+Run the same spec against a response that did regress - it claims three hits while returning two, and renders the first title differently - and `brokenLeaves` returns those two divergences as `(path, expectation, value)`:
 
 ```
 Metadata.BooksFound | 2               | 3
 Books[0].Title      | Blood and Smoke | Blood & Smoke
 ```
 
-The abbreviated first names and the missing publishing details are in this response too, and they are absent from the list. That is what scoped tolerance achieves: the rules suppress the differences you decided are irrelevant.
+This response abbreviates the first names and drops the publishing details too, and neither one reaches the list. Your rules suppress the differences you marked as irrelevant, and nothing more.
 
 ## Serializing and persisting feedback
 
@@ -293,7 +291,7 @@ The full runnable scenario (aggregate, query, persist + reload) is `BatchReportT
 
 ## Using it in tests
 
-Both bridges run the same comparison and, on a mismatch, fail with the per-field diff. Pick the one that matches your test stack:
+Both bridges run the same comparison and, on a mismatch, fail with the per-field diff. Pick the one matching your test stack:
 
 ```java
 // AssertJ
@@ -303,7 +301,7 @@ StructMatcherAssertions.assertThat(actual).matchesStructure(expected, spec);
 StructAssertions.assertMatches(expected, actual, spec);
 ```
 
-The failure names every field that diverged, instead of dumping two objects and leaving you to spot the difference:
+The failure message lists each diverging field instead of dumping two objects for you to compare:
 
 ```
 2 field(s) did not match:

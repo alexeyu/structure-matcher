@@ -15,38 +15,39 @@ All notable changes to this project are documented here. The format follows
   interface-typed properties worked.
 - **A type with no discoverable properties is no longer reported as matching.** Types the library
   cannot introspect (accessors without a `get`/`is` prefix, classes with only public fields, an
-  array reached as a collection element) produced an empty feedback tree, i.e. "these match". They
-  are now compared by their own `equals`, or rejected with the new
+  array reached as a collection element) produced an empty feedback tree, i.e. "these match". The
+  library now compares them by their own `equals`, or rejects them with the new
   `NoComparablePropertiesException` naming the type and property; registering a custom matcher for
   the property still overrides the default. A collection nested in a collection
-  (`List<List<String>>`) is unaffected and remains the known limitation it was, since `ArrayList`
+  (`List<List<String>>`) is unaffected and stays the known limitation it was, since `ArrayList`
   does expose a property (`isEmpty()`).
 - **Models implementing a generic interface no longer crash.** The same inverted check treated any
   accessor returning `Object` as a list, which is what the bridge method of a covariant accessor
   declares, so matching failed with `ClassCastException: class java.lang.String cannot be cast to
-  class java.util.List`. Bridge and synthetic methods are now excluded from property discovery,
-  which also stops the property being discovered twice.
+  class java.util.List`. Property discovery now skips bridge and synthetic methods, which also
+  stops a property turning up twice.
 
 ## [2.0] - 2026-07-04
 
 The first release published to Maven Central. Versions 1.x existed only as git tags
-from 2017 and were never distributed, so for practical purposes this is release one.
+from 2017 and never reached a repository, so this is release one in practice.
 
 Coordinates: `io.github.alexeyu:structure-matcher-<module>:2.0`. The Java packages remain
 `nl.alexeyu.structmatcher.*`.
 
 ### Added
 
-- **`record` support.** Record components are discovered as properties, named identically
-  to bean getters (`name()` and `getName()` both give the path segment `Name`), so a spec
+- **`record` support.** Property discovery reads record components, naming them as it names
+  bean getters (`name()` and `getName()` both give the path segment `Name`), so a spec
   is the same whether the model uses records or classic beans.
 - **`Map`, `Set`, array and `Optional` matching.** Maps compare by key and report missing
   and extra keys; sets compare by membership; arrays (object and primitive) adapt to lists;
-  `Optional` is treated as a nullable value, with empty equivalent to `null`.
+  an `Optional` counts as a nullable value, with empty equivalent to `null`.
 - **Typed accessor-chain paths.** `.with(matcher, BookSearchResult::getMetadata, SearchMetadata::getServer, Server::ip)`
-  attaches a matcher through compiler-checked method references, up to four hops. Refactor-safe
-  and IDE-completable. String paths (with the `*` wildcard, and the only way to descend into
-  collection elements) remain, and the two styles are interchangeable.
+  attaches a matcher through compiler-checked method references, up to four hops, so renaming an
+  accessor updates the spec and the IDE completes each hop. String paths (with the `*` wildcard,
+  and the only way to descend into collection elements) remain, and the two styles are
+  interchangeable.
 - **Fluent matcher composition.** `Matcher<V>` gained default methods, so matchers chain
   left to right like `Predicate` and `Comparator`:
   `nonNull().and(nonEmpty()).and(valuesEqual().normalizingBase(shorten))`.
@@ -76,8 +77,8 @@ Coordinates: `io.github.alexeyu:structure-matcher-<module>:2.0`. The Java packag
 - **Java baseline is 17**; the build runs on Gradle 8.10.2 with a committed wrapper.
 - Jackson 2.10.1 to 2.18.1; the whole test suite migrated to JUnit 5 (Jupiter), with no
   Vintage engine.
-- `core` compiles clean under `-Xlint:unchecked,rawtypes -Werror`; the two unavoidable casts
-  are documented rather than blanket-suppressed.
+- `core` compiles clean under `-Xlint:unchecked,rawtypes -Werror`; the two casts that remain
+  carry a javadoc explaining them, with the suppression scoped to the method.
 - Spotless enforces import order and whitespace, checked in CI.
 
 ### Removed
@@ -86,7 +87,7 @@ Coordinates: `io.github.alexeyu:structure-matcher-<module>:2.0`. The Java packag
 
 ### Fixed
 
-- `WildcardPathChecker` matched greedily and failed to backtrack, so a path such as `["A", "A"]`
-  could be rejected by a pattern that should match it.
+- `WildcardPathChecker` matched greedily and failed to backtrack, so it rejected a path such as
+  `["A", "A"]` under a pattern that should match it.
 
 [2.0]: https://github.com/alexeyu/structure-matcher/releases/tag/2.0
