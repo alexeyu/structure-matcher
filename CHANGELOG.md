@@ -26,6 +26,16 @@ All notable changes to this project are documented here. The format follows
   declares, so matching failed with `ClassCastException: class java.lang.String cannot be cast to
   class java.util.List`. Property discovery now skips bridge and synthetic methods, which also
   stops a property turning up twice.
+- **A custom matcher may run a comparison of its own.** `ObjectMatcher.match` cleared the matching
+  stack when it returned rather than putting back the one it found, so a matcher that ran a nested
+  comparison left the outer one bare and every custom matcher registered after it was silently
+  skipped. The nested comparison now restores the outer one.
+- **Matching works on any thread.** The matching stack was seeded by a static initializer, which
+  runs on one thread only, so a matcher used on any other thread hit a null stack and threw a
+  `NullPointerException` with the origin masked. Every thread now starts from a bare stack, and a
+  finished comparison drops its thread's entry instead of parking a placeholder there. Note that
+  one comparison still has to run within one thread; a batch parallelizes across comparisons, not
+  inside one.
 
 ## [2.0] - 2026-07-04
 

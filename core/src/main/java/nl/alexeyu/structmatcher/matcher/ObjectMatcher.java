@@ -162,6 +162,7 @@ public class ObjectMatcher<T> {
      *            the object under comparison.
      */
     public FeedbackNode match(T expected, T actual) {
+        var previous = MatchingStackHolder.get();
         try {
             MatchingStack<Object> stack =
                     new DefaultMatchingStack<>(expected, actual, propertyToMatcher);
@@ -170,7 +171,7 @@ public class ObjectMatcher<T> {
             return Matchers.contextAware(property, () -> Matchers.structuresEqual()).match(expected,
                     actual);
         } finally {
-            MatchingStackHolder.clear();
+            MatchingStackHolder.restore(previous);
         }
     }
 

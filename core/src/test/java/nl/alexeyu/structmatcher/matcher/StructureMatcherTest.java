@@ -4,6 +4,8 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.FutureTask;
+
 import org.junit.jupiter.api.Test;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
@@ -39,6 +41,23 @@ public class StructureMatcherTest {
                         expSubstructureFeedback));
 
         assertEquals(expectedFeedback, feedback);
+    }
+
+    /**
+     * Used on its own, off any {@code ObjectMatcher.match}, the matcher falls back to a bare stack
+     * on whichever thread it runs.
+     */
+    @Test
+    public void runsOutsideAnObjectMatcherOnAnyThread() throws Exception {
+        var expected = new Structure(Color.WHITE, asList("white color"), new Substructure(true));
+        var actual = new Structure(Color.WHITE, asList("white color"), new Substructure(false));
+        var comparison = new FutureTask<>(() -> matcher.match("struct", expected, actual));
+        new Thread(comparison).start();
+        assertEquals(
+                Feedback.composite("struct",
+                        asList(Feedback.composite("Sub",
+                                asList(Feedback.nonEqual("Bool", true, false))))),
+                comparison.get());
     }
 
 }
