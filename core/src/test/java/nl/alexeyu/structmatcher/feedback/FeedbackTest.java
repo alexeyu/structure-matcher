@@ -93,6 +93,18 @@ public class FeedbackTest {
         assertEquals("shade", JsonPath.read(json, "$.children[1].children[0].property"));
     }
 
+    /**
+     * A matcher names its nodes after a key or an element, so two children can come out equal.
+     * Both belong in the tree and in the JSON.
+     */
+    @Test
+    public void twoEqualChildrenBothSurvive() throws Exception {
+        var broken = Feedback.nonEqual("cell", "a", "b");
+        var feedback = Feedback.composite("row", asList(broken, broken));
+        assertEquals(2, feedback.getChildren().size());
+        assertEquals(2, getChildrenLength(mapper.writeValueAsString(feedback)));
+    }
+
     private int getChildrenLength(String json) {
         return JsonPath.read(json, "$.children.length()");
     }

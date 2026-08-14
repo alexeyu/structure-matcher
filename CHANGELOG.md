@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **A composite feedback node keeps every child.** `CompositeFeedbackNode` held its children in a
+  `LinkedHashSet`, and `SetMatcher`/`MapMatcher` name a node after the element or key
+  `toString()`, so two distinct entries that print alike collapsed into one and the report lost a
+  mismatch. Children are now a `List`. Two nodes therefore compare equal only when their children
+  match in the same order, which the property sorting below makes reproducible.
 - **Bean properties are compared in name order.** Property discovery followed
   `Class.getMethods()`, whose order the JDK leaves unspecified, so the feedback tree, the JSON
   rendering and the persisted archives came out in a different order on another JDK build and two

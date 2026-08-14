@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 
 public class MapMatcherTest {
@@ -79,6 +80,30 @@ public class MapMatcherTest {
                 asList(Feedback.composite("Sections", asList(Feedback.composite("Sections[s1]",
                         asList(Feedback.nonEqual("Bool", true, false)))))));
         assertEquals(expectedFeedback, feedback);
+    }
+
+    /**
+     * Two keys that print alike give their entries one node name, and an equal mismatch on each
+     * leaves two identical children. Drop one and the report counts a single broken column.
+     */
+    @Test
+    public void keysThatPrintAlikeKeepOneNodeEach() {
+        MapMatcher<Column, String> columnMatcher = Matchers.mapsEqual();
+        var feedback = columnMatcher.match("cols", Map.of(new Column(1), "a", new Column(2), "a"),
+                Map.of(new Column(1), "b", new Column(2), "b"));
+        var children = ((CompositeFeedbackNode) feedback).getChildren();
+        assertEquals(2, children.size());
+        children.forEach(child -> assertEquals(Feedback.nonEqual("cols[col]", "a", "b"), child));
+    }
+
+    /** Two ids, one printed form, and {@code MapMatcher} names the node after the print. */
+    private record Column(int id) {
+
+        @Override
+        public String toString() {
+            return "col";
+        }
+
     }
 
     private static Map<String, Object> map(Object... keysAndValues) {

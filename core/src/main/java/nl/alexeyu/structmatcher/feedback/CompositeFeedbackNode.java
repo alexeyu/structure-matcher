@@ -1,23 +1,26 @@
 package nl.alexeyu.structmatcher.feedback;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * Feedback node for a complex value, a POJO or a list. It carries one child per property of the
  * object or per member of the list, and counts as empty only when every child is empty.
+ * <p>
+ * The children form a sequence. {@code SetMatcher} and {@code MapMatcher} name their nodes after
+ * the element or key {@code toString()}, so two distinct entries can print alike, and a set would
+ * keep one of them and lose a real mismatch.
  */
 public final class CompositeFeedbackNode implements FeedbackNode {
 
     private final String property;
 
-    private final Collection<FeedbackNode> children;
+    private final List<FeedbackNode> children;
 
     CompositeFeedbackNode(String property, Collection<FeedbackNode> children) {
         this.property = property;
-        this.children = new LinkedHashSet<>(children);
+        this.children = List.copyOf(children);
     }
 
     @Override
@@ -30,8 +33,9 @@ public final class CompositeFeedbackNode implements FeedbackNode {
         return children.stream().allMatch(FeedbackNode::isEmpty);
     }
 
+    /** The children in match order. For a structure, {@code ClassProperty} sets that order. */
     public Collection<FeedbackNode> getChildren() {
-        return Collections.unmodifiableCollection(children);
+        return children;
     }
 
     @Override
