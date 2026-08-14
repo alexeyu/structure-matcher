@@ -4,11 +4,14 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.concurrent.FutureTask;
 
 import org.junit.jupiter.api.Test;
 
+import nl.alexeyu.structmatcher.feedback.CompositeFeedbackNode;
 import nl.alexeyu.structmatcher.feedback.Feedback;
+import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 public class StructureMatcherTest {
 
@@ -41,6 +44,19 @@ public class StructureMatcherTest {
                         expSubstructureFeedback));
 
         assertEquals(expectedFeedback, feedback);
+    }
+
+    /**
+     * Composite children carry the property order into the JSON and the archives. The whole-tree
+     * assertions above compare children as a set, so they read no order.
+     */
+    @Test
+    public void feedbackChildrenFollowThePropertyOrder() {
+        var expected = new Structure(Color.WHITE, asList("white color"), new Substructure(true));
+        var actual = new Structure(Color.BLACK, asList("black color"), new Substructure(false));
+        var feedback = (CompositeFeedbackNode) matcher.match("struct", expected, actual);
+        assertEquals(List.of("Color", "Strings", "Sub"),
+                feedback.getChildren().stream().map(FeedbackNode::getProperty).toList());
     }
 
     /**

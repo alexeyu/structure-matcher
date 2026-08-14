@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -220,8 +221,28 @@ public class ClassPropertyTest {
         assertEquals(Color.WHITE, color.getValue(rec));
     }
 
+    /**
+     * {@link Structure} declares Color, Sub, Strings, so a sorted list differs from both the
+     * declaration order and whatever {@code Class.getMethods()} hands back.
+     */
+    @Test
+    public void beanPropertiesComeInNameOrder() {
+        var names = ClassProperty.forClass(Structure.class).map(ClassProperty::getName).toList();
+        assertEquals(List.of("Color", "Strings", "Sub"), names);
+    }
+
+    /** Records carry their own component order. {@code forClass} keeps it. */
+    @Test
+    public void recordComponentsKeepDeclarationOrder() {
+        var names = ClassProperty.forClass(Unsorted.class).map(ClassProperty::getName).toList();
+        assertEquals(List.of("Zebra", "Apple"), names);
+    }
+
     private Method getStructMethod(String methodName) throws NoSuchMethodException {
         return testStructure.getClass().getMethod(methodName);
+    }
+
+    private record Unsorted(String zebra, String apple) {
     }
 
 }

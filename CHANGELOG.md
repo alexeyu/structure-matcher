@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **Bean properties are compared in name order.** Property discovery followed
+  `Class.getMethods()`, whose order the JDK leaves unspecified, so the feedback tree, the JSON
+  rendering and the persisted archives came out in a different order on another JDK build and two
+  stored batches would not diff. Getters are now sorted by property name; record components keep
+  their declaration order.
+
 - **Collection properties declared with a concrete type are matched as collections.**
   `ClassProperty.isList`/`isMap`/`isSet` asked the assignability question backwards, so a property
   declared `ArrayList<String>` (or `HashMap`, `HashSet`) was matched as a structure instead, which

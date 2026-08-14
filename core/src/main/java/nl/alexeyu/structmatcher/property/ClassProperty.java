@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,6 +18,10 @@ import java.util.stream.Stream;
 public final class ClassProperty implements Property {
 
     private static final List<String> HIDDEN_GETTERS = Arrays.asList("getClass");
+
+    /** The accessor name breaks the tie when a bean has both {@code getFoo} and {@code isFoo}. */
+    private static final Comparator<ClassProperty> BY_NAME =
+            Comparator.comparing(ClassProperty::getName).thenComparing(p -> p.method.getName());
 
     private final Method method;
 
@@ -34,8 +39,13 @@ public final class ClassProperty implements Property {
 
     /**
      * Streams the properties of a class. A {@code record} yields its components, in declaration
-     * order. Any other class yields its public getters: a no-arg method whose name starts with
-     * 'get' or 'is'. This skips <code>getClass()</code>, along with bridge and synthetic methods.
+     * order. Any other class yields its public getters, by name: a no-arg method whose name starts
+     * with 'get' or 'is'. This skips <code>getClass()</code>, along with bridge and synthetic
+     * methods.
+     * <p>
+     * <code>Class.getMethods()</code> has no specified order, and that order reaches the JSON
+     * rendering and the stored archives. Sorting keeps a batch stored on one JDK diffable against
+     * a batch stored on another.
      */
     public static Stream<ClassProperty> forClass(Class<?> cl) {
         if (cl.isRecord()) {
@@ -43,7 +53,7 @@ public final class ClassProperty implements Property {
                     .map(accessor -> new ClassProperty(accessor, true));
         }
         return Arrays.stream(cl.getMethods()).map(ClassProperty::of).filter(Optional::isPresent)
-                .map(Optional::get);
+                .map(Optional::get).sorted(BY_NAME);
     }
 
     public static Optional<ClassProperty> of(Method method) {
