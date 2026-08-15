@@ -1,0 +1,13 @@
+description = 'Consumer-side end-to-end verification across every structure-matcher module.'
+
+dependencies {
+    testImplementation project(':core')
+    testImplementation project(':json')
+    testImplementation project(':report')
+    testImplementation project(':assertj')
+    testImplementation project(':junit5')
+
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    testImplementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
+    testImplementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion"
+}

@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **`e2e-test` module**, not published to Maven Central. One deployment-snapshot model runs
+  through `core`, `json`, `report` and both assertion bridges: equivalent JSON and XML payloads
+  match under a shared spec, the same regression in either format produces identical feedback,
+  and a mixed batch persists as JSON Lines and rolls back up after a reload. The model covers
+  each property shape core matches (bean and record, list, map, set, primitive array, `Optional`,
+  enum), so it reaches the shapes the bookstore `examples` leave out. Its assertions compare
+  ordered lists of broken paths, which pins the canonical ordering the archives depend on.
+
 ### Fixed
 
 - **An accessor declared outside the library's reach is compared instead of dropped.** A getter a

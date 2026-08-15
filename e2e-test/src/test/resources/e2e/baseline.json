@@ -1,0 +1,107 @@
+{
+  "metadata": {
+    "requestId": "req-json-001",
+    "generatedAt": "2026-08-15T08:00:00Z",
+    "url": "https://control.example/api",
+    "reportedInstances": 5
+  },
+  "services": [
+    {
+      "name": "catalog",
+      "endpoint": {
+        "url": "https://catalog-a.example/api",
+        "port": 8080
+      },
+      "instances": [
+        {
+          "id": "catalog-1",
+          "version": "2.4.0",
+          "latencyMs": 35,
+          "healthy": true,
+          "mode": "ACTIVE"
+        },
+        {
+          "id": "catalog-2",
+          "version": "2.4.0",
+          "latencyMs": 42,
+          "healthy": true,
+          "mode": "STANDBY"
+        }
+      ],
+      "metrics": {
+        "availability": { "value": 99, "unit": "PERCENT" },
+        "p95": { "value": 120, "unit": "MILLISECONDS" }
+      },
+      "regions": [ "eu-west", "us-east" ],
+      "tags": [ "critical", "java", "public" ],
+      "aliases": [ "books", "catalog-v2" ],
+      "notes": null
+    },
+    {
+      "name": "checkout",
+      "endpoint": {
+        "url": "https://checkout-a.example/api",
+        "port": 8443
+      },
+      "instances": [
+        {
+          "id": "checkout-1",
+          "version": "5.1.0",
+          "latencyMs": 55,
+          "healthy": true,
+          "mode": "ACTIVE"
+        },
+        {
+          "id": "checkout-2",
+          "version": "5.1.0",
+          "latencyMs": 63,
+          "healthy": true,
+          "mode": "STANDBY"
+        }
+      ],
+      "metrics": {
+        "availability": { "value": 100, "unit": "PERCENT" },
+        "p95": { "value": 180, "unit": "MILLISECONDS" }
+      },
+      "regions": [ "eu-west" ],
+      "tags": [ "critical", "java", "payments" ],
+      "aliases": [ "cart", "checkout-v5" ],
+      "notes": "PCI"
+    },
+    {
+      "name": "recommendations",
+      "endpoint": {
+        "url": "https://recommendations-a.example/api",
+        "port": 8081
+      },
+      "instances": [
+        {
+          "id": "recommendations-1",
+          "version": "1.8.2",
+          "latencyMs": 75,
+          "healthy": true,
+          "mode": "ACTIVE"
+        }
+      ],
+      "metrics": {
+        "availability": { "value": 98, "unit": "PERCENT" },
+        "p95": { "value": 240, "unit": "MILLISECONDS" }
+      },
+      "regions": [ "eu-west", "eu-central" ],
+      "tags": [ "java", "personalized" ],
+      "aliases": [ "suggestions", "recommendations-v1" ],
+      "notes": "warm cache"
+    }
+  ],
+  "capabilities": [ "search", "checkout", "recommendations" ],
+  "shardPlan": [ 3, 2, 1 ],
+  "approval": {
+    "reviewer": " Alice ",
+    "ticket": "OPS-42"
+  },
+  "labels": {
+    "owner": "platform",
+    "tier": "production",
+    "costCenter": "cc-17"
+  }
+}

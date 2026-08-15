@@ -88,12 +88,12 @@ subprojects {
     }
 }
 
-// Publishing to Maven Central (Central Portal). Every module except the runnable `examples`
-// demo is a published artifact. The vanniktech plugin builds the sources/javadoc jars, signs
+// Publishing to Maven Central (Central Portal). The runnable `examples` demo and the consumer-side
+// `e2e-test` verification module are not published. The vanniktech plugin builds sources/javadoc
 // every publication, and uploads a bundle to the Central Portal. Artifacts are published as
 // `io.github.alexeyu:structure-matcher-<module>:<version>`; inter-module `project(...)`
 // dependencies are rewritten to those coordinates automatically.
-configure(subprojects.findAll { it.name != 'examples' }) {
+configure(subprojects.findAll { it.name !in ['examples', 'e2e-test'] }) {
     apply plugin: 'com.vanniktech.maven.publish'
 
     mavenPublishing {
