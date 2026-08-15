@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.property.InaccessibleAccessorException;
+import nl.alexeyu.structmatcher.property.PropertyRefs;
 
 /**
  * Models whose accessors the library cannot call where the model declared them. These classes sit
@@ -60,6 +61,43 @@ public class NonPublicAccessorMatchingTest {
                 new Ebook("Misery"));
         assertEquals(Feedback.composite(Publication.class.getName(),
                 asList(Feedback.nonEqual("Title", "Carrie", "Misery"))), feedback);
+    }
+
+    /**
+     * Properties are discovered off the base structure, so its declarations meet the actual one.
+     * The bridge belongs to {@code Paperback} alone: calling it on any other implementation of the
+     * interface fails, so a bridged accessor is called through the interface instead.
+     */
+    @Test
+    public void twoImplementationsAreComparedThroughTheInterfaceTheyShare() {
+        var feedback = ObjectMatcher.forClass(Printed.class).match(new Paperback("Carrie"),
+                new Audiobook("Misery"));
+        assertEquals(Feedback.composite(Printed.class.getName(),
+                asList(Feedback.nonEqual("Title", "Carrie", "Misery"))), feedback);
+    }
+
+    /** The same pair the other way round: an own declaration fits only its own implementation. */
+    @Test
+    public void anImplementationDeclaringItsOwnAccessorReadsTheOtherThroughItsOwn() {
+        var feedback = ObjectMatcher.forClass(Printed.class).match(new Audiobook("Carrie"),
+                new Paperback("Misery"));
+        assertEquals(Feedback.composite(Printed.class.getName(),
+                asList(Feedback.nonEqual("Title", "Carrie", "Misery"))), feedback);
+    }
+
+    /** Naming a property is not reading it, so an unreadable one can still be registered. */
+    @Test
+    public void anUnreadableAccessorStillNamesItsProperty() {
+        assertEquals("Title", PropertyRefs.nameOf(Manuscript::title));
+    }
+
+    /** The remedy the exception suggests: claiming the enclosing path stops the recursion. */
+    @Test
+    public void aMatcherOnTheEnclosingPropertyKeepsAnUnreadableOneOutOfTheComparison() {
+        var feedback = ObjectMatcher.forClass(Drawer.class)
+                .with(Matchers.anyValue(), Drawer::getManuscript)
+                .match(new Drawer(new Manuscript("Carrie")), new Drawer(new Manuscript("Misery")));
+        assertTrue(feedback.isEmpty(), "the unreadable property is never reached");
     }
 
     /**
@@ -139,6 +177,51 @@ public class NonPublicAccessorMatchingTest {
 
     /** Unpublished, in both senses: no public supertype declares the accessor. */
     record Manuscript(String title) {
+    }
+
+    public static final class Drawer {
+
+        private final Manuscript manuscript;
+
+        Drawer(Manuscript manuscript) {
+            this.manuscript = manuscript;
+        }
+
+        public Manuscript getManuscript() {
+            return manuscript;
+        }
+
+    }
+
+    /** One interface, implemented two ways: the pair a comparison can be handed. */
+    public interface Printed {
+
+        String getTitle();
+
+    }
+
+    /** Meets the interface with the getter of its package-private base, hence with a bridge. */
+    public static final class Paperback extends AbstractBook implements Printed {
+
+        Paperback(String title) {
+            super(title);
+        }
+
+    }
+
+    public static final class Audiobook implements Printed {
+
+        private final String title;
+
+        Audiobook(String title) {
+            this.title = title;
+        }
+
+        @Override
+        public String getTitle() {
+            return title;
+        }
+
     }
 
 }

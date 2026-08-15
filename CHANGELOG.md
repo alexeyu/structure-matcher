@@ -25,7 +25,12 @@ All notable changes to this project are documented here. The format follows
   accessor of its name. The mirror case, a package-private class overriding a public supertype's
   accessor (what AutoValue and Immutables generate, and what a package-private record behind a
   public interface looks like), threw `IllegalAccessException`; the library now calls the nearest
-  public supertype declaring the same signature. Where nothing can be called, the new
+  public supertype declaring the same signature. A bridge takes that route too where a supertype
+  offers one, and an object no declaration fits is read through its own accessor of the same name,
+  so two implementations of one interface can be compared with each other. The accessor is resolved
+  when the property is read rather than when it is discovered, so an unreadable property can still
+  be named, which is what a method reference to its accessor needs to register a matcher. Where
+  nothing can be called, the new
   `InaccessibleAccessorException` names the accessor, the class and the remedy.
 - **Map and set feedback no longer repeats a JSON key.** The nested rendering from `Json.mapper()`
   keys each child by its property name, and `SetMatcher`/`MapMatcher` name a node after the element

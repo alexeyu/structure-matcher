@@ -29,14 +29,27 @@ final class InvocableAccessors {
     /**
      * Returns the accessor itself when the library can call it, else the nearest public supertype
      * declaring the same signature, and nothing when no supertype declares it.
+     * <p>
+     * A bridge prefers the supertype too, even though the class declaring it is public. The bridge
+     * belongs to one implementation, while the declaration it stands for is shared by all of them,
+     * and the two structures being matched need not be the same implementation.
      */
     static Optional<Method> resolve(Method accessor) {
-        if (isReachable(accessor.getDeclaringClass())) {
+        if (isReachable(accessor.getDeclaringClass()) && !accessor.isBridge()) {
             return Optional.of(accessor);
         }
+        return declaredOnSupertype(accessor).or(() -> ownDeclaration(accessor));
+    }
+
+    private static Optional<Method> declaredOnSupertype(Method accessor) {
         return supertypesOf(accessor.getDeclaringClass())
                 .map(supertype -> sameAccessorOn(supertype, accessor)).flatMap(Optional::stream)
                 .findFirst();
+    }
+
+    /** A bridge is the last resort: with a package-private base there is nothing else to call. */
+    private static Optional<Method> ownDeclaration(Method accessor) {
+        return isReachable(accessor.getDeclaringClass()) ? Optional.of(accessor) : Optional.empty();
     }
 
     private static Optional<Method> sameAccessorOn(Class<?> supertype, Method accessor) {

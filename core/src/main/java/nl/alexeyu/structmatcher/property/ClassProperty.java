@@ -31,8 +31,11 @@ public final class ClassProperty implements Property {
      * {@code method} when the model declares its accessor on a class that is not public. Only
      * {@link #getValue} reads it: the property takes its name and type from the declaration the
      * model made, so a covariant override keeps its own return type.
+     * <p>
+     * Resolved on first read, not in the constructor: naming a property is not reading it, and an
+     * unreadable one still has a name to register a matcher under.
      */
-    private final Method invocable;
+    private Method invocable;
 
     /**
      * Whether {@link #method} is a record component accessor (e.g. {@code name()}) rather than a
@@ -43,8 +46,6 @@ public final class ClassProperty implements Property {
 
     private ClassProperty(Method method, boolean recordComponent) {
         this.method = method;
-        this.invocable = InvocableAccessors.resolve(method)
-                .orElseThrow(() -> new InaccessibleAccessorException(method));
         this.recordComponent = recordComponent;
     }
 
@@ -124,15 +125,52 @@ public final class ClassProperty implements Property {
      *            the object to read the property from.
      * @throws IllegalStateException
      *             if the accessor call fails.
+     * @throws InaccessibleAccessorException
+     *             if no declaration of the accessor is one the library can call.
      */
     @Override
     public Object getValue(Object obj) {
         try {
-            return invocable.invoke(obj);
+            return accessorFor(obj).invoke(obj);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new IllegalStateException("Could not invoke " + method.getName() + " for " + obj,
                     e);
         }
+    }
+
+    /**
+     * The declaration to call on this object. Properties are discovered off the base structure, so
+     * the actual structure can be another implementation of the same type, one the base's own
+     * declaration cannot be invoked on. Such an object is read through its own accessor of the
+     * same name.
+     */
+    private Method accessorFor(Object obj) {
+        var accessor = invocable();
+        if (obj == null || accessor.getDeclaringClass().isInstance(obj)) {
+            return accessor;
+        }
+        return invocableOn(obj.getClass());
+    }
+
+    private Method invocable() {
+        if (invocable == null) {
+            invocable = invocable(method);
+        }
+        return invocable;
+    }
+
+    private Method invocableOn(Class<?> type) {
+        try {
+            return invocable(type.getMethod(method.getName()));
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(
+                    type.getName() + " declares no " + method.getName() + "()", e);
+        }
+    }
+
+    private static Method invocable(Method accessor) {
+        return InvocableAccessors.resolve(accessor)
+                .orElseThrow(() -> new InaccessibleAccessorException(accessor));
     }
 
     /**
