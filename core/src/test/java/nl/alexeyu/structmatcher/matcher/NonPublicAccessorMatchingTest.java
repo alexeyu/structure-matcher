@@ -22,21 +22,21 @@ public class NonPublicAccessorMatchingTest {
     /**
      * A public model inheriting a getter from a package-private base. The compiler puts the getter
      * on the subclass as a synthetic bridge, the one declaration anything can call, so filtering
-     * bridges dropped the property and two orders with different customers compared as equal.
+     * bridges dropped the property and two books with different titles compared as equal.
      */
     @Test
     public void aGetterInheritedFromANonPublicBaseIsCompared() {
-        var feedback = ObjectMatcher.forClass(Order.class).match(new Order("alice", 10),
-                new Order("bob", 10));
-        assertFalse(feedback.isEmpty(), "a differing customer has to be reported");
-        assertEquals(Feedback.composite(Order.class.getName(),
-                asList(Feedback.nonEqual("Customer", "alice", "bob"))), feedback);
+        var feedback = ObjectMatcher.forClass(Hardcover.class).match(new Hardcover("Carrie", 199),
+                new Hardcover("Misery", 199));
+        assertFalse(feedback.isEmpty(), "a differing title has to be reported");
+        assertEquals(Feedback.composite(Hardcover.class.getName(),
+                asList(Feedback.nonEqual("Title", "Carrie", "Misery"))), feedback);
     }
 
     @Test
     public void aGetterInheritedFromANonPublicBaseStillMatchesWhenEqual() {
-        assertTrue(ObjectMatcher.forClass(Order.class)
-                .match(new Order("alice", 10), new Order("alice", 10)).isEmpty());
+        assertTrue(ObjectMatcher.forClass(Hardcover.class)
+                .match(new Hardcover("Carrie", 199), new Hardcover("Carrie", 199)).isEmpty());
     }
 
     /**
@@ -46,19 +46,20 @@ public class NonPublicAccessorMatchingTest {
      */
     @Test
     public void anAccessorOfANonPublicImplementationIsCalledThroughItsPublicSupertype() {
-        Animal expected = new GeneratedAnimal("cat");
-        Animal actual = new GeneratedAnimal("dog");
-        var feedback = ObjectMatcher.forClass(Animal.class).match(expected, actual);
-        assertEquals(Feedback.composite(Animal.class.getName(),
-                asList(Feedback.nonEqual("Name", "cat", "dog"))), feedback);
+        Author expected = new GeneratedAuthor("King");
+        Author actual = new GeneratedAuthor("Straub");
+        var feedback = ObjectMatcher.forClass(Author.class).match(expected, actual);
+        assertEquals(Feedback.composite(Author.class.getName(),
+                asList(Feedback.nonEqual("Surname", "King", "Straub"))), feedback);
     }
 
     /** The same route for a package-private record behind a public interface. */
     @Test
     public void aNonPublicRecordIsComparedThroughTheInterfaceItImplements() {
-        var feedback = ObjectMatcher.forClass(Shape.class).match(new Circle(1.0), new Circle(2.0));
-        assertEquals(Feedback.composite(Shape.class.getName(),
-                asList(Feedback.nonEqual("Radius", 1.0, 2.0))), feedback);
+        var feedback = ObjectMatcher.forClass(Publication.class).match(new Ebook("Carrie"),
+                new Ebook("Misery"));
+        assertEquals(Feedback.composite(Publication.class.getName(),
+                asList(Feedback.nonEqual("Title", "Carrie", "Misery"))), feedback);
     }
 
     /**
@@ -67,76 +68,77 @@ public class NonPublicAccessorMatchingTest {
      */
     @Test
     public void aModelWithNoPublicDeclarationIsRejectedByName() {
-        var thrown = assertThrows(InaccessibleAccessorException.class, () -> ObjectMatcher
-                .forClass(Hidden.class).match(new Hidden("a"), new Hidden("b")));
-        assertTrue(thrown.getMessage().contains(Hidden.class.getName()), thrown.getMessage());
-        assertTrue(thrown.getMessage().contains("name()"), thrown.getMessage());
+        var thrown = assertThrows(InaccessibleAccessorException.class,
+                () -> ObjectMatcher.forClass(Manuscript.class).match(new Manuscript("Carrie"),
+                        new Manuscript("Misery")));
+        assertTrue(thrown.getMessage().contains(Manuscript.class.getName()), thrown.getMessage());
+        assertTrue(thrown.getMessage().contains("title()"), thrown.getMessage());
         assertTrue(thrown.getMessage().contains("custom matcher"), thrown.getMessage());
     }
 
-    /** A base holding shared fields, kept out of the public API. An ordinary layering choice. */
-    abstract static class AbstractOrder {
+    /** A base holding the shared fields, kept out of the public API. Ordinary layering. */
+    abstract static class AbstractBook {
 
-        private final String customer;
+        private final String title;
 
-        AbstractOrder(String customer) {
-            this.customer = customer;
+        AbstractBook(String title) {
+            this.title = title;
         }
 
-        public String getCustomer() {
-            return customer;
-        }
-
-    }
-
-    public static final class Order extends AbstractOrder {
-
-        private final int amount;
-
-        public Order(String customer, int amount) {
-            super(customer);
-            this.amount = amount;
-        }
-
-        public int getAmount() {
-            return amount;
+        public String getTitle() {
+            return title;
         }
 
     }
 
-    public abstract static class Animal {
+    public static final class Hardcover extends AbstractBook {
 
-        public abstract String getName();
+        private final int pages;
+
+        public Hardcover(String title, int pages) {
+            super(title);
+            this.pages = pages;
+        }
+
+        public int getPages() {
+            return pages;
+        }
 
     }
 
-    /** Stands in for the package-private subclass AutoValue generates. */
-    static final class GeneratedAnimal extends Animal {
+    public abstract static class Author {
 
-        private final String name;
+        public abstract String getSurname();
 
-        GeneratedAnimal(String name) {
-            this.name = name;
+    }
+
+    /** Stands in for the package-private {@code AutoValue_Author} the generator would write. */
+    static final class GeneratedAuthor extends Author {
+
+        private final String surname;
+
+        GeneratedAuthor(String surname) {
+            this.surname = surname;
         }
 
         @Override
-        public String getName() {
-            return name;
+        public String getSurname() {
+            return surname;
         }
 
     }
 
-    public interface Shape {
+    public interface Publication {
 
-        double radius();
+        String title();
 
     }
 
-    record Circle(double radius) implements Shape {
+    record Ebook(String title) implements Publication {
     }
 
-    /** No public supertype declares the accessor, so nothing can reach it. */
-    record Hidden(String name) {
+    /** Unpublished, in both senses: no public supertype declares the accessor. */
+    record Manuscript(String title) {
     }
 
 }
