@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
 
 public class PropertyPathPatternTest {
@@ -89,6 +91,26 @@ public class PropertyPathPatternTest {
         assertFalse(new PropertyPathPattern("*").headsMatch(new PropertyPath(asList("a"))));
         assertFalse(
                 new PropertyPathPattern("a", "x").headsMatch(new PropertyPath(asList("b", "z"))));
+    }
+
+    @Test
+    public void mostSpecificFirstRanksNamesAboveWildcards() {
+        var patterns = new ArrayList<>(asList(new PropertyPathPattern("*", "Url"),
+                new PropertyPathPattern("Root", "*", "Url"),
+                new PropertyPathPattern("Root", "A", "*"),
+                new PropertyPathPattern("Root", "A", "Url")));
+        patterns.sort(PropertyPathPattern.MOST_SPECIFIC_FIRST);
+        assertEquals(asList("[Root, A, Url]", "[Root, A, *]", "[Root, *, Url]", "[*, Url]"),
+                patterns.stream().map(Object::toString).toList());
+    }
+
+    /** Patterns of identical shape are rare. The comparator still ranks them, either way round. */
+    @Test
+    public void patternsOfTheSameShapeStillRankApart() {
+        var bThenC = new PropertyPathPattern("A", "*", "B", "*", "C");
+        var cThenB = new PropertyPathPattern("A", "*", "C", "*", "B");
+        assertTrue(PropertyPathPattern.MOST_SPECIFIC_FIRST.compare(bThenC, cThenB) < 0);
+        assertTrue(PropertyPathPattern.MOST_SPECIFIC_FIRST.compare(cThenB, bThenC) > 0);
     }
 
 }

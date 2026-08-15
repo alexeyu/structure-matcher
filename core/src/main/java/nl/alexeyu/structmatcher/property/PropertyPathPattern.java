@@ -1,9 +1,22 @@
 package nl.alexeyu.structmatcher.property;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public final class PropertyPathPattern extends AbstractPath {
+
+    /**
+     * Orders the patterns that match one path, most specific first: fewest wildcards, then most
+     * literal segments, then the longest run of literals before the first wildcard. The pattern
+     * text settles the rest, so no rule wins by hash order.
+     */
+    public static final Comparator<PropertyPathPattern> MOST_SPECIFIC_FIRST = Comparator
+            .comparingInt(PropertyPathPattern::wildcardCount)
+            .thenComparing(Comparator.comparingInt(PropertyPathPattern::literalCount).reversed())
+            .thenComparing(
+                    Comparator.comparingInt(PropertyPathPattern::literalPrefixLength).reversed())
+            .thenComparing(PropertyPathPattern::toString);
 
     PropertyPathPattern(String... elements) {
         this(Arrays.asList(elements));
@@ -17,12 +30,25 @@ public final class PropertyPathPattern extends AbstractPath {
         return !isEmpty() && isWildcard(head());
     }
 
-    private boolean isWildcard(String s) {
+    private static boolean isWildcard(String s) {
         return "*".equals(s);
     }
 
     public boolean isPositive() {
-        return list.stream().allMatch(this::isWildcard);
+        return list.stream().allMatch(PropertyPathPattern::isWildcard);
+    }
+
+    private int wildcardCount() {
+        return (int) list.stream().filter(PropertyPathPattern::isWildcard).count();
+    }
+
+    private int literalCount() {
+        return list.size() - wildcardCount();
+    }
+
+    private int literalPrefixLength() {
+        var wildcard = list.indexOf("*");
+        return wildcard < 0 ? list.size() : wildcard;
     }
 
     public boolean headsMatch(PropertyPath path) {

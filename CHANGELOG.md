@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **The most specific registered path wins.** `WildcardMatcherResolver` streamed a `HashMap` and
+  took the first match, so a wildcard rule plus an exact override for one field resolved by hash
+  order and you could not influence it. Patterns now rank by fewest wildcards, then most named
+  segments, then the longest run of names before the first wildcard, with the pattern text
+  settling the rest. `PropertyPathPattern.MOST_SPECIFIC_FIRST` exposes the order.
 - **A composite feedback node keeps every child.** `CompositeFeedbackNode` held its children in a
   `LinkedHashSet`, and `SetMatcher`/`MapMatcher` name a node after the element or key
   `toString()`, so two distinct entries that print alike collapsed into one and the report lost a

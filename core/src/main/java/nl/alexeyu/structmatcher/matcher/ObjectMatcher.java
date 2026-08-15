@@ -80,7 +80,14 @@ public class ObjectMatcher<T> {
      *         .withMatcher(<a custom matcher>, "TimeZone", "RawOffset");
      *            </pre>
      *
+     *            A segment may be the wildcard <code>*</code>, standing for any run of properties,
+     *            so <code>"*", "Url"</code> reaches every 'Url' in the model. Register the exact
+     *            path to take one of them back: when two paths match a property, the more
+     *            specific one wins, by fewest wildcards, then most named segments, then the
+     *            longest run of names before the first wildcard.
+     *
      * @see ClassProperty
+     * @see PropertyPathPattern#MOST_SPECIFIC_FIRST
      */
     public ObjectMatcher<T> withMatcher(Matcher<?> matcher, String... propertyPath) {
         var fullPath = new ArrayList<String>(Arrays.asList(propertyPath));

@@ -158,6 +158,8 @@ You attach a custom matcher to a property by **path**, written either way:
 
 Both styles produce identical paths, and one set-up can mix them.
 
+Register `"*.Url"` to relax every URL in the model, then `"Metadata.Server.Url"` to take that one back. When two paths match the same property, the more specific one wins: fewest wildcards, then most named segments, then the longest run of names before the first wildcard.
+
 ```java
 BookSearchResult desktopResponse = // read XML response
 BookSearchResult mobileResponse = // read JSON response
