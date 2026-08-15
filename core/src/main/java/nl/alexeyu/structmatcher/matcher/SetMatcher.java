@@ -15,6 +15,9 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
  * {@link Set} decides membership to begin with. A set's elements therefore never match field by
  * field the way a structure's or a map's do, which makes value types (records, primitive wrappers,
  * strings, enums) the natural set elements. The set itself may not be <code>null</code>.
+ * <p>
+ * The matcher lists the elements in {@link FeedbackOrder#CANONICAL} order, not the order the set
+ * iterates in, so two equal sets give equal feedback.
  */
 public final class SetMatcher<V> implements Matcher<Set<V>> {
 
@@ -32,6 +35,7 @@ public final class SetMatcher<V> implements Matcher<Set<V>> {
                         .add(Feedback.gotNonNull(elementProperty(property, element), element));
             }
         }
+        feedbackSubnodes.sort(FeedbackOrder.CANONICAL);
         return Feedback.composite(property, feedbackSubnodes);
     }
 

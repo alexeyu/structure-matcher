@@ -83,6 +83,29 @@ public class MapMatcherTest {
     }
 
     /**
+     * A map iterates in an order of its own, and a composite node compares its children position
+     * by position. Fill the same entries in reverse and the feedback has to come out equal, or two
+     * equivalent comparisons disagree and their archives stop diffing.
+     */
+    @Test
+    public void feedbackDoesNotDependOnTheIterationOrderOfTheMaps() {
+        var feedback = matcher.match("map", map("a", 1, "b", 2, "c", 3),
+                map("a", 9, "b", 9, "c", 9));
+        var reversed = matcher.match("map", map("c", 3, "b", 2, "a", 1),
+                map("c", 9, "b", 9, "a", 9));
+        assertEquals(feedback, reversed);
+    }
+
+    @Test
+    public void entriesAreReportedInKeyOrder() {
+        var feedback = matcher.match("map", map("c", 3, "a", 1), map("c", 9, "b", 2));
+        assertEquals(Feedback.composite("map",
+                asList(Feedback.gotNull("map[a]", 1), Feedback.gotNonNull("map[b]", 2),
+                        Feedback.nonEqual("map[c]", 3, 9))),
+                feedback);
+    }
+
+    /**
      * Two keys that print alike give their entries one node name, and an equal mismatch on each
      * leaves two identical children. Drop one and the report counts a single broken column.
      */

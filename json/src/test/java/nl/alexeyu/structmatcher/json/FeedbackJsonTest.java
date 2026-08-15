@@ -1,16 +1,24 @@
 package nl.alexeyu.structmatcher.json;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.StreamSupport;
+
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
+import nl.alexeyu.structmatcher.matcher.MapMatcher;
+import nl.alexeyu.structmatcher.matcher.Matchers;
 
 /**
  * Characterization tests pinning the exact JSON that {@link Json#mapper()} produces for feedback
@@ -111,6 +119,49 @@ public class FeedbackJsonTest {
         assertFalse(node.has("children"));
         assertFalse(node.has("primary"));
         assertTrue(node.has("color"));
+    }
+
+    /**
+     * Two map keys that print alike give their nodes one name, and a JSON object cannot carry that
+     * name twice: a parser keeps the last field and drops the other mismatch. The namesakes share
+     * one field holding an array of both.
+     */
+    @Test
+    public void childrenSharingANameRenderAsAnArrayUnderThatName() throws Exception {
+        MapMatcher<Column, String> matcher = Matchers.mapsEqual();
+        var feedback = matcher.match("cols", Map.of(new Column(1), "a", new Column(2), "b"),
+                Map.of(new Column(1), "x", new Column(2), "y"));
+
+        var node = mapper.readTree(json(feedback));
+        assertEquals(1, node.size());
+        var namesakes = node.get("cols[col]");
+        assertTrue(namesakes.isArray(), "children that share a name are grouped, not repeated");
+        assertEquals(2, namesakes.size());
+        assertEquals(Set.of("a", "b"), expectations(namesakes));
+        assertEquals(Set.of("x", "y"), values(namesakes));
+    }
+
+    /** Two ids, one printed form, so {@code MapMatcher} gives both entries the same node name. */
+    private record Column(int id) {
+
+        @Override
+        public String toString() {
+            return "col";
+        }
+
+    }
+
+    private Set<String> expectations(JsonNode namesakes) {
+        return fieldValues(namesakes, "expectation");
+    }
+
+    private Set<String> values(JsonNode namesakes) {
+        return fieldValues(namesakes, "value");
+    }
+
+    private Set<String> fieldValues(JsonNode namesakes, String field) {
+        return StreamSupport.stream(namesakes.spliterator(), false)
+                .map(namesake -> namesake.get(field).asText()).collect(toSet());
     }
 
     // A "met" node carries nothing to report, so it renders as the empty object, matching an

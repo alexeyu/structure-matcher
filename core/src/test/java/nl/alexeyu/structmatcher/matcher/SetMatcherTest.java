@@ -54,6 +54,25 @@ public class SetMatcherTest {
                 feedback);
     }
 
+    /**
+     * A set iterates in an order of its own, and a composite node compares its children position
+     * by position. Fill the same elements in reverse and the feedback has to come out equal, or
+     * two equivalent comparisons disagree and their archives stop diffing.
+     */
+    @Test
+    public void feedbackDoesNotDependOnTheIterationOrderOfTheSets() {
+        var feedback = matcher.match("set", set(1, 2, 3), set(3, 4));
+        var reversed = matcher.match("set", set(3, 2, 1), set(4, 3));
+        assertEquals(feedback, reversed);
+    }
+
+    @Test
+    public void elementsAreReportedInNameOrder() {
+        var feedback = matcher.match("set", set(2, 1), set(2, 3));
+        assertEquals(Feedback.composite("set",
+                asList(Feedback.gotNull("set[1]", 1), Feedback.gotNonNull("set[3]", 3))), feedback);
+    }
+
     @Test
     public void elementsAreComparedByValueSoRecordElementsMatch() {
         var expected = set(new RecordSubstructure(true), new RecordSubstructure(false));

@@ -13,6 +13,9 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
  * as an extra one, and each lands in the feedback under <code>property[key]</code>, next to the
  * value mismatches. Values go through the usual logic, simple ones by equality and complex ones
  * structurally. Neither map may be <code>null</code>, though their values may.
+ * <p>
+ * The matcher lists the entries in {@link FeedbackOrder#CANONICAL} order, not the order the map
+ * iterates in, so two equal maps give equal feedback.
  */
 public final class MapMatcher<K, V> implements Matcher<Map<K, V>> {
 
@@ -29,6 +32,7 @@ public final class MapMatcher<K, V> implements Matcher<Map<K, V>> {
                         entry.getValue()));
             }
         }
+        feedbackSubnodes.sort(FeedbackOrder.CANONICAL);
         return Feedback.composite(property, feedbackSubnodes);
     }
 

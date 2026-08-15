@@ -8,6 +8,15 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **Map and set feedback no longer repeats a JSON key.** The nested rendering from `Json.mapper()`
+  keys each child by its property name, and `SetMatcher`/`MapMatcher` name a node after the element
+  or key `toString()`, so two distinct entries that print alike produced the same key twice and a
+  reader kept only the last of them, losing a mismatch the tree had just been fixed to keep.
+  Children that share a name now render once, as an array under that name.
+- **Map and set feedback comes out in a fixed order.** A map or a set iterates in an order of its
+  own, while a composite node compares its children in order, so the same entries filled in another
+  order gave unequal feedback and differently ordered archives. Both matchers now sort their nodes
+  by name, and by the node's own rendering when two keys or elements print alike.
 - **The most specific registered path wins.** `WildcardMatcherResolver` streamed a `HashMap` and
   took the first match, so a wildcard rule plus an exact override for one field resolved by hash
   order and you could not influence it. Patterns now rank by fewest wildcards, then most named
