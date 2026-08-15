@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -26,6 +27,14 @@ public final class ClassProperty implements Property {
     private final Method method;
 
     /**
+     * The declaration of {@link #method} that the library can call. It differs from
+     * {@code method} when the model declares its accessor on a class that is not public. Only
+     * {@link #getValue} reads it: the property takes its name and type from the declaration the
+     * model made, so a covariant override keeps its own return type.
+     */
+    private final Method invocable;
+
+    /**
      * Whether {@link #method} is a record component accessor (e.g. {@code name()}) rather than a
      * {@code get}/{@code is}-prefixed bean getter. Record accessors carry no prefix, so their
      * property name is derived by capitalization only.
@@ -34,6 +43,8 @@ public final class ClassProperty implements Property {
 
     private ClassProperty(Method method, boolean recordComponent) {
         this.method = method;
+        this.invocable = InvocableAccessors.resolve(method)
+                .orElseThrow(() -> new InaccessibleAccessorException(method));
         this.recordComponent = recordComponent;
     }
 
@@ -42,6 +53,11 @@ public final class ClassProperty implements Property {
      * order. Any other class yields its public getters, by name: a no-arg method whose name starts
      * with 'get' or 'is'. This skips <code>getClass()</code>, along with bridge and synthetic
      * methods.
+     * <p>
+     * A bridge survives when it is the only accessor of its name. That happens when the model
+     * declares the getter on a class outside our reach, leaving the compiler's bridge as the one
+     * way in. Drop it and the property goes with it, and a property that never runs contributes
+     * no feedback, which reads as a match.
      * <p>
      * <code>Class.getMethods()</code> has no specified order, and that order reaches the JSON
      * rendering and the stored archives. Sorting keeps a batch stored on one JDK diffable against
@@ -52,12 +68,18 @@ public final class ClassProperty implements Property {
             return Arrays.stream(cl.getRecordComponents()).map(RecordComponent::getAccessor)
                     .map(accessor -> new ClassProperty(accessor, true));
         }
-        return Arrays.stream(cl.getMethods()).map(ClassProperty::of).filter(Optional::isPresent)
-                .map(Optional::get).sorted(BY_NAME);
+        var accessors = Arrays.stream(cl.getMethods()).filter(ClassProperty::isAccessor).toList();
+        var declaredNames = accessors.stream().filter(ClassProperty::isDeclared)
+                .map(Method::getName).collect(Collectors.toSet());
+        return accessors.stream()
+                .filter(method -> isDeclared(method) || !declaredNames.contains(method.getName()))
+                .map(method -> new ClassProperty(method, false)).sorted(BY_NAME);
     }
 
     public static Optional<ClassProperty> of(Method method) {
-        return isValid(method) ? Optional.of(new ClassProperty(method, false)) : Optional.empty();
+        return isAccessor(method) && isDeclared(method)
+                ? Optional.of(new ClassProperty(method, false))
+                : Optional.empty();
     }
 
     /**
@@ -106,7 +128,7 @@ public final class ClassProperty implements Property {
     @Override
     public Object getValue(Object obj) {
         try {
-            return method.invoke(obj);
+            return invocable.invoke(obj);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new IllegalStateException("Could not invoke " + method.getName() + " for " + obj,
                     e);
@@ -178,14 +200,14 @@ public final class ClassProperty implements Property {
                 || cl.isEnum() || cl.isPrimitive();
     }
 
-    private static boolean isValid(Method method) {
-        return nameMatches(method) && parametersMatch(method) && isNotDenylisted(method)
-                && isDeclared(method);
+    private static boolean isAccessor(Method method) {
+        return nameMatches(method) && parametersMatch(method) && isNotDenylisted(method);
     }
 
     /**
-     * Excludes compiler-generated methods. The bridge of a covariant accessor declares the erased
-     * return type, so keeping it would duplicate the property and type it as <code>Object</code>.
+     * Whether the model declared the method itself. The bridge of a covariant accessor declares
+     * the erased return type, so keeping it alongside the real one would duplicate the property
+     * and type it as <code>Object</code>.
      */
     private static boolean isDeclared(Method method) {
         return !method.isBridge() && !method.isSynthetic();

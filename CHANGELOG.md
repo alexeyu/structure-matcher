@@ -8,6 +8,15 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **An accessor declared outside the library's reach is compared instead of dropped.** A getter a
+  public model inherits from a package-private base reaches reflection only as a synthetic bridge,
+  which property discovery filtered out, so the field was never compared and two objects differing
+  in exactly that field were reported as matching. A bridge now survives when it is the only
+  accessor of its name. The mirror case, a package-private class overriding a public supertype's
+  accessor (what AutoValue and Immutables generate, and what a package-private record behind a
+  public interface looks like), threw `IllegalAccessException`; the library now calls the nearest
+  public supertype declaring the same signature. Where nothing can be called, the new
+  `InaccessibleAccessorException` names the accessor, the class and the remedy.
 - **Map and set feedback no longer repeats a JSON key.** The nested rendering from `Json.mapper()`
   keys each child by its property name, and `SetMatcher`/`MapMatcher` name a node after the element
   or key `toString()`, so two distinct entries that print alike produced the same key twice and a
