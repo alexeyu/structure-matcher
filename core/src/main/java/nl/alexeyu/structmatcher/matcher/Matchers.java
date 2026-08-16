@@ -211,11 +211,19 @@ public final class Matchers {
      * <code>arraysEqual()</code> for an array, <code>optional()</code> for an
      * {@link java.util.Optional}, <code>valuesEqual()</code> for a simple value, and
      * <code>structuresEqual()</code> for anything else.
+     * <p>
+     * The pick comes from the base structure's declaration, so the matcher meets only an actual
+     * value of that shape; anything else is a mismatch of the property. A matcher registered for
+     * the path replaces this one and takes both values as they come.
      *
      * @see ClassProperty
+     * @see Property#fitsDeclaredShape
      */
     public static Matcher<Object> forProperty(Property property) {
-        return asObjectMatcher(defaultMatcherFor(property));
+        var matcher = asObjectMatcher(defaultMatcherFor(property));
+        return (name, expected, actual) -> expected != null && !property.fitsDeclaredShape(actual)
+                ? Feedback.differentTypes(name, expected.getClass(), actual.getClass())
+                : matcher.match(name, expected, actual);
     }
 
     private static Matcher<?> defaultMatcherFor(Property property) {

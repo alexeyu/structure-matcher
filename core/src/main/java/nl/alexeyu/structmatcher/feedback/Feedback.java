@@ -88,6 +88,23 @@ public final class Feedback {
     }
 
     /**
+     * Reports an actual structure that does not carry the properties of the base one, which the
+     * structure matcher treats as one mismatch of the whole property.
+     *
+     * @param property
+     *            the property name.
+     * @param expectedType
+     *            the type of the base structure.
+     * @param actualType
+     *            the type found instead.
+     */
+    public static FeedbackNode differentTypes(String property, Class<?> expectedType,
+            Class<?> actualType) {
+        return new ExpectationBroken(property, "An instance of " + expectedType.getTypeName(),
+                actualType.getTypeName());
+    }
+
+    /**
      * Reports two collections of different size, which the list and array matchers treat as a
      * mismatch on the spot.
      *

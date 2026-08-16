@@ -159,12 +159,28 @@ public final class ClassProperty implements Property {
         return invocable;
     }
 
+    /**
+     * Whether this property can be read off an object. Properties are discovered from the base
+     * structure, so an actual structure of an unrelated type may declare no such accessor; the
+     * structure matcher checks this before reading and reports a mismatch. The question is only
+     * whether the accessor exists: one that exists but cannot be called is a broken spec, and
+     * {@link #getValue} throws.
+     */
+    public boolean isReadableFrom(Object obj) {
+        return obj == null || method.getDeclaringClass().isInstance(obj)
+                || accessorOf(obj.getClass()).isPresent();
+    }
+
     private Method invocableOn(Class<?> type) {
+        return invocable(accessorOf(type).orElseThrow(() -> new IllegalStateException(
+                type.getName() + " declares no " + method.getName() + "()")));
+    }
+
+    private Optional<Method> accessorOf(Class<?> type) {
         try {
-            return invocable(type.getMethod(method.getName()));
+            return Optional.of(type.getMethod(method.getName()));
         } catch (NoSuchMethodException e) {
-            throw new IllegalStateException(
-                    type.getName() + " declares no " + method.getName() + "()", e);
+            return Optional.empty();
         }
     }
 

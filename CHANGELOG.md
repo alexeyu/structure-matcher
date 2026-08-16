@@ -18,6 +18,17 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **A type mismatch is reported instead of thrown.** Properties are discovered from the base
+  structure and read off the actual one, and two shapes of clash crashed the comparison. An actual
+  structure carrying none of the base's accessors - a property typed by an interface and
+  implemented two unrelated ways - died with an `IllegalStateException` naming the first missing
+  accessor. A property that kept its accessor name and changed its type, `List<String> getTags()`
+  against `String getTags()`, reached the list, map, set, array or optional matcher picked from the
+  base declaration and died with a `ClassCastException` (an `IllegalArgumentException` for an
+  array). Both now produce one leaf naming the two types (`Tags: java.lang.String !~ An instance of
+  java.util.ArrayList`). A subtype, and any type declaring the same accessors with the same shapes,
+  compares as before; a matcher registered for the path replaces the default and still takes the
+  values as they come.
 - **An accessor declared outside the library's reach is compared instead of dropped.** A getter a
   public model inherits from a package-private base reaches reflection only as a synthetic bridge,
   which property discovery filtered out, so the field was never compared and two objects differing
