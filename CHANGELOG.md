@@ -18,6 +18,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **A typed path registration no longer depends on the context classloader.** `PropertyRefs`
+  loaded the accessor's class through the thread's context classloader alone, so on a thread
+  created without one - and in container and JPMS setups where it sees less than the application
+  loader - every `with(matcher, Model::getField)` registration failed with "Could not load". The
+  reference's own classloader is tried first, since it defined the lambda and therefore sees the
+  accessor; the context classloader remains a fallback.
 - **A type mismatch is reported instead of thrown.** Properties are discovered from the base
   structure and read off the actual one, and two shapes of clash crashed the comparison. An actual
   structure carrying none of the base's accessors - a property typed by an interface and

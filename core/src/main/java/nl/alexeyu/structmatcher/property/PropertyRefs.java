@@ -2,6 +2,8 @@ package nl.alexeyu.structmatcher.property;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Derives the property name a {@link PropertyRef} points at, so a method reference yields the same
@@ -25,7 +27,7 @@ public final class PropertyRefs {
      */
     public static <T, R> String nameOf(PropertyRef<T, R> ref) {
         var lambda = serializedLambda(ref);
-        var accessor = accessor(ownerClass(lambda), lambda.getImplMethodName());
+        var accessor = accessor(ownerClass(lambda, ref), lambda.getImplMethodName());
         return ClassProperty.forMethod(accessor).getName();
     }
 
@@ -40,14 +42,32 @@ public final class PropertyRefs {
         }
     }
 
-    private static Class<?> ownerClass(SerializedLambda lambda) {
+    private static Class<?> ownerClass(SerializedLambda lambda, PropertyRef<?, ?> ref) {
         var className = lambda.getImplClass().replace('/', '.');
-        try {
-            return Class.forName(className, false,
-                    Thread.currentThread().getContextClassLoader());
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not load " + className, e);
+        ClassNotFoundException failure = null;
+        for (var loader : loaders(ref)) {
+            try {
+                return Class.forName(className, false, loader);
+            } catch (ClassNotFoundException e) {
+                failure = e;
+            }
         }
+        throw new IllegalArgumentException("Could not load " + className, failure);
+    }
+
+    /**
+     * The lambda's own loader first: it defined the reference, so it sees the accessor by
+     * construction. The context classloader stays as a fallback for the setup where it sees more;
+     * either may be null, which asks the bootstrap loader.
+     */
+    private static List<ClassLoader> loaders(PropertyRef<?, ?> ref) {
+        var loaders = new ArrayList<ClassLoader>(2);
+        loaders.add(ref.getClass().getClassLoader());
+        var contextLoader = Thread.currentThread().getContextClassLoader();
+        if (!loaders.contains(contextLoader)) {
+            loaders.add(contextLoader);
+        }
+        return loaders;
     }
 
     private static Method accessor(Class<?> owner, String name) {
