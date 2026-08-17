@@ -3,6 +3,10 @@ package nl.alexeyu.structmatcher.property;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Where the comparison currently is: the properties it has descended into, root first. The
+ * matching stack pushes a property before matching it and pops it after.
+ */
 public final class PropertyPath extends AbstractPath {
 
     public PropertyPath() {

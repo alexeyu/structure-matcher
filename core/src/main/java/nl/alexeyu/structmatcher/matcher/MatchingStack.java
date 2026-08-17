@@ -13,27 +13,16 @@ interface MatchingStack<T> {
     /**
      * Pushes a property onto the stack and returns the matcher for the resulting path: the custom
      * one registered for it, or the fallback. Call this before matching the property.
-     *
-     * @param property
-     *            the name of the property to push.
-     * @param fallbackSupplier
-     *            supplies the matcher to use when no custom one claims the path.
      */
     Matcher<Object> push(String property, Supplier<Matcher<Object>> fallbackSupplier);
 
-    /**
-     * Drops the top property off the stack. Call this once the property has been matched.
-     */
+    /** Drops the top property off the stack. Call this once the property has been matched. */
     void pop();
 
-    /**
-     * Returns the top-level base structure of this comparison.
-     */
+    /** Returns the top-level base structure of this comparison. */
     T getBaseStructure();
 
-    /**
-     * Returns the top-level target structure of this comparison.
-     */
+    /** Returns the top-level target structure of this comparison. */
     T getActualStructure();
 
 }

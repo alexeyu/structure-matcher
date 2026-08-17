@@ -26,9 +26,6 @@ public interface Matcher<V> {
     /**
      * Runs this matcher first and, only if it is satisfied, the {@code other} one. The first
      * non-empty feedback wins, so the combined matcher is satisfied only when both are.
-     *
-     * @param other
-     *            the matcher to apply after this one.
      */
     default Matcher<V> and(Matcher<V> other) {
         return (property, expected, actual) -> {
@@ -37,32 +34,17 @@ public interface Matcher<V> {
         };
     }
 
-    /**
-     * Applies {@code normalizer} to the actual value before matching it against the base one.
-     *
-     * @param normalizer
-     *            the function applied to the actual value.
-     */
+    /** Applies {@code normalizer} to the actual value before matching it against the base one. */
     default Matcher<V> normalizing(UnaryOperator<V> normalizer) {
         return (property, expected, actual) -> match(property, expected, normalizer.apply(actual));
     }
 
-    /**
-     * Applies {@code normalizer} to the base value before matching the actual one against it.
-     *
-     * @param normalizer
-     *            the function applied to the base value.
-     */
+    /** Applies {@code normalizer} to the base value before matching the actual one against it. */
     default Matcher<V> normalizingBase(UnaryOperator<V> normalizer) {
         return (property, expected, actual) -> match(property, normalizer.apply(expected), actual);
     }
 
-    /**
-     * Applies {@code normalizer} to both values before matching them.
-     *
-     * @param normalizer
-     *            the function applied to both values.
-     */
+    /** Applies {@code normalizer} to both values before matching them. */
     default Matcher<V> normalizingBoth(UnaryOperator<V> normalizer) {
         return (property, expected, actual) -> match(property, normalizer.apply(expected),
                 normalizer.apply(actual));

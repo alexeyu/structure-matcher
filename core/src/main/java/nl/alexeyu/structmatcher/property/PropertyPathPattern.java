@@ -4,6 +4,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * The path a custom matcher was registered for, tested against the {@link PropertyPath} the
+ * comparison has reached. A segment may be the wildcard <code>*</code>, any run of properties.
+ */
 public final class PropertyPathPattern extends AbstractPath {
 
     /**

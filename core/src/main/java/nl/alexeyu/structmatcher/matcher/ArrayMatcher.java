@@ -1,17 +1,15 @@
 package nl.alexeyu.structmatcher.matcher;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
 /**
  * Matches two arrays element by element by adapting them to lists and delegating to
- * {@link ListMatcher}. It reads the elements through {@link Array}, so an array of primitives
- * behaves like an array of objects, boxing on the way. Elements go through the usual logic, simple
- * ones by equality and complex ones structurally, and each mismatch lands under
- * <code>property[index]</code>. Neither array may be <code>null</code>, though their elements may.
+ * {@link ListMatcher}. Reading through {@link Array} boxes primitives, so an array of them behaves
+ * like an array of objects. Neither array may be <code>null</code>, though their elements may.
  */
 public final class ArrayMatcher implements Matcher<Object> {
 
@@ -22,13 +20,10 @@ public final class ArrayMatcher implements Matcher<Object> {
         return listMatcher.match(property, toList(expected), toList(actual));
     }
 
-    private List<Object> toList(Object array) {
-        var length = Array.getLength(array);
-        var list = new ArrayList<Object>(length);
-        for (int i = 0; i < length; i++) {
-            list.add(Array.get(array, i));
-        }
-        return list;
+    private static List<Object> toList(Object array) {
+        return IntStream.range(0, Array.getLength(array))
+                .mapToObj(i -> Array.get(array, i))
+                .toList();
     }
 
 }

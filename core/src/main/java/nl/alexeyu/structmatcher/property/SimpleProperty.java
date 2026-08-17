@@ -1,5 +1,8 @@
 package nl.alexeyu.structmatcher.property;
 
+/**
+ * A property that holds an object value.
+ */
 public final class SimpleProperty implements Property {
 
     private final String name;

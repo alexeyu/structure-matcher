@@ -12,9 +12,9 @@ import nl.alexeyu.structmatcher.feedback.FeedbackNode;
  * each lands in the feedback under <code>property[element]</code>.
  * <p>
  * Elements meet through their own <code>equals</code>/<code>hashCode</code>, which is how a
- * {@link Set} decides membership to begin with. A set's elements therefore never match field by
- * field the way a structure's or a map's do, which makes value types (records, primitive wrappers,
- * strings, enums) the natural set elements. The set itself may not be <code>null</code>.
+ * {@link Set} decides membership to begin with, never field by field the way a structure's or a
+ * map's do. That makes value types (records, strings, enums) the natural set elements. The set
+ * itself may not be <code>null</code>.
  * <p>
  * The matcher lists the elements in {@link FeedbackOrder#CANONICAL} order, not the order the set
  * iterates in, so two equal sets give equal feedback.

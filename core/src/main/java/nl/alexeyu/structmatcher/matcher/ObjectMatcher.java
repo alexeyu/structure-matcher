@@ -13,15 +13,10 @@ import nl.alexeyu.structmatcher.property.PropertyRefs;
 import nl.alexeyu.structmatcher.property.SimpleProperty;
 
 /**
- * Matches two objects of a given class, and serves as the entry point to the library. You take four
- * steps:
- * <ol>
- * <li>Create a matcher.
- * <li>Register custom matchers for sub-properties, where the comparison should be loose.
- * <li>Run the matching.
- * <li>Read the result.
- * </ol>
- * This class covers steps 1 to 3. Without custom matchers, the code looks like:
+ * Matches two objects of a given class, and serves as the entry point to the library. You create a
+ * matcher, register custom matchers for the sub-properties where the comparison should be loose,
+ * run it, then read the {@link FeedbackNode} it returns. Without custom matchers, the code looks
+ * like:
  *
  * <pre>
  * Date date1 = Date.from(Instant.parse("2017-05-22T23:00:00.01Z"));
@@ -54,9 +49,6 @@ public class ObjectMatcher<T> {
 
     /**
      * Creates a matcher for instances of the given class, ready to be set up and run.
-     *
-     * @param clazz
-     *            the class of the objects to match.
      */
     public static <T> ObjectMatcher<T> forClass(Class<T> clazz) {
         return new ObjectMatcher<>(clazz);
@@ -70,10 +62,8 @@ public class ObjectMatcher<T> {
      *            invoked instead of the default when the two values of that property meet.
      * @param propertyPath
      *            the path to the property, the property itself included. Each segment names a
-     *            property of the structure one level up, and a no-arg getter defines a property. So
-     *            <code>java.util.Calendar</code> has 10 properties (8 get and 2 is methods), and
-     *            the return type of <code>Calendar::getTimeZone</code> has 4. A matcher for
-     *            <code>TimeZone::getRawOffset</code> registers like this:
+     *            property of the structure one level up, and a no-arg getter defines a property. A
+     *            matcher for <code>TimeZone::getRawOffset</code> registers like this:
      *
      *            <pre>
      * ObjectMapper.forClass(Calendar.class)
@@ -82,9 +72,8 @@ public class ObjectMatcher<T> {
      *
      *            A segment may be the wildcard <code>*</code>, standing for any run of properties,
      *            so <code>"*", "Url"</code> reaches every 'Url' in the model. Register the exact
-     *            path to take one of them back: when two paths match a property, the more
-     *            specific one wins, by fewest wildcards, then most named segments, then the
-     *            longest run of names before the first wildcard.
+     *            path to take one of them back: when two patterns match a property, the more
+     *            specific one wins.
      *
      * @see ClassProperty
      * @see PropertyPathPattern#MOST_SPECIFIC_FIRST
@@ -126,9 +115,9 @@ public class ObjectMatcher<T> {
      *             SearchMetadata::getServer, Server::getIp);
      * </pre>
      *
-     * The resulting path is identical to the equivalent string path, since both capitalize the
-     * property names the same way, so typed and {@code "Dot.Separated"} registrations are
-     * interchangeable and both honour wildcard string paths registered elsewhere.
+     * The resulting path is identical to the equivalent string one, since both capitalize the
+     * property names the same way, so the two registration styles are interchangeable and take
+     * part in the same precedence with wildcard paths registered elsewhere.
      */
     public <A> ObjectMatcher<T> with(Matcher<?> matcher, PropertyRef<? super T, A> p1) {
         return withRefs(matcher, p1);

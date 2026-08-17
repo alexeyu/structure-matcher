@@ -22,8 +22,6 @@ public final class IntegerMatchers {
 
     /**
      * Accepts any integer.
-     *
-     * @see MustConformMatcher
      */
     public static Matcher<Object> any() {
         return new MustConformMatcher<>(v -> TO_INT.apply(v).isPresent(), "An integer");
@@ -31,8 +29,6 @@ public final class IntegerMatchers {
 
     /**
      * Accepts an integer of 0 or above.
-     *
-     * @see MustConformMatcher
      */
     public static Matcher<Object> nonNegative() {
         return greaterThan(-1);
@@ -40,8 +36,6 @@ public final class IntegerMatchers {
 
     /**
      * Accepts an integer above 0.
-     *
-     * @see MustConformMatcher
      */
     public static Matcher<Object> positive() {
         return greaterThan(0);
@@ -49,8 +43,6 @@ public final class IntegerMatchers {
 
     /**
      * Accepts an integer greater than <code>value</code>.
-     *
-     * @see MustConformMatcher
      */
     public static Matcher<Object> greaterThan(int value) {
         return new MustConformMatcher<>(v -> TO_INT.apply(v).orElse(Integer.MIN_VALUE) > value,
@@ -59,8 +51,6 @@ public final class IntegerMatchers {
 
     /**
      * Accepts an integer below 0.
-     *
-     * @see MustConformMatcher
      */
     public static Matcher<Object> negative() {
         return lessThan(0);
@@ -68,8 +58,6 @@ public final class IntegerMatchers {
 
     /**
      * Accepts an integer less than <code>value</code>.
-     *
-     * @see MustConformMatcher
      */
     public static Matcher<Object> lessThan(int value) {
         return new MustConformMatcher<>(v -> TO_INT.apply(v).orElse(Integer.MAX_VALUE) < value,

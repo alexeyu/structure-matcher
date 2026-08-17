@@ -6,6 +6,10 @@ import java.util.List;
 import nl.alexeyu.structmatcher.feedback.Feedback;
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
 
+/**
+ * Matches two lists element by element, in order, reporting each mismatch under
+ * <code>property[index]</code>. Different sizes are one mismatch, and no elements are compared.
+ */
 public final class ListMatcher<V> implements Matcher<List<V>> {
 
     @Override

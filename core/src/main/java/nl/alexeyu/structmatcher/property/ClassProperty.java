@@ -27,20 +27,17 @@ public final class ClassProperty implements Property {
     private final Method method;
 
     /**
-     * The declaration of {@link #method} that the library can call. It differs from
+     * The declaration of {@link #method} that the library can call, which differs from
      * {@code method} when the model declares its accessor on a class that is not public. Only
-     * {@link #getValue} reads it: the property takes its name and type from the declaration the
-     * model made, so a covariant override keeps its own return type.
-     * <p>
-     * Resolved on first read, not in the constructor: naming a property is not reading it, and an
-     * unreadable one still has a name to register a matcher under.
+     * {@link #getValue} reads it: name and type come from the declaration the model made, so a
+     * covariant override keeps its own return type. Resolved on first read rather than in the
+     * constructor, since an unreadable property still has a name to register a matcher under.
      */
     private Method invocable;
 
     /**
      * Whether {@link #method} is a record component accessor (e.g. {@code name()}) rather than a
-     * {@code get}/{@code is}-prefixed bean getter. Record accessors carry no prefix, so their
-     * property name is derived by capitalization only.
+     * bean getter. Carrying no prefix, it names its property by capitalization only.
      */
     private final boolean recordComponent;
 
@@ -50,19 +47,15 @@ public final class ClassProperty implements Property {
     }
 
     /**
-     * Streams the properties of a class. A {@code record} yields its components, in declaration
-     * order. Any other class yields its public getters, by name: a no-arg method whose name starts
-     * with 'get' or 'is'. This skips <code>getClass()</code>, along with bridge and synthetic
-     * methods.
+     * Streams the properties of a class: a {@code record} yields its components in declaration
+     * order, any other class its public no-arg <code>get</code>/<code>is</code> methods, without
+     * <code>getClass()</code> and sorted by name. The sorting matters because
+     * <code>Class.getMethods()</code> has no specified order, which would otherwise reach the
+     * feedback tree, the JSON rendering and the stored archives.
      * <p>
-     * A bridge survives when it is the only accessor of its name. That happens when the model
-     * declares the getter on a class outside our reach, leaving the compiler's bridge as the one
-     * way in. Drop it and the property goes with it, and a property that never runs contributes
-     * no feedback, which reads as a match.
-     * <p>
-     * <code>Class.getMethods()</code> has no specified order, and that order reaches the JSON
-     * rendering and the stored archives. Sorting keeps a batch stored on one JDK diffable against
-     * a batch stored on another.
+     * Bridge and synthetic accessors drop out, unless a bridge is the only one of its name: the
+     * model then declares the getter out of our reach, and dropping the property would read as a
+     * match.
      */
     public static Stream<ClassProperty> forClass(Class<?> cl) {
         if (cl.isRecord()) {
@@ -85,20 +78,18 @@ public final class ClassProperty implements Property {
 
     /**
      * Wraps an accessor {@link Method} as a property, inferring the {@link #recordComponent} flag
-     * from the declaring class. Use this when the accessor is known directly (e.g. resolved from a
-     * method reference) rather than discovered by scanning a class, so that {@link #getName()}
-     * applies the same naming rules as {@link #forClass}.
+     * from the declaring class. Use this for an accessor known directly (e.g. resolved from a
+     * method reference), so it is named by the same rules as one {@link #forClass} discovers.
      */
     public static ClassProperty forMethod(Method method) {
         return new ClassProperty(method, method.getDeclaringClass().isRecord());
     }
 
     /**
-     * Returns the name of a property. For a bean getter the prefix is stripped: <code>getFoo</code>
-     * and <code>isFoo</code> both yield 'Foo'. For a record component the accessor name is used
-     * as-is: <code>foo()</code> yields 'Foo'.<br/>
-     * <b>Note:</b> with camel-case method names, a property name starts with a capital either way,
-     * so a bean and a record produce the same path.
+     * Returns the name of a property. A bean getter loses its prefix, so <code>getFoo</code> and
+     * <code>isFoo</code> both yield 'Foo'; a record component only gains a capital, so
+     * <code>foo()</code> yields 'Foo' too. With camel-case names a bean and a record therefore
+     * produce the same path.
      */
     @Override
     public String getName() {
@@ -121,8 +112,6 @@ public final class ClassProperty implements Property {
     /**
      * Reads this property off an object by calling its accessor.
      *
-     * @param obj
-     *            the object to read the property from.
      * @throws IllegalStateException
      *             if the accessor call fails.
      * @throws InaccessibleAccessorException
@@ -161,10 +150,9 @@ public final class ClassProperty implements Property {
 
     /**
      * Whether this property can be read off an object. Properties are discovered from the base
-     * structure, so an actual structure of an unrelated type may declare no such accessor; the
-     * structure matcher checks this before reading and reports a mismatch. The question is only
-     * whether the accessor exists: one that exists but cannot be called is a broken spec, and
-     * {@link #getValue} throws.
+     * structure, so an actual structure of an unrelated type may declare no such accessor, and
+     * the structure matcher checks this before reading. The question is only whether the accessor
+     * exists: one that exists but cannot be called is a broken spec, and {@link #getValue} throws.
      */
     public boolean isReadableFrom(Object obj) {
         return obj == null || method.getDeclaringClass().isInstance(obj)
@@ -215,34 +203,25 @@ public final class ClassProperty implements Property {
         return List.class.isAssignableFrom(method.getReturnType());
     }
 
-    /**
-     * Whether the declared type implements <code>java.util.Map</code>. @see #isList()
-     */
+    /** Whether the declared type implements <code>java.util.Map</code>. @see #isList() */
     @Override
     public boolean isMap() {
         return Map.class.isAssignableFrom(method.getReturnType());
     }
 
-    /**
-     * Whether the declared type implements <code>java.util.Set</code>. @see #isList()
-     */
+    /** Whether the declared type implements <code>java.util.Set</code>. @see #isList() */
     @Override
     public boolean isSet() {
         return Set.class.isAssignableFrom(method.getReturnType());
     }
 
-    /**
-     * Whether the property is an array, of objects or of primitives.
-     */
+    /** Whether the property is an array, of objects or of primitives. */
     @Override
     public boolean isArray() {
         return method.getReturnType().isArray();
     }
 
-    /**
-     * Whether the property is an {@link Optional}. <code>Optional</code> is final, so this checks
-     * the exact type rather than assignability.
-     */
+    /** Whether the property is an {@link Optional}, which is final, so the type must be exact. */
     @Override
     public boolean isOptional() {
         return method.getReturnType().equals(Optional.class);

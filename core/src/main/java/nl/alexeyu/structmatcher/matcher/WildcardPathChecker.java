@@ -64,11 +64,9 @@ final class WildcardPathChecker implements BiPredicate<PropertyPathPattern, Prop
         if (!pattern.startsWithWildcard()) {
             return false;
         }
-        // A wildcard can absorb zero or more leading path segments, so try both: let it end here
-        // (advance past the wildcard, keep the path) or absorb one more segment (keep the
-        // wildcard, drop a path head). Backtracking needs both branches when a literal after the
-        // wildcard also occurs among the segments it should absorb: pattern `*,A` against path
-        // `A,A` only matches if `*` swallows the first `A`.
+        // A wildcard absorbs zero or more leading segments, so try both branches: end it here, or
+        // let it swallow one more segment. Both are needed when a literal after the wildcard also
+        // occurs among the segments it absorbs: `*,A` matches `A,A` only if `*` takes the first.
         return test(pattern.tail(), path) || test(pattern, path.tail());
     }
 

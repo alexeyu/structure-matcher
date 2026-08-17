@@ -12,9 +12,6 @@ public final class Feedback {
 
     /**
      * Reports that the two values of a property match.
-     *
-     * @param property
-     *            the property name.
      */
     public static FeedbackNode empty(String property) {
         return new ExpectationMet(property);
@@ -22,13 +19,6 @@ public final class Feedback {
 
     /**
      * Reports that the two values of a property differ.
-     *
-     * @param property
-     *            the property name.
-     * @param expected
-     *            the value the base structure holds.
-     * @param actual
-     *            the value found instead.
      */
     public static FeedbackNode nonEqual(String property, Object expected, Object actual) {
         return new ExpectationBroken(property, expected, actual);
@@ -37,10 +27,6 @@ public final class Feedback {
     /**
      * Reports a value that breaks a stated expectation.
      *
-     * @param property
-     *            the property name.
-     * @param value
-     *            the value under test.
      * @param specification
      *            what the value should have satisfied, e.g. 'a positive number'.
      */
@@ -50,11 +36,6 @@ public final class Feedback {
 
     /**
      * Reports a null value where the base structure holds one.
-     *
-     * @param property
-     *            the property name.
-     * @param expected
-     *            the value the base structure holds.
      */
     public static FeedbackNode gotNull(String property, Object expected) {
         return new ExpectationBroken(property, expected, null);
@@ -62,11 +43,6 @@ public final class Feedback {
 
     /**
      * Reports a present value where the base structure holds null.
-     *
-     * @param property
-     *            the property name.
-     * @param actual
-     *            the value found instead.
      */
     public static FeedbackNode gotNonNull(String property, Object actual) {
         return new ExpectationBroken(property, "null", actual);
@@ -76,11 +52,6 @@ public final class Feedback {
      * Groups the feedback about a property's sub-properties. The node counts as empty only when
      * every child is empty; otherwise walk the children to find which sub-properties diverged and
      * why.
-     *
-     * @param property
-     *            the property name.
-     * @param children
-     *            the feedback from matching its sub-properties.
      */
     public static CompositeFeedbackNode composite(String property,
             Collection<FeedbackNode> children) {
@@ -90,13 +61,6 @@ public final class Feedback {
     /**
      * Reports an actual structure that does not carry the properties of the base one, which the
      * structure matcher treats as one mismatch of the whole property.
-     *
-     * @param property
-     *            the property name.
-     * @param expectedType
-     *            the type of the base structure.
-     * @param actualType
-     *            the type found instead.
      */
     public static FeedbackNode differentTypes(String property, Class<?> expectedType,
             Class<?> actualType) {
@@ -107,13 +71,6 @@ public final class Feedback {
     /**
      * Reports two collections of different size, which the list and array matchers treat as a
      * mismatch on the spot.
-     *
-     * @param property
-     *            the property name.
-     * @param expectedSize
-     *            the size of the base collection.
-     * @param actualSize
-     *            the size found instead.
      */
     public static FeedbackNode differentCollectionSizes(String property, int expectedSize,
             int actualSize) {

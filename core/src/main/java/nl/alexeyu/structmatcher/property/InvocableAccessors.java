@@ -13,11 +13,11 @@ import java.util.stream.Stream;
  * Finds a declaration of an accessor that the library can call.
  * <p>
  * A public accessor sits out of reach when its declaring class is not public: reflection refuses
- * the call with <code>IllegalAccessException</code>. Two ordinary models land there. A
- * package-private class overriding a public supertype's accessor, which AutoValue and Immutables
- * generate, has a public declaration further up, and calling that one reaches the override through
- * virtual dispatch. A package-private base whose getters a public subclass inherits arrives as the
- * compiler's synthetic bridge, which {@link ClassProperty} keeps when it can call nothing else.
+ * the call with <code>IllegalAccessException</code>. A package-private class overriding a public
+ * supertype's accessor, which AutoValue and Immutables generate, has a public declaration further
+ * up, and calling that one reaches the override through virtual dispatch. A package-private base
+ * whose getters a public subclass inherits arrives as the compiler's synthetic bridge, which
+ * {@link ClassProperty} keeps when it can call nothing else.
  */
 final class InvocableAccessors {
 

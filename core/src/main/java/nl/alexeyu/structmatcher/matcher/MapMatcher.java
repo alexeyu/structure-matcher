@@ -36,10 +36,7 @@ public final class MapMatcher<K, V> implements Matcher<Map<K, V>> {
         return Feedback.composite(property, feedbackSubnodes);
     }
 
-    /**
-     * Matches one entry of the base map against the target map. Returns feedback when the target
-     * lacks the key or holds a different value, and an empty optional when the values match.
-     */
+    /** Feedback when the target lacks the key or holds another value, else an empty optional. */
     private Optional<FeedbackNode> matchExpectedEntry(String property, K key, V expectedValue,
             Map<K, V> actual) {
         var entryProperty = entryProperty(property, key);
