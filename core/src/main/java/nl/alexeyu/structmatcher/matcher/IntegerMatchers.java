@@ -1,21 +1,21 @@
 package nl.alexeyu.structmatcher.matcher;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Factory of integer-specific matchers. Each one is strict, in the sense
  * {@link MustConformMatcher} defines: an actual value that fails the test produces non-empty
  * feedback, while a base value that fails it throws <code>BrokenSpecificationException</code>. A
- * value counts as an integer when {@link Integer#valueOf(String)} parses its string form.
+ * value counts as an integer when it is a whole {@link Number} of any type, or a string holding
+ * one. The bounds below are ints, while each matcher compares the value at its own magnitude, so a
+ * <code>long</code> outside int range still answers as the number it is.
  */
 public final class IntegerMatchers {
-
-    private static final Function<Object, Optional<Integer>> TO_INT = IntegerMatchers::toInt;
 
     private IntegerMatchers() {
     }
@@ -24,7 +24,7 @@ public final class IntegerMatchers {
      * Accepts any integer.
      */
     public static Matcher<Object> any() {
-        return new MustConformMatcher<>(v -> TO_INT.apply(v).isPresent(), "An integer");
+        return conforming(n -> true, "An integer");
     }
 
     /**
@@ -45,8 +45,8 @@ public final class IntegerMatchers {
      * Accepts an integer greater than <code>value</code>.
      */
     public static Matcher<Object> greaterThan(int value) {
-        return new MustConformMatcher<>(v -> TO_INT.apply(v).orElse(Integer.MIN_VALUE) > value,
-                "An integer greater than " + value);
+        var bound = BigInteger.valueOf(value);
+        return conforming(n -> n.compareTo(bound) > 0, "An integer greater than " + value);
     }
 
     /**
@@ -60,8 +60,8 @@ public final class IntegerMatchers {
      * Accepts an integer less than <code>value</code>.
      */
     public static Matcher<Object> lessThan(int value) {
-        return new MustConformMatcher<>(v -> TO_INT.apply(v).orElse(Integer.MAX_VALUE) < value,
-                "An integer less than " + value);
+        var bound = BigInteger.valueOf(value);
+        return conforming(n -> n.compareTo(bound) < 0, "An integer less than " + value);
     }
 
     /**
@@ -73,8 +73,9 @@ public final class IntegerMatchers {
      *            the value must be smaller than this.
      */
     public static Matcher<Object> inRange(int minExclusive, int maxExclusive) {
-        return new MustConformMatcher<>(
-                v -> TO_INT.andThen(new Within(minExclusive, maxExclusive)).apply(v),
+        var min = BigInteger.valueOf(minExclusive);
+        var max = BigInteger.valueOf(maxExclusive);
+        return conforming(n -> n.compareTo(min) > 0 && n.compareTo(max) < 0,
                 String.format("Bigger than %s but smaller than %s", minExclusive, maxExclusive));
     }
 
@@ -86,38 +87,47 @@ public final class IntegerMatchers {
      */
     public static Matcher<Object> oneOf(Integer... possibleValues) {
         var possibleValuesList = Arrays.asList(possibleValues);
-        return new MustConformMatcher<>(v -> TO_INT.andThen(new OneOf(possibleValuesList)).apply(v),
+        var accepted = possibleValuesList.stream().map(BigInteger::valueOf)
+                .collect(Collectors.toSet());
+        return conforming(accepted::contains,
                 String.format("One of the following values: %s", possibleValuesList));
     }
 
-    private record Within(int minExclusive, int maxExclusive)
-            implements Function<Optional<Integer>, Boolean> {
-
-        @Override
-        public Boolean apply(Optional<Integer> t) {
-            return t.isPresent() && t.get() > minExclusive && t.get() < maxExclusive;
-        }
-
+    private static Matcher<Object> conforming(Predicate<BigInteger> condition, String spec) {
+        return new MustConformMatcher<>(v -> toInteger(v).filter(condition).isPresent(), spec);
     }
 
-    private record OneOf(Set<Integer> possibleValues)
-            implements Function<Optional<Integer>, Boolean> {
-
-        OneOf(Collection<Integer> possibleValues) {
-            this(new HashSet<>(possibleValues));
+    /**
+     * Reads a value as a whole number, keeping a fractional part and a magnitude past int range
+     * intact for the comparison to judge. The matcher asks a {@link Number} for its own value and
+     * puts anything else through its string form, which is how a numeric string gets in.
+     */
+    private static Optional<BigInteger> toInteger(Object value) {
+        if (value instanceof BigInteger integer) {
+            return Optional.of(integer);
         }
-
-        @Override
-        public Boolean apply(Optional<Integer> t) {
-            return t.isPresent() && possibleValues.contains(t.get());
+        if (value instanceof Byte || value instanceof Short || value instanceof Integer
+                || value instanceof Long) {
+            return Optional.of(BigInteger.valueOf(((Number) value).longValue()));
         }
-
+        if (value instanceof BigDecimal decimal) {
+            return wholeNumber(decimal);
+        }
+        return parse(String.valueOf(value));
     }
 
-    private static Optional<Integer> toInt(Object t) {
+    private static Optional<BigInteger> parse(String text) {
         try {
-            return Optional.of(Integer.valueOf(String.valueOf(t)));
+            return wholeNumber(new BigDecimal(text));
         } catch (NumberFormatException ex) {
+            return Optional.empty();
+        }
+    }
+
+    private static Optional<BigInteger> wholeNumber(BigDecimal decimal) {
+        try {
+            return Optional.of(decimal.toBigIntegerExact());
+        } catch (ArithmeticException ex) {
             return Optional.empty();
         }
     }

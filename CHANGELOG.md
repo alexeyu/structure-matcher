@@ -18,6 +18,15 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **`IntegerMatchers` reads a whole number of any numeric type.** Every matcher in the factory
+  ran the value through `Integer.valueOf(String.valueOf(v))`, so a field holding `42.0`, a
+  `BigDecimal`, an `AtomicLong` or a `long` past int range counted as "not an integer" - and where
+  the base structure held such a value, `BrokenSpecificationException` blamed the spec for data
+  that was fine. A `Number` now answers with its own value, other types still go through their
+  string form, and a fractional value, a `NaN` or an infinity remains no integer. The value keeps
+  its own magnitude rather than being truncated into an `int`, so `inRange(0, 100)` rejects
+  `4_294_967_338L` instead of reading it as the 42 the cast would produce. Bounds stay ints, and
+  the specification text in the feedback is unchanged.
 - **`StringMatchers.regex` compiles its expression once and reports a null value.** The pattern
   was compiled inside the matcher, so every comparison of every property it covered recompiled it,
   and a null value hit `Pattern.matcher(null)` and threw a `NullPointerException` instead of
