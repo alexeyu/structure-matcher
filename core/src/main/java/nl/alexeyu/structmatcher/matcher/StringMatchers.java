@@ -1,5 +1,6 @@
 package nl.alexeyu.structmatcher.matcher;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -21,13 +22,19 @@ public class StringMatchers {
     }
 
     /**
-     * Accepts a string the regular expression matches in full.
+     * Accepts a string the regular expression matches in full. Null matches nothing, so a null
+     * actual value yields feedback and a null base value throws, the split
+     * {@link MustConformMatcher} applies to any condition.
      *
      * @param expr
-     *            the regular expression both values are held against.
+     *            the regular expression both values must match. This factory compiles it once, so
+     *            a malformed expression fails here instead of at the first comparison.
+     * @throws java.util.regex.PatternSyntaxException
+     *             if the expression does not compile.
      */
     public static Matcher<String> regex(String expr) {
-        return new MustConformMatcher<>(str -> Pattern.compile(expr).matcher(str).matches(),
+        var pattern = Pattern.compile(Objects.requireNonNull(expr, "Regular expression is null"));
+        return new MustConformMatcher<>(str -> str != null && pattern.matcher(str).matches(),
                 "The regular expression: " + expr);
     }
 

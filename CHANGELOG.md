@@ -18,6 +18,14 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **`StringMatchers.regex` compiles its expression once and reports a null value.** The pattern
+  was compiled inside the matcher, so every comparison of every property it covered recompiled it,
+  and a null value hit `Pattern.matcher(null)` and threw a `NullPointerException` instead of
+  producing feedback. The factory now compiles the expression and the matcher holds the
+  `Pattern`; null counts as no match, so a null actual value yields a leaf naming the expression
+  and a null base value throws `BrokenSpecificationException`, the same split `nonEmpty()` uses.
+  A malformed expression now fails with `PatternSyntaxException` where the matcher is built,
+  rather than at the first comparison, and a null expression is rejected there too.
 - **A typed path registration no longer depends on the context classloader.** `PropertyRefs`
   loaded the accessor's class through the thread's context classloader alone, so on a thread
   created without one - and in container and JPMS setups where it sees less than the application
