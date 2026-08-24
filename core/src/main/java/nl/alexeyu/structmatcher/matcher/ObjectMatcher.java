@@ -37,7 +37,7 @@ import nl.alexeyu.structmatcher.property.SimpleProperty;
  * // The feedback is: java.util.Date: [].
  * </pre>
  */
-public class ObjectMatcher<T> {
+public final class ObjectMatcher<T> {
 
     private final Class<T> clazz;
 

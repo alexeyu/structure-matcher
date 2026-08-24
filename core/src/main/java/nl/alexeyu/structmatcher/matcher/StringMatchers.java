@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  * defines: an actual value that fails the test produces non-empty feedback, while a base value that
  * fails it throws <code>BrokenSpecificationException</code>.
  */
-public class StringMatchers {
+public final class StringMatchers {
 
     private StringMatchers() {
     }
