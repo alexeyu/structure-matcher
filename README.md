@@ -2,7 +2,7 @@
 
 [![build](https://github.com/alexeyu/structure-matcher/actions/workflows/build.yml/badge.svg)](https://github.com/alexeyu/structure-matcher/actions/workflows/build.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeyu/structure-matcher-core)](https://central.sonatype.com/artifact/io.github.alexeyu/structure-matcher-core)
-[![javadoc](https://img.shields.io/badge/javadoc-2.0-blue.svg)](https://javadoc.io/doc/io.github.alexeyu/structure-matcher-core)
+[![javadoc](https://img.shields.io/badge/javadoc-2.1-blue.svg)](https://javadoc.io/doc/io.github.alexeyu/structure-matcher-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Java 17+](https://img.shields.io/badge/Java-17%2B-orange)
 
@@ -23,13 +23,13 @@ Available on Maven Central. `core` is all you need to compare objects; add the o
 Gradle:
 
 ```groovy
-implementation 'io.github.alexeyu:structure-matcher-core:2.0'
+implementation 'io.github.alexeyu:structure-matcher-core:2.1'
 
 // optional add-ons, described below
-implementation     'io.github.alexeyu:structure-matcher-json:2.0'
-implementation     'io.github.alexeyu:structure-matcher-report:2.0'
-testImplementation 'io.github.alexeyu:structure-matcher-assertj:2.0'
-testImplementation 'io.github.alexeyu:structure-matcher-junit5:2.0'
+implementation     'io.github.alexeyu:structure-matcher-json:2.1'
+implementation     'io.github.alexeyu:structure-matcher-report:2.1'
+testImplementation 'io.github.alexeyu:structure-matcher-assertj:2.1'
+testImplementation 'io.github.alexeyu:structure-matcher-junit5:2.1'
 ```
 
 Maven:
@@ -38,7 +38,7 @@ Maven:
 <dependency>
     <groupId>io.github.alexeyu</groupId>
     <artifactId>structure-matcher-core</artifactId>
-    <version>2.0</version>
+    <version>2.1</version>
 </dependency>
 ```
 
@@ -363,3 +363,15 @@ The failure message lists each diverging field instead of dumping two objects fo
 ```
 
 The AssertJ bridge prints the same per-field list, preceded by both objects in AssertJ's usual style. The JUnit 5 helper attaches them to the `AssertionFailedError`, so the IDE still offers its comparison view. A spec that [masks values](#masking-sensitive-values) gets the list alone: rendering the objects would print what the masked leaves withhold.
+
+## Reading your model
+
+The library reads properties by reflection, through accessors: a no-arg `getX()` / `isX()` on a bean, the components of a `record`. It reads methods only and does not widen access, so **the accessor has to be reachable from outside your package**: a public declaring class, or a public supertype declaring the same accessor. AutoValue and Immutables pass on the second rule, since their package-private subclass inherits a public declaration and the call lands on the override.
+
+With no public declaration anywhere, an internal DTO or a package-private test fixture fails on the first read with `InaccessibleAccessorException`, naming the accessor and the class. It reports a broken model, as `BrokenSpecificationException` reports a broken spec. Make the type or a supertype public, or register a matcher on an *enclosing* path: that matcher takes the whole structure, so the recursion stops before anything reads the property.
+
+## One comparison, one thread
+
+`match()` runs on one thread from start to finish, holding the current property path in a thread-local. That path is how the library finds a rule you registered deep in the model. Capture a `Matcher` and invoke it on another thread and it sees an empty path: the comparison still runs, your custom matchers no longer apply, and nothing warns you. Keep one comparison on one thread.
+
+Many `match()` calls in parallel are fine, each with its own state on its own thread, which is the parallelism you want for a batch of thousands of comparisons.

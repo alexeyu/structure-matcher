@@ -57,7 +57,7 @@ subprojects {
     // Maven Central groupId. The Java packages stay `nl.alexeyu.structmatcher.*`; only the
     // published coordinate namespace is `io.github.alexeyu` (verified via the GitHub account).
     group = 'io.github.alexeyu'
-    version = '2.0'
+    version = '2.1'
 
     repositories {
         mavenCentral()

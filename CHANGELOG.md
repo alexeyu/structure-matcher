@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [semantic versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.1] - 2026-08-29
 
 ### Added
 
@@ -220,4 +220,5 @@ Coordinates: `io.github.alexeyu:structure-matcher-<module>:2.0`. The Java packag
 - `WildcardPathChecker` matched greedily and failed to backtrack, so it rejected a path such as
   `["A", "A"]` under a pattern that should match it.
 
+[2.1]: https://github.com/alexeyu/structure-matcher/releases/tag/2.1
 [2.0]: https://github.com/alexeyu/structure-matcher/releases/tag/2.0
