@@ -10,9 +10,7 @@
 
 Structure matcher compares two POJOs property by property, and returns a feedback tree. Per-property rules let you loosen the comparison where it should be loose: a value in a range, a string matching a regex, an ignored field, an order-insensitive list. A rule can also mask a field, comparing it as strictly as before but no longer printing it. The result serializes to JSON, so you can store and diff large numbers of comparisons.
 
-It fits one job well: validating that two object streams are equivalent, at scale, with a localized report. Think API v1-vs-v2 contract checks, data-pipeline regression, or cross-system reconciliation, where you want to see which fields diverge.
-
-Use it when your objects have no meaningful `equals` (or can't have one), some fields need loose matching, and you want the difference reported field by field.
+Use it when your objects have no meaningful `equals` (or can't have one), some fields need loose matching, and you want the difference reported field by field. That covers API v1-vs-v2 contract checks, data-pipeline regression and cross-system reconciliation, where you compare two streams of objects and want to see which fields diverge.
 
 For a single test assertion, reach for AssertJ's `usingRecursiveComparison()` instead. [How this compares to JaVers, AssertJ and json-unit](COMPARISON.md) says where each one wins.
 
@@ -57,16 +55,7 @@ if (feedback.isEmpty()) {
 }
 ```
 
-By default `ObjectMatcher` compares every property for equality, recursing into nested structures, lists, maps, sets, arrays, and `Optional`. Register custom matchers to loosen specific fields:
-
-```java
-FeedbackNode feedback = ObjectMatcher.forClass(BookSearchResult.class)
-        .with(IntegerMatchers.inRange(2, 5000),
-                BookSearchResult::metadata, SearchMetadata::getProcessingTimeMs)
-        .with(StringMatchers.regex(IPADDRESS_PATTERN),
-                BookSearchResult::metadata, SearchMetadata::getServer, Server::ip)
-        .match(expected, actual);
-```
+By default `ObjectMatcher` compares every property for equality, recursing into nested structures, lists, maps, sets, arrays, and `Optional`. Register custom matchers to loosen specific fields, as the bookstore example does.
 
 ## Modules
 
@@ -84,9 +73,6 @@ Imagine a bookstore REST API. The search endpoint returns the books that match a
 ```xml
 <BookSearchResult>
   <metadata>
-    <keywords>
-      <keywords>smoke</keywords>
-    </keywords>
     <booksFound>2</booksFound>
     <processingTimeMs>14</processingTimeMs>
     <server>
@@ -115,20 +101,13 @@ Imagine a bookstore REST API. The search endpoint returns the books that match a
 ```json
 {
   "metadata" : {
-    "keywords" : [ "smoke" ],
     "booksFound" : 2,
     "processingTimeMs" : 9,
-    "server" : {
-      "ip" : "192.168.10.45",
-      "port" : 8080
-    }
+    "server" : { "ip" : "192.168.10.45", "port" : 8080 }
   },
   "books" : [ {
     "title" : "Blood and Smoke",
-    "authors" : [ {
-      "firstName" : "S.",
-      "lastName" : "King"
-    } ]
+    "authors" : [ { "firstName" : "S.", "lastName" : "King" } ]
   } ]
 }
 ```
@@ -200,24 +179,13 @@ You define only the deviations. Structure matcher compares every other property 
 
 ## Beyond a single comparison: the batch report
 
-`match` returns a `FeedbackNode` tree rather than a boolean, so you can roll a *batch* of comparisons up into a view of **which fields systematically diverge**, which is what an API v1-vs-v2 contract check or a data-pipeline regression run needs.
-
-The `report` module aggregates many results into a `FeedbackSummary`. Replay a set of search queries against the legacy and the new API, then compare each paired response:
+`match` returns a `FeedbackNode` tree rather than a boolean, so you can roll a *batch* of comparisons up into a view of **which fields systematically diverge**, which is what an API v1-vs-v2 contract check or a data-pipeline regression run needs. Replay a set of queries against both APIs and aggregate the results:
 
 ```java
-import nl.alexeyu.structmatcher.report.FeedbackAggregator;
-import nl.alexeyu.structmatcher.report.FeedbackSummary;
-
-// `matcher` is the tolerant spec configured in the example above.
+// `matcher` is the tolerant spec from the example above.
 FeedbackSummary summary = FeedbackAggregator.summarize(searches.stream()
         .map(query -> matcher.match(legacyApi.search(query), mobileApi.search(query)))
         .toList());
-
-summary.total();                          // one comparison per query
-summary.mismatchRate();                   // fraction whose responses diverged
-summary.failureCount("Books[].Title");    // responses differing on a book title
-summary.failureRate("Books[].Title");     // the same as a fraction of the batch
-summary.topMismatchingFields(3);          // the fields diverging most often, worst first
 ```
 
 `summary.toString()` is the digest, worst field first:
@@ -231,32 +199,11 @@ summary.topMismatchingFields(3);          // the fields diverging most often, wo
 
 The digest names the three fields behind those 30 mismatches and how often each one breaks. Every response in this batch came from a different host and port, took a different time, abbreviated the author first names and omitted the publishing details; the spec tolerates all of that, so none of it shows up here.
 
-A field is counted at most once per comparison, and collection indices collapse to a single field (`Books[0].Title` and `Books[1].Title` become `Books[].Title`), so a rate reads as "the fraction of comparisons in which this field broke."
-
-To inspect one comparison, `FeedbackQuery` walks the tree down to its broken leaves, each carrying its path plus the expected and actual values:
-
-```java
-import nl.alexeyu.structmatcher.report.FeedbackQuery;
-
-var feedback = matcher.match(desktopResponse, mobileResponse);
-FeedbackQuery.brokenLeaves(feedback);                  // every broken (path, expectation, value)
-FeedbackQuery.mismatchesUnder(feedback, "Books[0]");   // only the leaves under a given path
-```
-
-Run the same spec against a response that did regress - it claims three hits while returning two, and renders the first title differently - and `brokenLeaves` returns those two divergences as `(path, expectation, value)`:
-
-```
-Metadata.BooksFound | 2               | 3
-Books[0].Title      | Blood and Smoke | Blood & Smoke
-```
-
-This response abbreviates the first names and drops the publishing details too, and neither one reaches the list. Your rules suppress the differences you marked as irrelevant, and nothing more.
+[Batch reporting and persistence](docs/reporting.md) covers the rest: per-field counts and rates, `FeedbackQuery` for walking one tree down to its broken leaves, the versioned JSON archive, and reloading a stored batch without re-running the comparisons.
 
 ## Masking sensitive values
 
-`anyValue()` is the blunt tool for a field you would rather not print: it stops checking it.
-Masking keeps the check and drops the printing - **a masked field is compared as strictly as any
-other**:
+`anyValue()` is the blunt tool for a field you would rather not print: it stops checking it. Masking keeps the check and drops the printing - **a masked field is compared as strictly as any other**:
 
 ```java
 FeedbackNode feedback = ObjectMatcher.forClass(Order.class)
@@ -266,81 +213,9 @@ FeedbackNode feedback = ObjectMatcher.forClass(Order.class)
 // Customer: [Email: sha256:5ff860bf1190596c !~ sha256:ff8d9819fc0e12bf]
 ```
 
-`masking` is a default method on `Matcher`, alongside `normalizing*`, so it composes with any rule
-and registers by path like any other - a wildcard reaches every `Email` in the model. `Maskers`
-offers `redacted()`, `fixed(text)`, `hash()` and `keepingFirst(n)` / `keepingLast(n)`. Prefer
-`hash()` for a batch: equal values stay equal, so the report still counts how often a field
-diverges, and different values stay different, so you can see that they did.
+`masking` is a default method on `Matcher`, alongside `normalizing*`, so it composes with any rule and registers by path like any other. `Maskers` offers `redacted()`, `fixed(text)`, `hash()` and `keepingFirst(n)` / `keepingLast(n)`. Prefer `hash()` for a batch: equal values stay equal, so the report still counts how often a field diverges, and different values stay different, so you can see that they did.
 
-What it covers:
-
-- **Values, never the words a matcher wrote.** An expectation like `Non-null` or `Size 3` is a
-  condition rather than data, and stays readable; masking both sides would leave `*** !~ ***`.
-- **The whole subtree.** Masking a structure redacts every field under it, and map keys and set
-  elements go with it, since an entry can be named after an identifier. A list index survives,
-  since it locates the mismatch and carries nothing.
-- **Ancestors that report a value whole.** If `Customer` is null on one side, the mismatch is
-  reported at `Customer`, the rule on `Customer.Email` never runs, and the leaf would print the
-  entire record. Where anything below a node is masked, a value that node reports whole - a
-  structure or collection it never descended into, a missing map entry, a dropped list element -
-  is withheld as well. Its simple fields are untouched, each having a rule of its own.
-- **The assertion bridges.** A spec that masks makes `assertj` and `junit5` drop the two whole
-  objects they otherwise render, which would print what the leaves withhold.
-
-`.masking(...)` works on an `IndirectMatcher` too: it goes to the value matcher inside, so the
-cross-field rule still receives the whole objects and the derived values are still withheld.
-
-Masking is **redaction, opt-in per path**: it covers the paths you name and nothing else, so mask
-`Email`, miss `AlternateEmail`, and nothing warns you. And mask last, since
-`masking(m).and(other)` hands back a plain matcher whose second half is unmasked, which the bridges
-stop recognizing. One value escapes by design: a `BrokenSpecificationException`, thrown when the
-*base* value breaks a strict matcher, still carries that value, since it reports a broken spec
-rather than a mismatch.
-
-For a batch that may not carry values at all, `FeedbackArchives.archiveWithoutValues(feedback)`
-persists the broken paths and drops every value, including the ones a path embeds: a map or a set
-names its feedback after the entry, so `Contacts[alice@example.com]` archives as `Contacts[***]`,
-while a list index stays. `Masking.mask(feedback, masker)` applies the same redaction to a whole
-tree, for a renderer or a store you feed one to directly.
-
-## Serializing and persisting feedback
-
-Two JSON shapes for two jobs, both in the `json` module:
-
-- **Human-readable rendering** - `Json.mapper()` serializes a `FeedbackNode` tree to nested, property-keyed JSON, for reading or diffing a single comparison.
-- **Stable persistence format** - `FeedbackArchives` writes a flat, **versioned** archive (`{schemaVersion, matched, brokenLeaves:[{path, expectation, value}]}`): the format to store and reload. The reader rejects an unknown `schemaVersion` and ignores unknown fields, so additive changes stay forward-compatible.
-
-The archive of the comparison above:
-
-```json
-{
-  "schemaVersion" : 1,
-  "matched" : false,
-  "brokenLeaves" : [ {
-    "path" : "Metadata.BooksFound",
-    "expectation" : 2,
-    "value" : 3
-  }, {
-    "path" : "Books[0].Title",
-    "expectation" : "Blood and Smoke",
-    "value" : "Blood & Smoke"
-  } ]
-}
-```
-
-A whole batch goes to one document as JSON Lines (`toJsonLines` / `fromJsonLines`), one compact archive per line.
-
-Because the archive keeps each broken path, a persisted batch can be reloaded and aggregated **without re-running the comparisons**. Feed the stored paths back through `FeedbackAggregator.addBrokenPaths`:
-
-```java
-String stored = FeedbackArchives.toJson(matcher.match(legacyResponse, mobileResponse));
-// … later, in another process, after loading many such documents …
-var aggregator = new FeedbackAggregator();
-aggregator.addBrokenPaths(FeedbackArchives.fromJson(stored).brokenPaths());
-FeedbackSummary summary = aggregator.summary();
-```
-
-The full runnable scenario (aggregate, query, persist + reload) is `BatchReportTest` in the `examples` module.
+Masking is redaction, opt-in per path: it covers the paths you name and nothing else. [The masking rules](docs/masking.md) spell out what stays readable, how far a mask spreads through the tree, and how composing in the wrong order drops it.
 
 ## Using it in tests
 
@@ -366,9 +241,9 @@ The AssertJ bridge prints the same per-field list, preceded by both objects in A
 
 ## Reading your model
 
-The library reads properties by reflection, through accessors: a no-arg `getX()` / `isX()` on a bean, the components of a `record`. It reads methods only and does not widen access, so **the accessor has to be reachable from outside your package**: a public declaring class, or a public supertype declaring the same accessor. AutoValue and Immutables pass on the second rule, since their package-private subclass inherits a public declaration and the call lands on the override.
+The library reads properties by reflection, through accessors: a no-arg `getX()` / `isX()` on a bean, the components of a `record`. It reads methods only and does not widen access, so the accessor has to be reachable from outside your package: a public declaring class, or a public supertype declaring the same accessor. AutoValue and Immutables pass on the second rule.
 
-With no public declaration anywhere, an internal DTO or a package-private test fixture fails on the first read with `InaccessibleAccessorException`, naming the accessor and the class. It reports a broken model, as `BrokenSpecificationException` reports a broken spec. Make the type or a supertype public, or register a matcher on an *enclosing* path: that matcher takes the whole structure, so the recursion stops before anything reads the property.
+[Model requirements](docs/model-requirements.md) lists the property shapes the library reads, the `InaccessibleAccessorException` you get when no accessor is reachable, and the way around it.
 
 ## One comparison, one thread
 
