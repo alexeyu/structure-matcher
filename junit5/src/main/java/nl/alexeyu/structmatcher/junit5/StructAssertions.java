@@ -27,7 +27,9 @@ import nl.alexeyu.structmatcher.report.FeedbackQuery;
  *
  * On a mismatch the helpers throw {@link AssertionFailedError}, carrying the two objects as
  * expected and actual, so a JUnit 5 IDE offers its comparison view, plus a message listing every
- * broken field with its expected and actual value. {@code AssertionFailedError} comes from
+ * broken field with its expected and actual value. A spec that masks values gets the message
+ * alone: the objects would carry what it withholds into the IDE and the CI log.
+ * {@code AssertionFailedError} comes from
  * opentest4j, JUnit 5's assertion foundation, and stays engine-agnostic, so these helpers work
  * under JUnit 5 or 4.
  */
@@ -64,9 +66,15 @@ public final class StructAssertions {
      */
     public static <T> void assertMatches(T expected, T actual, ObjectMatcher<T> spec) {
         var feedback = spec.match(expected, actual);
-        if (!feedback.isEmpty()) {
-            throw new AssertionFailedError(describe(feedback), expected, actual);
+        if (feedback.isEmpty()) {
+            return;
         }
+        if (spec.masksValues()) {
+            // The two-object constructor feeds the IDE comparison view, which would show in full
+            // what the spec masks field by field.
+            throw new AssertionFailedError(describe(feedback));
+        }
+        throw new AssertionFailedError(describe(feedback), expected, actual);
     }
 
     private static String describe(FeedbackNode feedback) {

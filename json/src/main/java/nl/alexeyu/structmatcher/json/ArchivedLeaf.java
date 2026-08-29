@@ -15,9 +15,10 @@ package nl.alexeyu.structmatcher.json;
  *            the canonical, registration-style path to the broken leaf, e.g.
  *            {@code Books[0].Authors[0].FirstName} or {@code Server.Ip}.
  * @param expectation
- *            what the matcher expected: a value, or a spec such as {@code "Non-null"}.
+ *            what the matcher expected: a value, or a spec such as {@code "Non-null"}. Null in an
+ *            archive written by {@link FeedbackArchives#archiveWithoutValues}.
  * @param value
- *            the value that broke it, possibly {@code null}.
+ *            the value that broke it, {@code null} where the value was absent or withheld.
  */
 public record ArchivedLeaf(String path, Object expectation, Object value) {
 }

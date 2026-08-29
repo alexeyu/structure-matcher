@@ -70,4 +70,27 @@ final class WildcardPathChecker implements BiPredicate<PropertyPathPattern, Prop
         return test(pattern.tail(), path) || test(pattern, path.tail());
     }
 
+    /**
+     * Whether the pattern matches some path strictly below this one, i.e. whether the traversal
+     * has reached an ancestor of what the pattern registers for. A path the pattern matches
+     * exactly is not an ancestor of itself, unless the pattern reaches deeper as well.
+     */
+    boolean canMatchDescendant(PropertyPathPattern pattern, PropertyPath path) {
+        if (path.isEmpty()) {
+            // Anything left in the pattern still has a run of properties to match.
+            return !pattern.isEmpty();
+        }
+        if (pattern.isEmpty()) {
+            return false;
+        }
+        if (pattern.headsMatch(path)) {
+            return canMatchDescendant(pattern.tail(), path.tail());
+        }
+        if (!pattern.startsWithWildcard()) {
+            return false;
+        }
+        return canMatchDescendant(pattern.tail(), path)
+                || canMatchDescendant(pattern, path.tail());
+    }
+
 }

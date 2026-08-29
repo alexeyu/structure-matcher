@@ -40,6 +40,37 @@ public class FeedbackArchivesTest {
                 archive.brokenLeaves().stream().map(ArchivedLeaf::path).collect(toList()));
     }
 
+    /** The values-free mode keeps where a comparison broke and drops what it held. */
+    @Test
+    public void valuesFreeArchiveKeepsThePathsAndNoValues() {
+        var archive = FeedbackArchives
+                .fromJson(FeedbackArchives.write(FeedbackArchives.archiveWithoutValues(
+                        brokenTree())));
+        assertEquals(asList("Color", "Sub.Bool"), archive.brokenPaths());
+        assertFalse(archive.matched());
+        assertTrue(archive.brokenLeaves().stream()
+                .allMatch(leaf -> leaf.expectation() == null && leaf.value() == null));
+    }
+
+    /**
+     * A map or a set names its feedback after the entry, so the key is data the path carries.
+     * A list index is a position and survives.
+     */
+    @Test
+    public void valuesFreeArchiveDropsTheKeysItsPathsEmbed() {
+        var tree = Feedback.composite("com.X",
+                asList(Feedback.composite("Contacts",
+                        singletonList(Feedback.nonEqual("Contacts[alice@example.com]", "home",
+                                "work"))),
+                        Feedback.composite("Tags",
+                                singletonList(Feedback.nonEqual("Tags[0]", "a", "b")))));
+        var json = FeedbackArchives.write(FeedbackArchives.archiveWithoutValues(tree));
+
+        assertEquals(asList("Contacts[***]", "Tags[0]"),
+                FeedbackArchives.fromJson(json).brokenPaths());
+        assertFalse(json.contains("alice"), json);
+    }
+
     @Test
     public void matchedComparisonHasNoBrokenLeaves() {
         var matched = Feedback.composite("com.X", singletonList(Feedback.empty("Color")));

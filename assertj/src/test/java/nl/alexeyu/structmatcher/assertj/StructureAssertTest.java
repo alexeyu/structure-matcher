@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 
 import org.junit.jupiter.api.Test;
 
+import nl.alexeyu.structmatcher.matcher.Maskers;
 import nl.alexeyu.structmatcher.matcher.Matchers;
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
 
@@ -45,6 +46,19 @@ public class StructureAssertTest {
         // Color diverges but is ignored by the spec; the rest matches, so no failure.
         assertThatNoException()
                 .isThrownBy(() -> assertThat(actual).matchesStructure(expected, spec));
+    }
+
+    /** The header renders both objects whole, so a masking spec has to drop it. */
+    @Test
+    public void aMaskingSpecWithholdsTheValuesAndTheObjects() {
+        var actual = new SampleStructure("white", asList("a"), new SampleSub(true));
+        ObjectMatcher<SampleStructure> spec = ObjectMatcher.forClass(SampleStructure.class)
+                .with(Matchers.valuesEqual().masking(Maskers.redacted()), "Color");
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(() -> assertThat(actual).matchesStructure(expected, spec))
+                .withMessageContaining("1 field(s) diverged")
+                .withMessageContaining("[Color] expected: <***> but was: <***>")
+                .withMessageNotContaining("black");
     }
 
     @Test

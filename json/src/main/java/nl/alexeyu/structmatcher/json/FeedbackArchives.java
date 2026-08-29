@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
+import nl.alexeyu.structmatcher.matcher.Maskers;
+import nl.alexeyu.structmatcher.matcher.Masking;
 import nl.alexeyu.structmatcher.report.FeedbackQuery;
 
 /**
@@ -64,6 +66,31 @@ public final class FeedbackArchives {
         var leaves = FeedbackQuery.brokenLeaves(feedback).stream()
                 .map(leaf -> new ArchivedLeaf(leaf.path(), leaf.expectation(), leaf.value()))
                 .toList();
+        return new FeedbackArchive(CURRENT_SCHEMA_VERSION, leaves.isEmpty(), leaves);
+    }
+
+    /**
+     * Reduces a comparison's feedback to an archive that names the broken paths and carries no
+     * values. Use it where the results of a batch may be stored but the data compared may not. The
+     * document keeps the shape and the version of any other archive, so it parses, rolls up and
+     * diffs the same way. Serialize it with {@link #write} or {@link #writeLines}.
+     *
+     * <p>
+     * Both slots of every leaf come out <code>null</code>, <em>and</em> the paths give up their
+     * collection keys: a map or a set names its feedback after the entry, so
+     * {@code Contacts[alice@example.com]} would carry a customer's address in the one field such
+     * an archive still prints. It archives as {@code Contacts[***]}; a list index stays, since it
+     * locates the mismatch and holds no data.
+     *
+     * <p>
+     * Masking a path is finer, and keeps a redacted rendering of the values that broke.
+     *
+     * @see nl.alexeyu.structmatcher.matcher.Matcher#masking
+     */
+    public static FeedbackArchive archiveWithoutValues(FeedbackNode feedback) {
+        var withoutKeys = Masking.mask(feedback, Maskers.redacted());
+        var leaves = FeedbackQuery.brokenLeaves(withoutKeys).stream()
+                .map(leaf -> new ArchivedLeaf(leaf.path(), null, null)).toList();
         return new FeedbackArchive(CURRENT_SCHEMA_VERSION, leaves.isEmpty(), leaves);
     }
 
