@@ -4,6 +4,7 @@
     <keywords>
       <keywords>smoke</keywords>
     </keywords>
+    <requestedBy>alice@example.com</requestedBy>
     <booksFound>2</booksFound>
     <processingTimeMs>14</processingTimeMs>
     <server>

@@ -3,6 +3,7 @@ package nl.alexeyu.structmatcher.examples.bookstore;
 import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.inRange;
 import static nl.alexeyu.structmatcher.matcher.IntegerMatchers.oneOf;
 import static nl.alexeyu.structmatcher.matcher.Matchers.anyValue;
+import static nl.alexeyu.structmatcher.matcher.Matchers.valuesEqual;
 
 import java.util.Comparator;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Locale;
 import java.util.function.UnaryOperator;
 
 import nl.alexeyu.structmatcher.feedback.Feedback;
+import nl.alexeyu.structmatcher.matcher.Maskers;
 import nl.alexeyu.structmatcher.matcher.Matcher;
 import nl.alexeyu.structmatcher.matcher.Matchers;
 import nl.alexeyu.structmatcher.matcher.ObjectMatcher;
@@ -45,6 +47,10 @@ import nl.alexeyu.structmatcher.matcher.StringMatchers;
  * device renders. The tolerance stays <em>scoped</em>: a real change in the answer, a different
  * title or a different number of hits, still fails, at its own path, where the tolerant rules
  * cannot hide it.
+ *
+ * <p>
+ * The requester's address belongs to none of the four tiers: {@link #maskedMatcher()} masks it,
+ * which is a rule about printing rather than about strictness.
  */
 final class ContextTolerantSpec {
 
@@ -75,6 +81,19 @@ final class ContextTolerantSpec {
                 // elements of the books list, which a typed accessor chain cannot express.
                 .with(firstNameMatcher(), "Books.Authors.FirstName")
                 .with(optionalPublishingInfo(), "Books.PublishingInfo");
+    }
+
+    /**
+     * The same spec, with the requester's address withheld from whatever the comparison prints.
+     * The address names a person, and the batch report it lands in gets stored and passed around.
+     * Masking touches the printing alone: both responses still have to name the same requester,
+     * as they do under {@link #matcher()}, where the field takes the default equality.
+     * {@link Maskers#hash()} rather than {@code redacted()}, since a hash keeps equal values
+     * equal, so the field still counts and groups across a batch.
+     */
+    static ObjectMatcher<BookSearchResult> maskedMatcher() {
+        return matcher().with(valuesEqual().masking(Maskers.hash()), BookSearchResult::metadata,
+                SearchMetadata::requestedBy);
     }
 
     /**

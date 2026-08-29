@@ -203,14 +203,16 @@ The digest names the three fields behind those 30 mismatches and how often each 
 
 ## Masking sensitive values
 
-`anyValue()` is the blunt tool for a field you would rather not print: it stops checking it. Masking keeps the check and drops the printing - **a masked field is compared as strictly as any other**:
+`anyValue()` is the blunt tool for a field you would rather not print: it stops checking it. Masking keeps the check and drops the printing - **a masked field is compared as strictly as any other**.
+
+The bookstore response echoes the address of the user who ran the search, and the report it lands in gets stored and passed around. Mask that one field: both responses still have to name the same requester, and the address never reaches the feedback.
 
 ```java
-FeedbackNode feedback = ObjectMatcher.forClass(Order.class)
-        .with(Matchers.valuesEqual().masking(Maskers.hash()), "*.Email")
-        .with(Matchers.structuresEqual().masking(Maskers.redacted()), "Customer.Address")
-        .match(expectedOrder, actualOrder);
-// Customer: [Email: sha256:5ff860bf1190596c !~ sha256:ff8d9819fc0e12bf]
+FeedbackNode feedback = matcher // the tolerant spec from the example above
+        .with(Matchers.valuesEqual().masking(Maskers.hash()),
+                BookSearchResult::metadata, SearchMetadata::requestedBy)
+        .match(desktopResponse, mobileResponse);
+// BookSearchResult: [Metadata: [RequestedBy: sha256:e0d47ca1bc1eb62e !~ sha256:ff8d9819fc0e12bf]]
 ```
 
 `masking` is a default method on `Matcher`, alongside `normalizing*`, so it composes with any rule and registers by path like any other. `Maskers` offers `redacted()`, `fixed(text)`, `hash()` and `keepingFirst(n)` / `keepingLast(n)`. Prefer `hash()` for a batch: equal values stay equal, so the report still counts how often a field diverges, and different values stay different, so you can see that they did.

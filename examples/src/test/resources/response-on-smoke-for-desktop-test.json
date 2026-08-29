@@ -1,6 +1,7 @@
 {
   "metadata" : {
     "keywords" : [ "smoke" ],
+    "requestedBy" : "alice@example.com",
     "platform" : "DESKTOP",
     "booksFound" : 2,
     "processingTimeMs" : 12,

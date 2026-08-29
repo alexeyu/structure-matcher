@@ -24,7 +24,7 @@ public class MetadataFieldRulesTest {
     /** A response differing from {@link #baseline} in its keywords, its booksFound, or both. */
     private BookSearchResult response(List<String> keywords, int booksFound) {
         var metadata = new SearchMetadata(keywords, booksFound, 12,
-                new Server("192.168.10.10", 8080), Platform.DESKTOP);
+                new Server("192.168.10.10", 8080), Platform.DESKTOP, "alice@example.com");
         var books = List.of(
                 new Book("Blood and Smoke", List.of(new Author("Stephen", "King")), "1999", null));
         return new BookSearchResult(metadata, books);
