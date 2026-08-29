@@ -97,7 +97,7 @@ configure(subprojects.findAll { it.name !in ['examples', 'e2e-test'] }) {
     apply plugin: 'com.vanniktech.maven.publish'
 
     mavenPublishing {
-        publishToMavenCentral()
+        // Maven Central itself is configured from gradle.properties, not here.
         signAllPublications()
 
         coordinates(group.toString(), "structure-matcher-${project.name}", version.toString())
