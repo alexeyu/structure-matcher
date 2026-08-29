@@ -28,4 +28,15 @@ final class WildcardMatcherResolver implements CustomMatcherResolver {
                 .map(Map.Entry::getValue);
     }
 
+    @Override
+    public Optional<Masker> maskerBelow(PropertyPath path) {
+        return propertyToMatcher.entrySet().stream()
+                .filter(e -> e.getValue().masker().isPresent())
+                .filter(e -> pathMatcher.canMatchDescendant(e.getKey(), path))
+                // Several masked paths can sit below one node; take the most specific, so the
+                // choice does not rest on hash order.
+                .min(Map.Entry.comparingByKey(PropertyPathPattern.MOST_SPECIFIC_FIRST))
+                .flatMap(e -> e.getValue().masker());
+    }
+
 }

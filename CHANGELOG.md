@@ -8,6 +8,43 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **Value masking.** `Matcher.masking(Masker)`, a default method beside `normalizing*`, runs a
+  matcher unchanged and withholds the values from the feedback it produced: a masked field is
+  compared as strictly as before and no longer printed, where `anyValue()` could only stop
+  checking it. It registers by path like any other rule, so `.with(valuesEqual().masking(
+  Maskers.hash()), "*.Email")` reaches every email in the model. The new `Maskers` factory holds
+  `redacted()`, `fixed(text)`, `hash()` (a truncated SHA-256, so equal values stay equal and a
+  batch report still counts them) and `keepingFirst(n)` / `keepingLast(n)`. Masking covers values,
+  never the conditions a matcher states in words, and walks the whole subtree: masking a structure
+  redacts every field under it and the key of a `property[key]` node, while a plain list index
+  stays, since it locates the mismatch and carries no data. It also reaches upwards, because a
+  comparison that stops *above* a masked path - one side null, the two sides clashing - reports the
+  whole object in one leaf and the registered rule never runs. So a node with anything masked below
+  it withholds the values it reports whole: a structure or collection it never descended into, a
+  missing map entry, a dropped list element. Its simple fields keep their values, each having a
+  rule of its own. Redaction is opt-in per path and says nothing about the rest of the model. The
+  walk is public on its own, as `Masking.mask(feedback, masker)`, for redacting a whole tree.
+- **`ObjectMatcher.masksValues()`**, which both assertion bridges ask: a spec that masks makes
+  `assertj` drop the two whole objects from its message and `junit5` throw without them, since
+  either would print what the leaves withhold. It asks each registered matcher through
+  `Matcher.masker()` rather than testing a type, so masking reports itself from wherever it sits.
+  Further composition hides it, so mask last: `masking(m).and(other)` answers no, and rightly,
+  since `other`'s feedback is unmasked.
+- **`IndirectMatcher` masks from the inside.** `ContextAwareMatcher` picks an indirect matcher out
+  by its type and feeds it the whole base and target structures, so a masking wrapper *around* one
+  was handed a single property value and the fetchers met the wrong type (`ClassCastException`).
+  `IndirectMatcher.masking` now passes the masker to the value matcher it delegates to and returns
+  an indirect matcher, so the cross-field rule keeps its structures and still withholds the values
+  it derives.
+- **`FeedbackArchives.archiveWithoutValues`**, for a batch whose results may be stored but whose
+  data may not: the archive keeps every broken path and carries no values. Both leaf slots come out
+  null and the paths give up their collection keys, since a map or a set names its feedback after
+  the entry and `Contacts[alice@example.com]` would otherwise persist a customer's address in the
+  one field such an archive still prints; it stores as `Contacts[***]`, while a list index stays.
+  Same shape and version as any other archive, so it parses, rolls up and diffs the same way.
+- **`ExpectationBroken` carries `ValueSlots`**, saying which of its two slots hold data from the
+  compared objects rather than the matcher's own words. Masking reads it; the three-argument
+  constructor keeps building the shape it always did, and the JSON rendering is unchanged.
 - **`e2e-test` module**, not published to Maven Central. One deployment-snapshot model runs
   through `core`, `json`, `report` and both assertion bridges: equivalent JSON and XML payloads
   match under a shared spec, the same regression in either format produces identical feedback,

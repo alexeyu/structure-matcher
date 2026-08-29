@@ -149,6 +149,20 @@ public final class ObjectMatcher<T> {
     }
 
     /**
+     * Whether any matcher registered here withholds the values it compares, i.e. was built with
+     * {@link Matcher#masking}. A consumer that would otherwise print the two whole objects - an
+     * assertion message, a dump - asks this first and prints the per-field feedback alone.
+     * <p>
+     * It asks each registered matcher, so masking reports itself from wherever it sits, including
+     * inside an {@link IndirectMatcher}. Further composition hides it:
+     * <code>valuesEqual().masking(m).and(other)</code> answers no, since <code>other</code>'s
+     * feedback is unmasked. Mask last.
+     */
+    public boolean masksValues() {
+        return propertyToMatcher.values().stream().anyMatch(m -> m.masker().isPresent());
+    }
+
+    /**
      * Matches two objects and returns the feedback. Empty feedback means they match; otherwise the
      * tree names each property that diverged and why.
      *

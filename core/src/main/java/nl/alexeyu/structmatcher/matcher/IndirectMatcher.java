@@ -1,5 +1,6 @@
 package nl.alexeyu.structmatcher.matcher;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 import nl.alexeyu.structmatcher.feedback.FeedbackNode;
@@ -44,6 +45,23 @@ public final class IndirectMatcher<T, V> implements Matcher<T> {
     @SuppressWarnings("unchecked")
     FeedbackNode matchStructures(Object baseStructure, Object actualStructure) {
         return match(description, (T) baseStructure, (T) actualStructure);
+    }
+
+    /**
+     * Masks the values this matcher derives, from the inside. {@link ContextAwareMatcher} picks an
+     * indirect matcher out by its type and feeds it the whole structures, so a masking wrapper
+     * <em>around</em> one would be handed a single property value and the fetchers would meet the
+     * wrong type. The masker goes to the underlying value matcher, which builds the feedback.
+     */
+    @Override
+    public IndirectMatcher<T, V> masking(Masker masker) {
+        return new IndirectMatcher<>(description, valueMatcher.masking(masker),
+                expectedValueFetcher, actualValueFetcher);
+    }
+
+    @Override
+    public Optional<Masker> masker() {
+        return valueMatcher.masker();
     }
 
     public String getDescription() {

@@ -17,7 +17,8 @@ import nl.alexeyu.structmatcher.report.FeedbackQuery;
  * <p>
  * The assertion runs a full {@link ObjectMatcher} comparison and, on a mismatch, fails with the
  * structured per-field diff: each broken {@link FeedbackQuery canonical path} beside its expected
- * and actual value, so the failure names the fields that diverged.
+ * and actual value, so the failure names the fields that diverged. The message renders the two
+ * objects whole as well, unless the spec masks values: printing them would undo the masking.
  *
  * @param <T>
  *            the type under assertion.
@@ -55,14 +56,21 @@ public class StructureAssert<T> extends AbstractAssert<StructureAssert<T>, T> {
         if (!feedback.isEmpty()) {
             // Pass the built message as an argument, not as the format string: field values may
             // themselves contain '%'.
-            failWithMessage("%s", describe(expected, feedback));
+            failWithMessage("%s", describe(expected, feedback, spec));
         }
         return this;
     }
 
-    private String describe(T expected, FeedbackNode feedback) {
+    private String describe(T expected, FeedbackNode feedback, ObjectMatcher<T> spec) {
         var leaves = FeedbackQuery.brokenLeaves(feedback);
         var body = leaves.stream().map(StructureAssert::describeLeaf).collect(joining());
+        if (spec.masksValues()) {
+            // Rendering the objects would print in full what the spec masks field by field.
+            return String.format(
+                    "%nExpecting the two structures to match, but %d field(s) diverged"
+                            + " (the spec masks values, so the objects are not shown):%s",
+                    leaves.size(), body);
+        }
         return String.format(
                 "%nExpecting:%n  <%s>%nto match the structure of:%n  <%s>%n"
                         + "but %d field(s) diverged:%s",

@@ -21,7 +21,7 @@ public final class Feedback {
      * Reports that the two values of a property differ.
      */
     public static FeedbackNode nonEqual(String property, Object expected, Object actual) {
-        return new ExpectationBroken(property, expected, actual);
+        return new ExpectationBroken(property, expected, actual, ValueSlots.BOTH);
     }
 
     /**
@@ -38,7 +38,7 @@ public final class Feedback {
      * Reports a null value where the base structure holds one.
      */
     public static FeedbackNode gotNull(String property, Object expected) {
-        return new ExpectationBroken(property, expected, null);
+        return new ExpectationBroken(property, expected, null, ValueSlots.BOTH);
     }
 
     /**
@@ -65,7 +65,7 @@ public final class Feedback {
     public static FeedbackNode differentTypes(String property, Class<?> expectedType,
             Class<?> actualType) {
         return new ExpectationBroken(property, "An instance of " + expectedType.getTypeName(),
-                actualType.getTypeName());
+                actualType.getTypeName(), ValueSlots.NONE);
     }
 
     /**
@@ -74,7 +74,8 @@ public final class Feedback {
      */
     public static FeedbackNode differentCollectionSizes(String property, int expectedSize,
             int actualSize) {
-        return new ExpectationBroken(property, "Size " + expectedSize, actualSize);
+        return new ExpectationBroken(property, "Size " + expectedSize, actualSize,
+                ValueSlots.NONE);
     }
 
 }

@@ -29,6 +29,8 @@ import nl.alexeyu.structmatcher.json.ArchivedLeaf;
 import nl.alexeyu.structmatcher.json.FeedbackArchive;
 import nl.alexeyu.structmatcher.json.FeedbackArchives;
 import nl.alexeyu.structmatcher.json.Json;
+import nl.alexeyu.structmatcher.matcher.Maskers;
+import nl.alexeyu.structmatcher.matcher.Matchers;
 import nl.alexeyu.structmatcher.report.FeedbackAggregator;
 
 /**
@@ -83,6 +85,44 @@ public class ComprehensiveEndToEndTest {
                 new ArchivedLeaf("Services[0].Metrics[p95].Value", 120, 180),
                 new ArchivedLeaf("ShardPlan[2]", 1, 2)), archive.brokenLeaves());
         assertEquals(archive, FeedbackArchives.fromJson(FeedbackArchives.toJson(jsonFeedback)));
+    }
+
+    /**
+     * Masking changes the reporting, not the strictness: the same regression is found at the same
+     * field, and neither the values nor the map key it broke on reach the persisted archive.
+     */
+    @Test
+    public void aMaskedFieldIsStillComparedAndNeverPersisted() throws IOException {
+        var baseline = read("baseline.json");
+        var spec = DeploymentSnapshotSpec.matcher()
+                .with(Matchers.mapsEqual().masking(Maskers.redacted()), "Services.Metrics");
+        var feedback = spec.match(baseline, read("structural-regression.json"));
+
+        var archive = FeedbackArchives.archive(feedback);
+        assertEquals(List.of(
+                new ArchivedLeaf("Services[0].Aliases[1]", "catalog-v2", "catalog-v3"),
+                new ArchivedLeaf("Services[0].Instances[1].Version", "2.4.0", "2.5.0"),
+                new ArchivedLeaf("Services[0].Metrics[***].Value", "***", "***"),
+                new ArchivedLeaf("ShardPlan[2]", 1, 2)), archive.brokenLeaves());
+        var json = FeedbackArchives.write(archive);
+        assertFalse(json.contains("p95"), json);
+
+        // The field still localizes across a batch, under the path masking left behind.
+        assertEquals(1, FeedbackAggregator.summarize(List.of(feedback))
+                .failureCount("Services[].Metrics[].Value"));
+    }
+
+    /** A values-free archive drops the keys its paths embed, not only the two leaf slots. */
+    @Test
+    public void aValuesFreeArchiveCarriesNoDataAtAll() throws IOException {
+        var feedback = DeploymentSnapshotSpec.matcher()
+                .match(read("baseline.json"), read("structural-regression.json"));
+
+        var archive = FeedbackArchives.archiveWithoutValues(feedback);
+        assertEquals(List.of("Services[0].Aliases[1]", "Services[0].Instances[1].Version",
+                "Services[0].Metrics[***].Value", "ShardPlan[2]"), archive.brokenPaths());
+        var json = FeedbackArchives.write(archive);
+        assertFalse(json.contains("p95"), json);
     }
 
     @Test

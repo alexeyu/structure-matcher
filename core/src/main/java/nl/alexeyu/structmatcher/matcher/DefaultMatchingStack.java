@@ -31,7 +31,20 @@ final class DefaultMatchingStack<T> implements MatchingStack<T> {
     public Matcher<Object> push(String property, Supplier<Matcher<Object>> fallbackSupplier) {
         path.push(property);
         var maybeMatcher = customMatcherResolver.forPath(path);
-        return maybeMatcher.orElseGet(fallbackSupplier);
+        if (maybeMatcher.isPresent()) {
+            return maybeMatcher.get();
+        }
+        return withMaskingOfWholeValues(fallbackSupplier.get());
+    }
+
+    /**
+     * A default matcher that stops at this node - one side null, the two clashing - reports the
+     * whole value in one leaf, and the rule masking a field below it never runs. Where something
+     * below is masked, the ancestor withholds it too.
+     */
+    private Matcher<Object> withMaskingOfWholeValues(Matcher<Object> matcher) {
+        return customMatcherResolver.maskerBelow(path)
+                .map(masker -> Masking.maskingWholeValues(matcher, masker)).orElse(matcher);
     }
 
     @Override
