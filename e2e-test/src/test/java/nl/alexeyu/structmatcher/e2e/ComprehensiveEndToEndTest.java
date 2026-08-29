@@ -3,6 +3,7 @@ package nl.alexeyu.structmatcher.e2e;
 import static nl.alexeyu.structmatcher.junit5.StructAssertions.assertMatches;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -125,6 +126,34 @@ public class ComprehensiveEndToEndTest {
         assertFalse(json.contains("p95"), json);
     }
 
+    /**
+     * A comparison that stops above a masked field reports the whole ancestor in one leaf, and the
+     * field's own matcher never runs. This snapshot has no approval at all, so the reviewer it
+     * would have held reaches the archive unless masking covers the leaf that swallowed it.
+     */
+    @Test
+    public void aMaskedFieldIsWithheldWhenOnlyItsAncestorIsReported() throws IOException {
+        var baseline = read("baseline.json");
+        var regression = read("membership-regression.json");
+        var spec = DeploymentSnapshotSpec.matcher().with(
+                Matchers.<String>valuesEqual().masking(Maskers.redacted()), "Approval.Reviewer");
+
+        var feedback = spec.match(baseline, regression);
+        var archive = FeedbackArchives.archive(feedback);
+        // Masking changes the reporting, not what is found: the same fields break either way.
+        assertEquals(brokenPaths(DeploymentSnapshotSpec.matcher().match(baseline, regression)),
+                archive.brokenPaths());
+        var leaves = archive.brokenLeaves();
+        assertTrue(leaves.contains(new ArchivedLeaf("Approval", "***", null)), leaves.toString());
+        // Nothing is masked below the metrics, so the entry the target lacks is reported whole.
+        assertTrue(leaves.contains(new ArchivedLeaf("Services[0].Metrics[p95]",
+                new DeploymentSnapshot.Metric(120, DeploymentSnapshot.Unit.MILLISECONDS), null)),
+                leaves.toString());
+        var json = FeedbackArchives.write(archive);
+        assertFalse(json.contains("Alice"), json);
+        assertFalse(json.contains("OPS-42"), json);
+    }
+
     @Test
     public void collectionAndRuleRegressionsAreDiagnosedAtEveryExpectedPath()
             throws IOException {
@@ -167,6 +196,40 @@ public class ComprehensiveEndToEndTest {
         for (String message : List.of(junitFailure.getMessage(), assertJFailure.getMessage())) {
             assertTrue(message.contains("[Metadata.Url]"), message);
             assertTrue(message.contains("[Services[0].Endpoint.Url]"), message);
+            TOLERATED_PATHS.forEach(path -> assertFalse(message.contains(path), message));
+        }
+    }
+
+    /**
+     * The bridges print more than the leaves: a per-field diff plus the two whole objects, which
+     * the JUnit one hands to the IDE comparison view. A masking spec has to reach that rendering
+     * too, and only that one field of it.
+     */
+    @Test
+    public void neitherAssertionBridgeShowsAMaskedFieldNorTheObjectsHoldingIt()
+            throws IOException {
+        var baseline = read("baseline.json");
+        var regression = read("rules-regression.xml");
+        var spec = DeploymentSnapshotSpec.matcher().with(
+                Matchers.<String>valuesEqual().masking(Maskers.redacted()), "Metadata.Url");
+
+        AssertionFailedError junitFailure = assertThrows(AssertionFailedError.class,
+                () -> assertMatches(baseline, regression, spec));
+        assertNull(junitFailure.getExpected());
+        assertNull(junitFailure.getActual());
+
+        AssertionError assertJFailure = assertThrows(AssertionError.class,
+                () -> StructMatcherAssertions.assertThat(regression)
+                        .matchesStructure(baseline, spec));
+        assertFalse(assertJFailure.getMessage().contains("to match the structure of"),
+                assertJFailure.getMessage());
+
+        for (String message : List.of(junitFailure.getMessage(), assertJFailure.getMessage())) {
+            assertTrue(message.contains("[Metadata.Url] expected: <***> but was: <***>"), message);
+            assertFalse(message.contains("control.example"), message);
+            // The masked path is the only one withheld: the other Url still names its value.
+            assertTrue(message.contains("[Services[0].Endpoint.Url]"), message);
+            assertTrue(message.contains("http://catalog.invalid/api"), message);
             TOLERATED_PATHS.forEach(path -> assertFalse(message.contains(path), message));
         }
     }
